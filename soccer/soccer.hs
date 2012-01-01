@@ -76,7 +76,7 @@ getPGConn :: IO Connection
 getPGConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' dbname = 'au'"
 
 someQuery :: IO ()
-someQuery = getPGConn P.>>= (\conn -> debugTAOpt "finalsFlat" conn finalsFlat)
+someQuery = getPGConn P.>>= (\conn -> debugTAOpt "finals" conn finals)
 
 main :: IO ()
 main = someQuery

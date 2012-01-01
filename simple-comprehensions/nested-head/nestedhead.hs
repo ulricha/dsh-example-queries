@@ -33,65 +33,68 @@ matrix = let rows = nub $ map (\(view -> (r, _, _)) -> r) storage
             | r <- rows
             ]
 
-t1 :: Q [Integer]
-t1 = toQ [1,2,3,4,5,6]
+njxs :: Q [Integer]
+njxs = toQ [1,2,3,4,5,6]
 
-t2 :: Q [Integer]
-t2 = toQ [3,4,5,6,3,6,4]
+njys :: Q [Integer]
+njys = toQ [3,4,5,6,3,6,4]
 
 nj1 :: Q [[Integer]]
-nj1 = [ [ y | y <- t2, x == y ]
-    | x <- t1
+nj1 = [ [ y | y <- njys, x == y ]
+    | x <- njxs
     ]
 
 nj2 :: Q [(Integer, [Integer])]
-nj2 = [ pair x [ y | y <- t2, x == y ]
-    | x <- t1
+nj2 = [ pair x [ y | y <- njys, x == y ]
+    | x <- njxs
     ]
 
 nj3 :: Q [(Integer, [Integer])]
-nj3 = [ pair x ([ y | y <- t2, x == y ] ++ (toQ [100, 200, 300]))
-    | x <- t1
+nj3 = [ pair x ([ y | y <- njys, x == y ] ++ (toQ [100, 200, 300]))
+    | x <- njxs
     ]
 
 nj4 :: Q [(Integer, [Integer])]
-nj4 = [ pair x ([ y | y <- t2, x == y ] ++ [ z | z <- t2, x == z ])
-      | x <- t1
+nj4 = [ pair x ([ y | y <- njys, x == y ] ++ [ z | z <- njys, x == z ])
+      | x <- njxs
       ]
 
 -- Code incurs DistSeg for the literal 15.
 nj5 :: Q [(Integer, [Integer])]
-nj5 = [ pair x [ y | y <- t2, x + y > 15 ]
-      | x <- t1
+nj5 = [ pair x [ y | y <- njys, x + y > 15 ]
+      | x <- njxs
       ]
 
 nj6 :: Q [(Integer, [Integer])]
-nj6 = [ pair x [ y | y <- t2, x + y > 10, y < 7 ]
-      | x <- t1
+nj6 = [ pair x [ y | y <- njys, x + y > 10, y < 7 ]
+      | x <- njxs
       ]
 
 -- SQL code for outer query has empty SELECT CLAUSE
 nj7 :: Q [[Integer]]
-nj7 = [ [ x + y | y <- t2, x + 2 == y ] | x <- t1 ]
+nj7 = [ [ x + y | y <- njys, x + 2 == y ] | x <- njxs ]
 
 nj8 :: Q [[Integer]]
-nj8 = [ [ x + y | y <- t2, x == y, y < 5 ] | x <- t2, x > 3 ]
+nj8 = [ [ x + y | y <- njys, x == y, y < 5 ] | x <- njys, x > 3 ]
 
 nj9 :: Q [[Integer]]
-nj9 = [ [ x + y | y <- t2, x + 1 == y, y > 2, x < 6 ] | x <- t1 ]
+nj9 = [ [ x + y | y <- njys, x + 1 == y, y > 2, x < 6 ] | x <- njxs ]
+    
+nj10 :: Q [Integer]
+nj10 = [ x + sum [ x * y | y <- njys, x == y ] | x <- njxs ]
 
 np1 :: Q [[Integer]]
-np1 = [ [ y * 2 | y <- t2 ] | x <- t1 ]
+np1 = [ [ x * y * 2 | y <- njys ] | x <- njxs ]
 	
 
 np2 :: Q [(Integer, [Integer])]
-np2 = [ pair x [ y * 2 | y <- t2 ] | x <- t1 ]
+np2 = [ pair x [ y * 2 | y <- njys ] | x <- njxs ]
 
 np3 :: Q [[Integer]]
-np3 = [ [ x + y | y <- t2 ] | x <- t1 ]
+np3 = [ [ x + y | y <- njys ] | x <- njxs ]
 
 np4 :: Q [[Integer]]
-np4 = [ [ y | y <- t2, x > y ] | x <- t1 ]
+np4 = [ [ y | y <- njys, x > y ] | x <- njxs ]
 
 getConn :: IO Connection
 getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' dbname = 'au'"

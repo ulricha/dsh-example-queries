@@ -31,4 +31,5 @@ main = do
    -- debugQX100 "dftfastrec1_16" getConnX100 (dftFastRec1 32 2048 (vecFromTable $ vec "v1_2_16"))
    -- debugQX100 "dftfastrec_16" getConnX100 (dftFastRec 2 32768 (vecFromTable $ vec "v1_2_16"))
    -- debugQX100 "radix2_256" getConnX100 (radix2Fft 128 (vecFromTable $ vec "v1_256"))
-   debugQX100 "radix4_share_1024" getConnX100 (radix4FftShare 256 (vecFromTable $ vec "v1_1024"))
+   -- debugQX100 "radix4_share_1024" getConnX100 (radix4FftShare 256 (vecFromTable $ vec "v1_1024"))
+   debugQX100 "radix4_share_256" getConnX100 (radix4FftShare 64 (vecFromTable $ vec "v1_256"))

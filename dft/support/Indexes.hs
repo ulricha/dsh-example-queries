@@ -18,5 +18,5 @@ writeIndex n = do
         (forM_ vec $ \x -> hPutStrLn h x)
 
 main :: IO ()
-main = forM_ [64, 256, 1024, 4096, 16384] writeIndex
+main = forM_ [16, 64, 256, 1024, 4096, 16384] writeIndex
     

@@ -49,7 +49,6 @@ deltas' xs = [ ts - ts'
              , i' == i - 1
              ]
 
-
 sums :: (QA a, Num a) => Q [a] -> Q [a]
 sums as = [ sum [ a' | (view -> (a', i')) <- nas, i' <= i ]
           | let nas = number as

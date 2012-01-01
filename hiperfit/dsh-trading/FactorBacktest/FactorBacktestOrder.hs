@@ -35,7 +35,7 @@ generateTableSelectors ''Cell
 
 rawData :: String -> Q [Double]
 rawData tab = map contentQ
-              $ sortWith (\c -> pair (rowQ c) (colQ c))
+              -- $ sortWith (\c -> pair (rowQ c) (colQ c))
               $ table tab defaultHints { keysHint = [Key ["r", "c"]]
                                        , nonEmptyHint = NonEmpty
                                        }
@@ -91,6 +91,6 @@ getConn :: X100Info
 getConn = x100Info "localhost" "48130" Nothing
 
 main :: IO ()
-main = debugQX100 "factor-backtest_rs" getConn $ backtest 4 matrix 2 2 5
+main = debugQX100 "factor-backtest_rs" getConn $ backtest 100000 matrix 10 10 5
   where
-    matrix = mkMatrix 500 $ rawData "10p6_500"
+    matrix = mkMatrix 500 $ rawData "10p5_500"

@@ -137,17 +137,18 @@ getPGConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost
 
 allQueries :: IO ()
 allQueries = getPGConn 
-       P.>>= (\conn -> debugTAOpt "q1" conn q1
-                       P.>> debugTAOpt "q2" conn q2
-                       P.>> debugTAOpt "q3" conn q3
-                       P.>> debugTAOpt "q4" conn q4
-                       P.>> debugTAOpt "q5" conn q5
-                       P.>> debugTAOpt "q6" conn q6)
+       P.>>= (\conn -> sequence_ [ debugTAOpt "q1" conn q1
+                                 , debugTAOpt "q2" conn q2
+                                 , debugTAOpt "q3" conn q3
+                                 , debugTAOpt "q4" conn q4
+                                 , debugTAOpt "q5" conn q5
+                                 , debugTAOpt "q6" conn q6
+			         ])
 
 someQuery :: IO ()
 someQuery = getPGConn 
          -- P.>>= (\conn -> debugVLOpt "q62" conn q6)
-         P.>>= (\conn -> debugTAOpt "q3" conn q3)
+         P.>>= (\conn -> debugTAOpt "q6" conn q6)
 
 main :: IO ()
 main = allQueries

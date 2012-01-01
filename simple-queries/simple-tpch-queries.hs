@@ -17,18 +17,21 @@ import Database.DSH.Compiler
 
 import Database.HDBC.PostgreSQL
 
-xs :: Q [Integer]
-xs = toQ [1, 2, 3, 4, 5, 6, 7]
+import Records
 
-ys :: Q [Integer]
-ys = toQ [2, 4, 6]
-
-univ1 :: Q [Integer]
-univ1 = [ x | x <- xs, null [ toQ () | y <- ys, x == y ] ]
+q1 :: Q [Text]
+q1 = [ c_nameQ c 
+     | c <- customers
+     , c_nationkeyQ c == 15
+     , c_acctbalQ c < 0 && c_acctbalQ c > -20
+     , any (\o -> o_custkeyQ o == c_custkeyQ c) orders 
+     ]
 
 getConn :: IO Connection
-getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' dbname = 'test'"
+getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5432' dbname = 'tpch'"
 
+debugQ :: (Show a, QA a) => Q a -> IO ()
+debugQ q = getConn P.>>= \conn -> debugTAOpt "q1" conn q
 
 main :: IO ()
-main = getConn P.>>= \conn -> debugQ "univ1" conn univ1
+main = getConn P.>>= (\conn -> runPrint conn q1)
