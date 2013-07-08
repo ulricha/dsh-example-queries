@@ -1,9 +1,3 @@
-{- 
-DSH implementation of trading strategy 'factor backtest' from Filip Bruman's thesis.
-This variant relies on a list semantics, i.e. the matrix elements are kept in proper 
-order.
--}        
-
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE MonadComprehensions   #-}
@@ -19,43 +13,20 @@ module Main where
 
 import qualified Prelude as P
 import Database.DSH
-import Database.DSH.Compiler
+import Database.DSH.Flattening
 
 import Database.X100Client
 
-data Cell = Cell
-  { row :: Integer
-  , col :: Integer
-  , val :: Double
-  }
-  
-deriveDSH ''Cell
-generateTableSelectors ''Cell
+mapi :: (QA a, QA b) => ((Q a, Q Integer) -> Q b) -> Q [a] -> Q [b]
+mapi = undefined
 
-storage :: Q [Cell]
-storage =    cell 1 1 10
-          <| cell 1 2 20
-          <| cell 1 3 30
-          <| cell 2 1 40
-          <| cell 2 2 50
-          <| cell 2 3 60
-          <| cell 3 1 70
-          <| cell 3 2 80
-          <| cell 3 3 90
-          <| nil
-          
 matrix :: Q [[Double]]
-matrix = map (sortRow . snd) $ sortWith fst $ groupWithKey rowQ storage
-  where sortRow :: Q [Cell] -> Q [Double]
-        sortRow cs = map valQ $ sortWith colQ cs
+matrix = toQ [[1,2,3,4], [2,3,4,5], [3,4,5,6], [4,5,6,7]]
 
-zipIndex :: QA a => Q [a] -> Q [(Integer, a)]
-zipIndex xs = zip (number xs) xs
+-- matrix :: Q [(Integer, [(Integer, Double)])]
 
 spr :: Q [Double] -> Q [Double] -> Q [(Integer, Double)]
-spr as bs = map (\(view -> (i, p)) -> tuple2 i (ret p)) $ zipIndex $ zip as bs
-  where ret :: Q (Double, Double) -> Q Double
-        ret (view -> (a, b)) = (b - a) / a
+spr as bs = mapi (\((view -> (a, b)), i) -> tuple2 i ((b - a) / a)) $ zip as bs
 
 buckets :: Q Integer -> Q Integer -> Q [(Integer, Double)] -> Q ([Integer], [Integer])
 buckets k1 k2 r = tuple2 topBucket bottomBucket
@@ -64,24 +35,27 @@ buckets k1 k2 r = tuple2 topBucket bottomBucket
         rs           = sortWith snd r
         
 sumIndex :: Q [Double] -> Q [Integer] -> Q Double
-sumIndex row b = sum [ v | (view -> (i, v)) <- zipIndex row, i `elem` b ]
+sumIndex row b = sum [ v | (view -> (v, i)) <- mapi (\(a, b) -> tuple2 a b) row, i `elem` b ]
 
 price :: Q Double -> Q [Double] -> Q [Integer] -> Q [Integer] -> Q Double
 price w row b1 b2 = sumIndex row b1 + w * sumIndex row b2
       
 align :: Q Integer -> Q [[Double]] -> Q [(([Double], [Double]), [Double])]
-align s m = map snd $ filter multiples $ zipIndex $ zip (zip m (drop s m)) (drop (2*s) m)
+align s m = zip (zip m (drop s m)) (drop (2*s) m)
 
-  where multiples :: QA r => Q (Integer, r) -> Q Bool
-        multiples p = ((fst p) `mod` s) == 0
+modQ :: Q Integer -> Q Integer -> Q Integer
+modQ = undefined
 
 backtest :: Q [[Double]] -> Q Integer -> Q Integer -> Q Integer -> Q [Double]
 backtest m k1 k2 s = map go (align s m')
-  where m' = drop (length m `mod` s) m
+  where m' = drop (length m `modQ` s) m
         
         go :: Q (([Double], [Double]), [Double]) -> Q Double
-        go (view -> ((view -> (ri, ris)), ri2s)) =
-          let r = spr ri ris
+        go ma =
+          let ri = fst $ fst ma
+              ris = snd $ fst ma
+              ri2s = snd ma
+              r = spr ri ris
               (view -> (b1, b2)) = buckets k1 k2 r
               w = sumIndex ris b1 / sumIndex ris b2
           in (price w ri2s b1 b2) - (price w ris b1 b2)
@@ -99,8 +73,7 @@ runQ :: (Show a,QA a) => Q a -> IO ()
 runQ q = getConn P.>>= \conn -> fromQX100 conn q P.>>= P.print
 
 debugQ :: (Show a, QA a) => Q a -> IO ()
-debugQ q = getConn P.>>= \conn -> debugX100VL "factor-backtest" conn q
+debugQ q = getConn P.>>= \conn -> debugX100VL "q1" conn q
 
 main :: IO ()
--- main = debugQ $ backtest matrix (toQ 2) (toQ 2) (toQ 5)
-main = debugQ matrix
+main = debugQ $ backtest matrix (toQ 2) (toQ 2) (toQ 5)
