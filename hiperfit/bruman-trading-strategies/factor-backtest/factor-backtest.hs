@@ -49,11 +49,8 @@ matrix = map (sortRow . snd) $ groupWithKey rowQ storage
   where sortRow :: Q [Cell] -> Q [Double]
         sortRow cs = map valQ $ sortWith colQ cs
 
-zipIndex :: QA a => Q [a] -> Q [(Integer, a)]
-zipIndex xs = zip (number xs) xs
-
 spr :: Q [Double] -> Q [Double] -> Q [(Integer, Double)]
-spr as bs = map (\(view -> (i, p)) -> tuple2 i (ret p)) $ zipIndex $ zip as bs
+spr as bs = map (\(view -> (p, i)) -> tuple2 i (ret p)) $ number $ zip as bs
   where ret :: Q (Double, Double) -> Q Double
         ret (view -> (a, b)) = (b - a) / a
 
@@ -64,16 +61,16 @@ buckets k1 k2 r = tuple2 topBucket bottomBucket
         rs           = sortWith snd r
         
 sumIndex :: Q [Double] -> Q [Integer] -> Q Double
-sumIndex row b = sum [ v | (view -> (i, v)) <- zipIndex row, i `elem` b ]
+sumIndex row b = sum [ v | (view -> (v, i)) <- number row, i `elem` b ]
 
 price :: Q Double -> Q [Double] -> Q [Integer] -> Q [Integer] -> Q Double
 price w row b1 b2 = sumIndex row b1 + w * sumIndex row b2
       
 align :: Q Integer -> Q [[Double]] -> Q [(([Double], [Double]), [Double])]
-align s m = map snd $ filter multiples $ zipIndex $ zip (zip m (drop s m)) (drop (2*s) m)
+align s m = map fst $ filter multiples $ number $ zip (zip m (drop s m)) (drop (2*s) m)
 
-  where multiples :: QA r => Q (Integer, r) -> Q Bool
-        multiples p = ((fst p) `mod` s) == 0
+  where multiples :: QA r => Q (r, Integer) -> Q Bool
+        multiples p = ((snd p) `mod` s) == 0
 
 backtest :: Q [[Double]] -> Q Integer -> Q Integer -> Q Integer -> Q [Double]
 backtest m k1 k2 s = map go (align s m')
@@ -102,5 +99,4 @@ debugQ :: (Show a, QA a) => Q a -> IO ()
 debugQ q = getConn P.>>= \conn -> debugX100VL "factor-backtest" conn q
 
 main :: IO ()
--- main = debugQ $ backtest matrix (toQ 2) (toQ 2) (toQ 5)
-main = debugQ matrix
+main = debugQ $ backtest matrix (toQ 2) (toQ 2) (toQ 5)
