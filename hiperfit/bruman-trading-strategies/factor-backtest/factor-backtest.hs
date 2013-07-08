@@ -45,7 +45,7 @@ storage =    cell 1 1 10
           <| nil
           
 matrix :: Q [[Double]]
-matrix = map (sortRow . snd) $ sortWith fst $ groupWithKey rowQ storage
+matrix = map (sortRow . snd) $ groupWithKey rowQ storage
   where sortRow :: Q [Cell] -> Q [Double]
         sortRow cs = map valQ $ sortWith colQ cs
 
