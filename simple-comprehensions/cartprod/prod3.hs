@@ -1,13 +1,10 @@
--- 2c544f140614066b97b9e61030ce7179108e6702
--- optimization string: ESRSRS
-
 {-# LANGUAGE OverloadedStrings, MonadComprehensions, RebindableSyntax, ViewPatterns #-}
 
 module Main where
 
 import qualified Prelude as P
 import Database.DSH
-import Database.DSH.Flattening
+import Database.DSH.Compiler
 import Database.X100Client
 
 import Debug.Trace

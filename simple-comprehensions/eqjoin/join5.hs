@@ -14,11 +14,14 @@ import Debug.Trace
 
 -- Helper Functions and Queries
 
-q :: Q [(Integer, Integer)]
-q = [ tuple2 x y
+q :: Q [(Integer, Integer, Integer)]
+q = [ tuple3 x y z
     | x <- (toQ [1,2,3,4,5,6])
     , y <- (toQ [2,3,4,5,6,7])
-    , x == y
+    , y == x
+    , z <- (toQ [10, 20, 30])
+    , x > 3
+    , y < 3
     ]
 
 getConn :: IO Connection

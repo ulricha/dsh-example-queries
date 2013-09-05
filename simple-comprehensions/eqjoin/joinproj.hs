@@ -7,7 +7,7 @@ module Main where
 
 import qualified Prelude as P
 import Database.DSH
-import Database.DSH.Flattening
+import Database.DSH.Compiler
 import Database.X100Client
 
 import Debug.Trace

@@ -1,3 +1,6 @@
+-- 2c544f140614066b97b9e61030ce7179108e6702
+-- optimization string: ESRSRS
+
 {-# LANGUAGE OverloadedStrings, MonadComprehensions, RebindableSyntax, ViewPatterns #-}
 
 module Main where
@@ -5,7 +8,7 @@ module Main where
 import qualified Prelude as P
 import Database.DSH
 import Database.DSH.Compiler
-import Database.X100Client
+import Database.HDBC.PostgreSQL
 
 import Debug.Trace
 
@@ -14,16 +17,12 @@ import Debug.Trace
 q :: Q [(Integer, Integer)]
 q = [ tuple2 x y
     | x <- (toQ [1,2,3,4,5,6])
-    , x > 3
     , y <- (toQ [2,3,4,5,6,7])
-    , x == y
+    , y == x
     ]
 
-  
-getConn :: IO X100Info
-getConn = P.return $ x100Info "localhost" "48130" Nothing
+getConn :: IO Connection
+getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' dbname = 'foo'"
 
 main :: IO ()
-main = getConn 
-       -- P.>>= (\conn -> fromQX100 conn q P.>>= (\i -> putStrLn $ show i))
-       P.>>= (\conn -> debugCLX100 conn q P.>>= putStrLn)
+main = getConn P.>>= (\conn -> debugTA "join" conn q)
