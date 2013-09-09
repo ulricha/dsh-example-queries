@@ -24,7 +24,7 @@ ys :: Q [Integer]
 ys = toQ [2, 4, 6]
 
 q :: Q [Integer]
-q = [ x | x <- xs, null [ toQ () | y <- ys, x == y ]
+q = [ x | x <- xs, null [ toQ () | y <- ys, x == y ] ]
 
 getConn :: IO X100Info
 getConn = P.return $ x100Info "localhost" "48130" Nothing
