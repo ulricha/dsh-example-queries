@@ -30,4 +30,4 @@ getConn = P.return $ x100Info "localhost" "48130" Nothing
 main :: IO ()
 main = getConn 
        -- P.>>= (\conn -> fromQX100 conn q P.>>= (\i -> putStrLn $ show i))
-       P.>>= (\conn -> debugTA "filter" conn q)
+       P.>>= (\conn -> debugX100VL "filter" conn q)
