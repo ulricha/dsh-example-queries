@@ -1,0 +1,2 @@
+EXPLAIN ANALYZE
+select (3) as "1_1",(t1831."2") as "1_2",(t1822."tsk") as "2" from (select (t1820."dpt") as "1_1_dpt",(t1821."dpt") as "1_2_dpt",(t1821."emp") as "1_2_emp",(t1821."salary") as "1_2_salary",(row_number() over (order by t1820."dpt",t1821."emp")) as "2" from departments as t1820,employees as t1821 where (t1820."dpt") = (t1821."dpt")) as t1831,tasks as t1822 where (t1831."1_2_emp") = (t1822."emp");

@@ -6,8 +6,13 @@
     
 import           Data.Text hiding (all, singleton)
 
-import qualified Prelude as P
 import           Database.DSH
+import           Database.DSH.Compiler
+import           Database.X100Client
+import qualified Prelude as P
+       
+import           Database.HDBC
+import           Database.HDBC.PostgreSQL
        
 import           Records
 
@@ -24,10 +29,11 @@ contactsOfDepartment d = [ pair (c_nameQ c) (c_clientQ c)
                          | c <- contacts
                          , d == c_dptQ c ]
                          
--- Q1
-nestedOrg :: Q [(Text, [(Text, [Text])], [(Text, Bool)])]
-nestedOrg = [ tuple3 d (employeesOfDepartment d) (contactsOfDepartment d)
-            | d <- departments ]
+-- q3: nestedOrg
+-- nestjoin over multiple levels
+q1 :: Q [(Text, [(Text, [Text])], [(Text, Bool)])]
+q1 = [ tuple3 d (employeesOfDepartment d) (contactsOfDepartment d)
+     | d <- departments ]
             
 type NestedOrg = (Text, [(Text, Integer, [Text])], [(Text, Bool)])
 
@@ -59,10 +65,10 @@ q2 :: Q [Department]
 q2 = expertise nestedOrg2 (toQ "abstract")
 
 -- Q3
-tasksByEmployee :: Q [(Text, [Text])]
-tasksByEmployee = [ pair (e_empQ e) (tasksOfEmployee e)
-                  | e <- employees
-                  ]
+q3 :: Q [(Text, [Text])]
+q3 = [ pair (e_empQ e) (tasksOfEmployee e)
+     | e <- employees
+     ]
                   
 -- Q4
 q4 :: Q [(Department, [Text])]
@@ -119,3 +125,19 @@ outliersFactored orgs =
         b = [ pair (fst c) (singleton $ toQ "buy") | c <- clients cs ]
     in pair d (a ++ b)
   | (view -> (d, es, cs)) <- orgs ]
+  
+q6 :: Q [(Text, [(Text, [Text])])]
+q6 = outliersFactored nestedOrg2
+
+getConn :: IO X100Info
+getConn = P.return $ x100Info "localhost" "48130" Nothing
+
+getPGConn :: IO Connection
+getPGConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' dbname = 'organisation16'"
+
+main :: IO ()
+main = getPGConn 
+       -- P.>>= (\conn -> fromQX100 conn q P.>>= (\i -> putStrLn $ show i))
+       -- P.>>= (\conn -> debugX100VL "q2" conn q2)
+       P.>>= (\conn -> debugPFXML "q6" conn q6)
+
