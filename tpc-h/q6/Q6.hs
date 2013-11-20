@@ -30,7 +30,7 @@ q6 =
   , l_shipdateQ l >= 23
   , l_shipdateQ l < 42
   , between (l_discountQ l) ((toQ 0.05) - (toQ 0.01)) ((toQ 0.05) + (toQ 0.01))
-  , l_quantityQ l < 25
+  , l_quantityQ l < 24
   ]
 
 getConn :: IO Connection

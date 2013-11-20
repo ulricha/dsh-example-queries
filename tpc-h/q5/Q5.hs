@@ -21,16 +21,6 @@ import Database.HDBC.PostgreSQL
 
 import Records
 
-project 
-  :: Q ((Integer, Integer, Integer), [((Integer, Integer, Integer), (Double, Double))])
-  -> Q ((Integer, Integer, Integer), Double)
-project gk = pair (fst gk) revenue
-  where
-    revenue = sum [ ep * (1 - d) | (view -> (ep, d)) <- [ snd x | x <- snd gk ] ]
-    
-byRevDate :: Q ((Integer, Integer, Integer), Double) -> Q (Double, Integer)
-byRevDate (view -> (((view -> (_, _, sp)), r))) = pair (r * (-1)) sp
-
 q5 =
   sortWith (\(view -> (n, r)) -> r * (-1)) $
   map (\(view -> (k, g)) -> pair k (sum [ e * (1 - d) | (view -> (_, e, d)) <- g ])) $
