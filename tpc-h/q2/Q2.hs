@@ -42,7 +42,6 @@ sortingCriteria (view -> (b, sn, nn, pk, _, _, _, _)) =
 
 q2 :: Q [(Double, Text, Text, Integer, Text, Text, Text, Text)]
 q2 = 
-  take (toQ 100) $ 
   sortWith sortingCriteria $
   [ tuple8 (s_acctbalQ s)
            (s_nameQ s)
