@@ -15,24 +15,9 @@ import qualified Prelude as P
 import Database.DSH
 import Database.DSH.Compiler
 
-import Database.X100Client
+import Database.HDBC.PostgreSQL
 
 import Records
-
-parts :: Q [Part]
-parts = table "part"
-
-suppliers :: Q [Supplier]
-suppliers = table "supplier"
-
-partsupps :: Q [PartSupp]
-partsupps = table "partsupp"
-
-nations :: Q [Nation]
-nations = table "nation"
-
-regions :: Q [Region]
-regions = table "region"
 
 minSupplyCost :: Q Integer -> Q Double
 minSupplyCost partkey = 
@@ -82,17 +67,16 @@ q2 =
   , ps_supplycostQ ps == minSupplyCost (p_partkeyQ p)
   ]
 
--- getConn :: IO Connection
--- getConn = connectPostgreSQL "user = 'giorgidz' password = '' host = 'localhost' dbname = 'giorgidz'"
+getConn :: IO Connection
+getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5433' dbname = 'tpch'"
 
-getConn :: IO X100Info
-getConn = P.return $ x100Info "localhost" "48130" Nothing
-
+{-
 runQ :: (Show a,QA a) => Q a -> IO ()
 runQ q = getConn P.>>= \conn -> fromQX100 conn q P.>>= P.print
+-}
 
-debugQ :: (Show a, QA a) => Q a -> IO ()
-debugQ q = getConn P.>>= \conn -> debugX100VL "q2" conn q
+debugQ :: (Show a, QA a) => String -> Q a -> IO ()
+debugQ label q = getConn P.>>= \conn -> debugVL label conn q
 
 main :: IO ()
-main = debugQ q2
+main = debugQ "q2" q2
