@@ -32,13 +32,11 @@ q16 =
   , p  <- parts
   , p_partkeyQ p == ps_partkeyQ ps
   , p_brandQ p /= "Brand#45"
-  -- , not (p_typeQ `like` 'MEDIUM POLISHED%'
-  , not (p_typeQ p == "MEDIUM POLISHED%")
+  , not (p_typeQ p `like` "MEDIUM POLISHED%")
   , p_sizeQ p `elem` (toQ [49, 14, 23, 45, 19, 3, 36, 9])
   , not (ps_suppkeyQ ps `elem` [ s_suppkeyQ s 
                                | s <- suppliers
                                , s_commentQ s `like` "%Customer%Complaints%"
-                               , s_commentQ s == "%Customer%Complaints%"
                                ])
   ]
 
@@ -46,7 +44,7 @@ getConn :: IO Connection
 getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5433' dbname = 'tpch'"
 
 debugQ :: (Show a, QA a) => Q a -> IO ()
-debugQ q = getConn P.>>= \conn -> debugVL "q16" conn q
+debugQ q = getConn P.>>= \conn -> debugPFXML "q16" conn q
 
 main :: IO ()
 main = debugQ q16
