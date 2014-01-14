@@ -34,7 +34,7 @@ q6 =
   ]
 
 getConn :: IO Connection
-getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5433' dbname = 'tpch'"
+getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5432' dbname = 'tpch'"
 
 {-
 runQ :: (Show a,QA a) => Q a -> IO ()
@@ -42,7 +42,7 @@ runQ q = getConn P.>>= \conn -> fromQX100 conn q P.>>= P.print
 -}
 
 debugQ :: (Show a, QA a) => Q a -> IO ()
-debugQ q = getConn P.>>= \conn -> debugVL "q6" conn q
+debugQ q = getConn P.>>= \conn -> debugTAOpt "q6" conn q
 
 main :: IO ()
 main = debugQ q6

@@ -9,7 +9,7 @@
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
     
--- TPC-H Q3
+-- TPC-H Q4
 
 module Main where
 
@@ -34,10 +34,10 @@ q4 =
     ]
 
 getConn :: IO Connection
-getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5433' dbname = 'tpch'"
+getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5432' dbname = 'tpch'"
 
 debugQ :: (Show a, QA a) => Q a -> IO ()
-debugQ q = getConn P.>>= \conn -> debugVL "q4" conn q
+debugQ q = getConn P.>>= \conn -> debugTAOpt "q4" conn q
 
 main :: IO ()
 main = debugQ q4

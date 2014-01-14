@@ -19,9 +19,6 @@ import Database.HDBC.PostgreSQL
 
 import Records
 
-lineitems :: Q [LineItem]
-lineitems = table "lineitem"
-
 withFlagStatus :: Q LineItem -> Q (Text, Text)
 withFlagStatus li = tuple2 (l_returnflagQ li) (l_linestatusQ li)
 
@@ -47,7 +44,7 @@ q1 = sortWith fst9 $
       ]
 
 getConn :: IO Connection
-getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5433' dbname = 'tpch'"
+getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5432' dbname = 'tpch'"
 
 -- getConn :: IO X100Info
 -- getConn = P.return $ x100Info "localhost" "48130" Nothing

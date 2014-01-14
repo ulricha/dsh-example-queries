@@ -33,29 +33,29 @@ q7 =
                    (n_nameQ n2) 
                    (l_shipdateQ l)
                    (l_extendedpriceQ l * (1 - l_discountQ l))
-         | s <- suppliers
-         , l <- lineitems
-         , o <- orders
-         , c <- customers
-         , n1 <- nations
-         , n2 <- nations
-         , s_suppkeyQ s == l_suppkeyQ l
-         , o_orderkeyQ o == l_orderkeyQ l
-         , c_custkeyQ c == o_custkeyQ o
-         , s_nationkeyQ s == n_nationkeyQ n1
-         , c_nationkeyQ c == n_nationkeyQ n2
-         , (n_nameQ n1 == "FRANCE" && n_nameQ n2 == "GERMANY")
-           || (n_nameQ n1 == "GERMANY" && n_nameQ n2 == "FRANCE")
-         , between (l_shipdateQ l) 23 42
-         ]
+          | s <- suppliers
+          , l <- lineitems
+          , o <- orders
+          , c <- customers
+          , n1 <- nations
+          , n2 <- nations
+          , s_suppkeyQ s == l_suppkeyQ l
+          , o_orderkeyQ o == l_orderkeyQ l
+          , c_custkeyQ c == o_custkeyQ o
+          , s_nationkeyQ s == n_nationkeyQ n1
+          , c_nationkeyQ c == n_nationkeyQ n2
+          , (n_nameQ n1 == "FRANCE" && n_nameQ n2 == "GERMANY")
+            || (n_nameQ n1 == "GERMANY" && n_nameQ n2 == "FRANCE")
+          , between (l_shipdateQ l) 23 42
+          ]
   ]
        
 
 getConn :: IO Connection
-getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5433' dbname = 'tpch'"
+getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5432' dbname = 'tpch'"
 
 debugQ :: (Show a, QA a) => Q a -> IO ()
-debugQ q = getConn P.>>= \conn -> debugVL "q7" conn q
+debugQ q = getConn P.>>= \conn -> debugTAOpt "q7" conn q
 
 main :: IO ()
 main = debugQ q7

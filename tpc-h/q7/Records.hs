@@ -129,25 +129,26 @@ deriveTA ''Customer
 generateTableSelectors ''Customer
 
 parts :: Q [Part]
-parts = table "part"
+parts = tableWithKeys "part" [["p_partkey"]]
+-- parts = table "part"
 
 suppliers :: Q [Supplier]
-suppliers = table "supplier"
+suppliers = tableWithKeys "supplier" [["s_suppkey"]]
 
 partsupps :: Q [PartSupp]
-partsupps = table "partsupp"
+partsupps = tableWithKeys "partsupp" [["ps_partkey", "ps_suppkey"]]
 
 nations :: Q [Nation]
-nations = table "nation"
+nations = tableWithKeys "nation" [["n_nationkey"]]
 
 regions :: Q [Region]
-regions = table "region"
+regions = tableWithKeys "region" [["r_regionkey"]]
 
 orders :: Q [Order]
-orders = table "orders"
+orders = tableWithKeys "orders" [["o_orderkey"]]
 
 lineitems :: Q [LineItem]
-lineitems = table "lineitem"
+lineitems = tableWithKeys "lineitem" [["l_orderkey", "l_linenumber"]]
 
 customers :: Q [Customer]
-customers = table "customer"
+customers = tableWithKeys "customer" [["c_custkey"]]
