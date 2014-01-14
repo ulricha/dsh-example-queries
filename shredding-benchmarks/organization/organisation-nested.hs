@@ -135,9 +135,19 @@ getConn = P.return $ x100Info "localhost" "48130" Nothing
 getPGConn :: IO Connection
 getPGConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' dbname = 'organisation16'"
 
-main :: IO ()
-main = getPGConn 
-       -- P.>>= (\conn -> fromQX100 conn q P.>>= (\i -> putStrLn $ show i))
-       -- P.>>= (\conn -> debugX100VL "q2" conn q2)
-       P.>>= (\conn -> debugPFXML "q6" conn q6)
+allQueries :: IO ()
+allQueries = getPGConn 
+       P.>>= (\conn -> debugTAOpt "q1" conn q1
+                       P.>> debugTAOpt "q2" conn q2
+                       P.>> debugTAOpt "q3" conn q3
+                       P.>> debugTAOpt "q4" conn q4
+                       P.>> debugTAOpt "q5" conn q5
+                       P.>> debugTAOpt "q6" conn q6)
 
+someQuery :: IO ()
+someQuery = getPGConn 
+         -- P.>>= (\conn -> debugVLOpt "q62" conn q6)
+         P.>>= (\conn -> debugTAOpt "q3" conn q3)
+
+main :: IO ()
+main = allQueries
