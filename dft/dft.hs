@@ -69,6 +69,25 @@ dftFastRec m n v =
          | d <- toQ [ 0 .. m - 1 ]
          ] 
 
+
+---------------------------------------------------------------------
+-- Sparse vector implementation
+
+-- FIXME assume here that groupWith keeps order in partitions stable,
+-- i.e. sorts by pos. That might currently not be the case.
+reshape n :: QA a => Q [(Int, a)] -> Q [(Int, [(Int, a)])]
+reshape n vec = -- Generate new indices for the outer vector
+                number 
+		-- Generate new indices for the inner vectors
+		$ map number 
+		-- Throw away old vector indices
+		$ map (map snd) 
+		$ groupWith byPos $ number vec
+
+  where
+    byPos :: QA a => Q (Integer, a) -> Q Integer
+    byPos v = ((fst v) - 1) / n
+
 getConn :: IO Connection
 getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5432' dbname = 'tpch'"
 
