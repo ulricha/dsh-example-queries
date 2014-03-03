@@ -16,10 +16,37 @@ import Database.DSH
 import Database.DSH.Compiler
 
 import Database.HDBC.PostgreSQL
+import Database.X100Client
+
+
+--------------------------------------------------------------------
+-- Helpers, type definitions
 
 if' :: Bool -> a -> a -> a
 if' True  x _ = x
 if' False _ y = y
+
+-- * Complex numbers
+
+type Complex = (Double, Double)
+
+-- | Construction of complex values
+(|+) :: Q Double -> Q Double -> Q Complex
+(|+) = pair
+
+-- | Complex multiplication
+-- (a+bi)*(c+di) = (a*c - b*d)+(b*c + c*d)i
+(.*) :: Q Complex -> Q Complex -> Q Complex
+x .* y = (a*c - b * d) |+ (b*c - c*d)
+  where
+    (a, b) = view x
+    (c, d) = view y
+
+real :: Q Complex -> Q Double
+real = fst
+
+img :: Q Complex -> Q Double
+img = snd
 
 -- | Matrix transposition
 φ :: QA a => Q [[a]] -> Q [[a]]
@@ -32,33 +59,35 @@ if' False _ y = y
 iArray :: QA a => Q [a] -> Q [Integer]
 iArray v = map snd $ number v
 
-principalRoot :: Integer -> Integer
-principalRoot _ = undefined
+cis :: Q Double -> Q Complex
+cis r = cos r |+ sin r
 
-power :: Q Integer -> Q Integer -> Q Integer
-power = undefined
+ω :: Integer -> Q Integer -> Q Complex
+ω n i = cis $ (-2 * pi * integerToDouble i) / (fromIntegral n)
 
-ω :: Integer -> Q Integer -> Q Double
--- ω n i = power (toQ (principalRoot n)) i
-ω _ i = toQ 42 + (integerToDouble i)
+sumC :: Q [Complex] -> Q Complex
+sumC cs = (sum $ map real cs) |+ (sum $ map img cs)
 
+--------------------------------------------------------------------
+-- Actual DFT implementations on dense vector representation
 
-dft :: Integer -> Q [Double] -> Q [Double]
+dft :: Integer -> Q [Complex] -> Q [Complex]
 dft dim v = 
-  [ sum [ ω dim (i * j) * x | (view -> (x, j)) <- number v ]
+  [ sumC [ ω dim (i * j) .* x | (view -> (x, j)) <- number v ]
   | i <- iArray v
   ]
 
-dftFast :: Integer -> Integer -> Q [Double] -> Q [Double]
+dftFast :: Integer -> Integer -> Q [Complex] -> Q [Complex]
 dftFast m n v =
-  concat [ map sum $ φ [ [ ω (m * n) (a * (toQ n * d + c)) * t
-                         | (view -> (t, c)) <- number $ dft n z
-                         ]
+  concat [ map sumC $ φ [ [ ω (m * n) (a * (toQ n * d + c)) .* t
+                          | (view -> (t, c)) <- number $ dft n z
+                          ]
                        | (view -> (z, a)) <- number $ φ $ ρ n v
                        ]
          | d <- toQ [ 0 .. m - 1 ]
          ] 
 
+{-
 dftFastRec :: Integer -> Integer -> Q [Double] -> Q [Double]
 dftFastRec m n v =
   concat [ map sum $ φ [ [ ω (m * n) (a * (toQ n * d + c)) * t
@@ -68,6 +97,7 @@ dftFastRec m n v =
                        ]
          | d <- toQ [ 0 .. m - 1 ]
          ] 
+-}
 
 
 ---------------------------------------------------------------------
@@ -88,6 +118,8 @@ dftFastRec m n v =
 --   where
 --     byPos :: QA a => Q (Integer, a) -> Q Integer
 --     byPos v = ((fst v) - 1) / n
+
+{-
 
 type SparseVector a = [(Integer, a)]
 
@@ -133,14 +165,40 @@ dftSparse dim v =
 --   , a <- nub $ map row w
 --   ]
 
+-}
+
+--------------------------------------------------------------------
+-- Test cases
+
+vec1 :: Q [Complex]
+vec1 = toQ [ (1.0, 0.0)
+           , (0.0, 0.0)
+           , (0.0, 0.0)
+           , (0.0, 0.0)
+           , (0.0, 0.0)
+           , (0.0, 0.0)
+           , (0.0, 0.0)
+           , (0.0, 0.0)
+           ]
+
 getConn :: IO Connection
 getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5432' dbname = 'tpch'"
 
-debugQ :: QA a => String -> Q a -> IO ()
-debugQ prefix q = getConn P.>>= \conn -> debugVL prefix conn q
+getConnX100 :: IO X100Info
+getConnX100 = P.return $ x100Info "localhost" "48130" Nothing
+
+debugQVL :: QA a => String -> Q a -> IO ()
+debugQVL prefix q = getConn P.>>= \conn -> debugVLOpt prefix conn q
+
+debugQX100 :: QA a => String -> Q a -> IO ()
+debugQX100 prefix q = getConnX100 P.>>= \conn -> debugX100 prefix conn q
 
 main :: IO ()
 main =
-    debugQ "dft" (dft 5 (toQ [1,2,3,4,5]))
+    debugQVL "dft" (dft 8 vec1)
+    P.>>
+    debugQX100 "dft" (dft 8 vec1)
+{-
     P.>>
     debugQ "dftFast" (dftFast 2 4 (toQ [1,2,3,4,5,6,7,8]))
+-}
