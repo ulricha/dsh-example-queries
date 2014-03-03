@@ -57,13 +57,16 @@ img = snd
 ρ = reshape
 
 iArray :: QA a => Q [a] -> Q [Integer]
-iArray v = map snd $ number v
+iArray v = map snd $ number0 v
+
+number0 :: QA a => Q [a] -> Q [(a, Integer)]
+number0 v = map (\x -> pair (fst x) ((snd x) - 1)) $ number v
 
 cis :: Q Double -> Q Complex
 cis r = cos r |+ sin r
 
 ω :: Integer -> Q Integer -> Q Complex
-ω n i = cis $ (-2 * pi * integerToDouble i) / (fromIntegral n)
+ω n i = cis $ (2 * pi * integerToDouble i) / (fromIntegral n)
 
 sumC :: Q [Complex] -> Q Complex
 sumC cs = (sum $ map real cs) |+ (sum $ map img cs)
@@ -73,10 +76,12 @@ sumC cs = (sum $ map real cs) |+ (sum $ map img cs)
 
 dft :: Integer -> Q [Complex] -> Q [Complex]
 dft dim v = 
-  [ sumC [ ω dim (i * j) .* x | (view -> (x, j)) <- number v ]
+  [ sumC [ ω dim (i * j) .* x | (view -> (x, j)) <- number0 v ]
   | i <- iArray v
   ]
 
+
+{-
 dftFast :: Integer -> Integer -> Q [Complex] -> Q [Complex]
 dftFast m n v =
   concat [ map sumC $ φ [ [ ω (m * n) (a * (toQ n * d + c)) .* t
@@ -86,6 +91,7 @@ dftFast m n v =
                        ]
          | d <- toQ [ 0 .. m - 1 ]
          ] 
+-}
 
 {-
 dftFastRec :: Integer -> Integer -> Q [Double] -> Q [Double]
@@ -181,6 +187,17 @@ vec1 = toQ [ (1.0, 0.0)
            , (0.0, 0.0)
            ]
 
+vec2 :: Q [Complex]
+vec2 = toQ [ (0.0, 0.0)
+           , (1.0, 0.0)
+           , (0.0, 0.0)
+           , (0.0, 0.0)
+           , (0.0, 0.0)
+           , (0.0, 0.0)
+           , (0.0, 0.0)
+           , (0.0, 0.0)
+           ]
+
 getConn :: IO Connection
 getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5432' dbname = 'tpch'"
 
@@ -195,9 +212,9 @@ debugQX100 prefix q = getConnX100 P.>>= \conn -> debugX100 prefix conn q
 
 main :: IO ()
 main =
-    debugQVL "dft" (dft 8 vec1)
+    debugQVL "dft" (dft 8 vec2)
     P.>>
-    debugQX100 "dft" (dft 8 vec1)
+    debugQX100 "dft" (dft 8 vec2)
 {-
     P.>>
     debugQ "dftFast" (dftFast 2 4 (toQ [1,2,3,4,5,6,7,8]))
