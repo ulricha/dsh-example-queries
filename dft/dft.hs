@@ -28,7 +28,7 @@ vec :: String -> Q [(Integer, Double, Double)]
 vec n = tableWithKeys n [["pos"]]
 
 vecFromTable :: Q [(Integer, Double, Double)] -> Q [Complex]
-vecFromTable tab = map (\(view -> (_, r, i)) -> pair r i) $ sortWith fst3 tab
+vecFromTable tab = map (\(view -> (_, i, r)) -> pair r i) $ sortWith fst3 tab
 
 --------------------------------------------------------------------
 -- Helpers, type definitions
@@ -101,6 +101,13 @@ dftFast m n v =
                         ]
          | d <- toQ [ 0 .. m - 1 ]
          ] 
+
+foo m n v = 
+  [  [ pair z a
+     | (view -> (z, a)) <- number0 $ φ $ ρ m v
+     ]
+  | d <- toQ [ 0 .. m - 1 ]
+  ] 
 
 {-
 dftFastRec :: Integer -> Integer -> Q [Double] -> Q [Double]
@@ -225,7 +232,7 @@ getConnX100 :: IO X100Info
 getConnX100 = P.return $ x100Info "localhost" "48130" Nothing
 
 debugQVL :: QA a => String -> Q a -> IO ()
-debugQVL prefix q = getConn P.>>= \conn -> debugVLOpt prefix conn q
+debugQVL prefix q = getConnX100 P.>>= \conn -> debugX100VLOpt prefix conn q
 
 debugQX100 :: QA a => String -> Q a -> IO ()
 debugQX100 prefix q = getConnX100 P.>>= \conn -> debugX100 prefix conn q
@@ -235,7 +242,12 @@ execX100 q = getConnX100 P.>>= \conn -> runQX100 conn q P.>>= \r -> putStrLn P.$
 
 main :: IO ()
 main =
+    -- debugQX100 "foo" (foo 2 512 (vecFromTable $ vec "v1_1024"))
     debugQX100 "dft_1024" (dft 1024 (vecFromTable $ vec "v1_1024"))
+    P.>>
+    debugQX100 "dftfast_1024" (dftFast 2 512 (vecFromTable $ vec "v1_1024"))
+    P.>>
+    debugQVL "dftfast_1024" (dftFast 2 512 (vecFromTable $ vec "v1_1024"))
 {-
     debugQVL "dft" (dft 8 vec1)
     P.>>
