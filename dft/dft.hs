@@ -18,6 +18,17 @@ import Database.DSH.Compiler
 import Database.HDBC.PostgreSQL
 import Database.X100Client
 
+--------------------------------------------------------------------
+-- Complex vectors stored in base tables
+
+fst3 :: (QA a, QA b, QA c) => Q (a, b, c) -> Q a
+fst3 (view -> (a, _, _)) = a
+
+vec :: String -> Q [(Integer, Double, Double)]
+vec n = tableWithKeys n [["pos"]]
+
+vecFromTable :: Q [(Integer, Double, Double)] -> Q [Complex]
+vecFromTable tab = map (\(view -> (_, r, i)) -> pair r i) $ sortWith fst3 tab
 
 --------------------------------------------------------------------
 -- Helpers, type definitions
@@ -81,17 +92,15 @@ dft dim v =
   ]
 
 
-{-
 dftFast :: Integer -> Integer -> Q [Complex] -> Q [Complex]
 dftFast m n v =
   concat [ map sumC $ φ [ [ ω (m * n) (a * (toQ n * d + c)) .* t
-                          | (view -> (t, c)) <- number $ dft n z
+                          | (view -> (t, c)) <- number0 $ dft n z
                           ]
-                       | (view -> (z, a)) <- number $ φ $ ρ n v
-                       ]
+                        | (view -> (z, a)) <- number0 $ φ $ ρ m v
+                        ]
          | d <- toQ [ 0 .. m - 1 ]
          ] 
--}
 
 {-
 dftFastRec :: Integer -> Integer -> Q [Double] -> Q [Double]
@@ -198,6 +207,17 @@ vec2 = toQ [ (0.0, 0.0)
            , (0.0, 0.0)
            ]
 
+vec3 :: Q [Complex]
+vec3 = toQ [ (1, 10)
+           , (2, 20)
+           , (3, 30)
+           , (4, 40)
+           , (5, 50)
+           , (6, 60)
+           , (7, 70)
+           , (8, 80)
+           ]
+
 getConn :: IO Connection
 getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5432' dbname = 'tpch'"
 
@@ -210,12 +230,22 @@ debugQVL prefix q = getConn P.>>= \conn -> debugVLOpt prefix conn q
 debugQX100 :: QA a => String -> Q a -> IO ()
 debugQX100 prefix q = getConnX100 P.>>= \conn -> debugX100 prefix conn q
 
+execX100 :: (Show a, QA a) => Q a -> IO ()
+execX100 q = getConnX100 P.>>= \conn -> runQX100 conn q P.>>= \r -> putStrLn P.$ P.show r
+
 main :: IO ()
 main =
-    debugQVL "dft" (dft 8 vec2)
-    P.>>
-    debugQX100 "dft" (dft 8 vec2)
+    debugQX100 "dft_1024" (dft 1024 (vecFromTable $ vec "v1_1024"))
 {-
+    debugQVL "dft" (dft 8 vec1)
     P.>>
-    debugQ "dftFast" (dftFast 2 4 (toQ [1,2,3,4,5,6,7,8]))
+    debugQX100 "dft" (dft 8 vec1)
+    P.>>
+    debugQVL "dftFast" (dftFast 2 4 vec3)
+    P.>>
+    debugQX100 "dftFast" (dftFast 2 4 vec3)
+    P.>>
+    execX100 (dft 8 vec2)
+    P.>>
+    execX100 (dftFast 2 4 vec2)
 -}
