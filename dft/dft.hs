@@ -25,7 +25,7 @@ fst3 :: (QA a, QA b, QA c) => Q (a, b, c) -> Q a
 fst3 (view -> (a, _, _)) = a
 
 vec :: String -> Q [(Integer, Double, Double)]
-vec n = tableWithKeys n [["pos"]]
+vec n = table n (defaultHints { keysHint = [Key ["pos"]], nonEmptyHint = NonEmpty })
 
 vecFromTable :: Q [(Integer, Double, Double)] -> Q [Complex]
 vecFromTable tab = map (\(view -> (_, i, r)) -> pair r i) $ sortWith fst3 tab
@@ -91,7 +91,6 @@ dft dim v =
   | i <- iArray v
   ]
 
-
 dftFast :: Integer -> Integer -> Q [Complex] -> Q [Complex]
 dftFast m n v =
   concat [ map sumC $ φ [ [ ω (m * n) (a * (toQ n * d + c)) .* t
@@ -102,21 +101,15 @@ dftFast m n v =
          | d <- toQ [ 0 .. m - 1 ]
          ] 
 
-foo m n v = 
-  [  [ pair z a
-     | (view -> (z, a)) <- number0 $ φ $ ρ m v
-     ]
-  | d <- toQ [ 0 .. m - 1 ]
-  ] 
-
 {-
-dftFastRec :: Integer -> Integer -> Q [Double] -> Q [Double]
-dftFastRec m n v =
-  concat [ map sum $ φ [ [ ω (m * n) (a * (toQ n * d + c)) * t
-                         | (view -> (t, c)) <- number $ dft n z
-                         ]
-                       | (view -> (z, a)) <- number $ φ $ ρ n v
-                       ]
+dftFast :: Integer -> Integer -> Q [Complex] -> Q [Complex]
+dftFast m n v =
+
+  concat [ map sumC $ φ [ [ ω (m * n) (a * (toQ n * d + c)) .* t
+                          | (view -> (t, c)) <- number0 $ dftFastRec n z
+                          ]
+                        | (view -> (z, a)) <- number0 $ φ $ ρ m v
+                        ]
          | d <- toQ [ 0 .. m - 1 ]
          ] 
 -}
