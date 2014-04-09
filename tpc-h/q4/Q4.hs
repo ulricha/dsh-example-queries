@@ -22,6 +22,9 @@ import Database.HDBC.PostgreSQL
 import Records
 
 q4 =
+  sortWith fst
+  $ map (\(view -> (k, g)) -> pair k (length g)) 
+  $ groupWithKey id
     [ o_orderpriorityQ o
     | o <- orders
     , o_orderdateQ o >= 42

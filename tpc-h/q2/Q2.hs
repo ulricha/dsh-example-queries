@@ -59,7 +59,7 @@ q2 =
   , p_partkeyQ p == ps_partkeyQ ps
   , s_suppkeyQ s == ps_suppkeyQ ps
   , p_sizeQ p == (toQ 15)
---  , p_typeQ p `like` (toQ "%BRASS")
+  , p_typeQ p `like` (toQ "%BRASS")
   , s_nationkeyQ s == n_nationkeyQ n
   , n_regionkeyQ n == r_regionkeyQ r
   , r_nameQ r == (toQ "EUROPE")
@@ -75,7 +75,7 @@ runQ q = getConn P.>>= \conn -> fromQX100 conn q P.>>= P.print
 -}
 
 debugQ :: (Show a, QA a) => String -> Q a -> IO ()
-debugQ label q = getConn P.>>= \conn -> debugVL label conn q
+debugQ label q = getConn P.>>= \conn -> debugTAOpt label conn q
 
 main :: IO ()
 main = debugQ "q2" q2

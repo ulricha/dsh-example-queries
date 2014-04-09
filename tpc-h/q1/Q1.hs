@@ -55,7 +55,7 @@ runQ q = getConn P.>>= \conn -> fromQX100 conn q P.>>= P.print
 -}
 
 debugQ :: (Show a, QA a) => Q a -> IO ()
-debugQ q = getConn P.>>= \conn -> debugTA "q1" conn q
+debugQ q = getConn P.>>= \conn -> debugTAOpt "q1" conn q
 
 main :: IO ()
 main = debugQ q1
