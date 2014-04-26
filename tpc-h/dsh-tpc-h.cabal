@@ -1,0 +1,42 @@
+name:                dsh-tpc-h
+version:             0.1.0.0
+synopsis:            All 22 queries from the TPC-H benchmark written using DSH.
+-- description:         
+homepage:            http://db.inf.uni-tuebingen.de/projects/DatabaseSupportedHaskell.html
+license:             PublicDomain
+license-file:        LICENSE
+author:              Alexander Ulrich
+maintainer:          alex@etc-network.de
+-- copyright:           
+category:            Database
+build-type:          Simple
+-- extra-source-files:  
+cabal-version:       >=1.10
+
+library
+  exposed-modules:     Queries.TPCH  
+  other-modules:       Queries.TPCH.Q1, 
+                       Queries.TPCH.Q2, 
+                       Queries.TPCH.Q3, 
+                       Queries.TPCH.Q4, 
+                       Queries.TPCH.Q5, 
+                       Queries.TPCH.Q6, 
+                       Queries.TPCH.Q7, 
+                       Queries.TPCH.Q8, 
+                       Queries.TPCH.Q9, 
+                       Queries.TPCH.Q10, 
+                       Queries.TPCH.Q11, 
+                       Queries.TPCH.Q12, 
+                       Queries.TPCH.Q14, 
+                       Queries.TPCH.Q15, 
+                       Queries.TPCH.Q16, 
+                       Queries.TPCH.Q17, 
+                       Queries.TPCH.Q19, 
+                       Queries.TPCH.Q20, 
+                       Queries.TPCH.Q21, 
+                       Queries.TPCH.Q22, 
+                       Queries.TPCH.Records
+  other-extensions:    TemplateHaskell
+  build-depends:       base, DSH >=0.8 && <0.9, HDBC-postgresql, text
+  -- hs-source-dirs:      
+  default-language:    Haskell2010
