@@ -68,15 +68,10 @@ q21' nation =
   , o_orderkeyQ o == l_orderkeyQ l1
   , o_orderstatusQ o == toQ "F"
   , l_receiptdateQ l1 > l_commitdateQ l1
-  , not $ null [ 1 :: Q Integer
-               | l2 <- lineitems
-	       , l_orderkeyQ l2 == l_orderkeyQ l1
-	       , l_suppkeyQ l2 /= l_suppkeyQ l1
-	       ]
-  , null [ 1 :: Q Integer
-         | l3 <- lineitems
-	 , l_orderkeyQ l3 == l_orderkeyQ l1
-	 , l_suppkeyQ l3 == l_suppkeyQ l1
-	 , l_receiptdateQ l3 > l_commitdateQ l3
-	 ]
+  , any (\l2 -> l_orderkeyQ l2 == l_orderkeyQ l1 && l_suppkeyQ l2 /= l_suppkeyQ l1) 
+        lineitems
+  , all (\l3 -> not $ l_orderkey l3 == l_orderkeyQ l1
+                      && l_suppkeyQ l3 == l_suppkeyQ l1
+                      && l_receiptdateQ l3 > l_commitdateQ l3)
+        lineitems
   ]
