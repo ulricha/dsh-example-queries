@@ -12,6 +12,7 @@
 module DFT.Radix 
     ( radix2Fft
     , radix4Fft
+    , radix4FftShare
     ) where
 
 import Debug.Trace
@@ -86,7 +87,7 @@ zipWith5 f as bs cs ds es = map (\e -> case view e of (a, b, c, d, e) -> f a b c
 radix4Fft :: Integer -> Q [Complex] -> Q [Complex]
 radix4Fft n v | 4 P.* n P.<= 32 = trace ("dft4 " P.++ show (n P.* 4)) $ dft (4 P.* n) v
 radix4Fft n v | otherwise       = trace ("fft4 " P.++ show (n P.* 4)) $
-    appendFour $ unzip4 $ zipWith5 combine twiddles ys zs gs hs
+    appendFour $ unzip4 $ zipWith5 combine twiddles ys zs gs hs 
   where
     idxs     = toQ [0 .. n - 1]
     twiddles = map (\r -> triple (ω n r) (ω n (2 * r)) (ω n (3 * r))) idxs
@@ -95,6 +96,28 @@ radix4Fft n v | otherwise       = trace ("fft4 " P.++ show (n P.* 4)) $
     zs       = subFfts !! 1
     gs       = subFfts !! 2
     hs       = subFfts !! 3
+    combine t y z g h =
+        let (t1, t2, t3) = view t
+            xr1 = y .+ t1 .* z .+ t2 .* g .+ t3 .* h
+            xr2 = y .- t1 .* z .+ t2 .* g .+ t3 .* h
+            xr3 = y .+ t1 .* z .- t2 .* g .+ t3 .* h
+            xr4 = y .+ t1 .* z .+ t2 .* g .- t3 .* h
+        in tuple4 xr1 xr2 xr3 xr4
+
+-- HACK HACK HACK. Use a comprehension with a singleton generator to
+-- force sharing of the radix4 sub-ffts. This works only as long as
+-- M-Norm-2 is disabled.
+radix4FftShare :: Integer -> Q [Complex] -> Q [Complex]
+radix4FftShare n v | 4 P.* n P.<= 32 = trace ("dft4 " P.++ show (n P.* 4)) $ dft (4 P.* n) v
+radix4FftShare n v | otherwise       = trace ("fft4 " P.++ show (n P.* 4)) $
+    concat $ [ appendFour $ unzip4 $ zipWith5 combine twiddles (xs !! 0) (xs !! 1) (xs !! 2) (xs !! 3)
+             | xs <- singleton subFfts
+             ]
+  where
+    idxs     = toQ [0 .. n - 1]
+    twiddles = map (\r -> triple (ω n r) (ω n (2 * r)) (ω n (3 * r))) idxs
+    subFfts  = map (radix4Fft $ n `P.div` 4) $ φ $ ρ 4 v
+
     combine t y z g h =
         let (t1, t2, t3) = view t
             xr1 = y .+ t1 .* z .+ t2 .* g .+ t3 .* h
