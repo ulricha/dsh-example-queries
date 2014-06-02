@@ -21,6 +21,7 @@ import qualified Prelude as P
 import Database.DSH
 import Database.DSH.Compiler
 
+import DFT.Support
 import DFT.Complex
 import DFT.Basic
 import DFT.Buneman
@@ -89,7 +90,7 @@ radix4Fft n v | 4 P.* n P.<= 32 = trace ("dft4 " P.++ show (n P.* 4)) $ dft (4 P
 radix4Fft n v | otherwise       = trace ("fft4 " P.++ show (n P.* 4)) $
     appendFour $ unzip4 $ zipWith5 combine twiddles ys zs gs hs 
   where
-    idxs     = toQ [0 .. n - 1]
+    idxs     = indexes n
     twiddles = map (\r -> triple (ω n r) (ω n (2 * r)) (ω n (3 * r))) idxs
     subFfts  = map (radix4Fft $ n `P.div` 4) $ φ $ ρ 4 v
     ys       = subFfts !! 0
@@ -114,7 +115,7 @@ radix4FftShare n v | otherwise       = trace ("fft4 " P.++ show (n P.* 4)) $
              | xs <- singleton subFfts
              ]
   where
-    idxs     = toQ [0 .. n - 1]
+    idxs     = indexes n
     twiddles = map (\r -> triple (ω n r) (ω n (2 * r)) (ω n (3 * r))) idxs
     subFfts  = map (radix4Fft $ n `P.div` 4) $ φ $ ρ 4 v
 
