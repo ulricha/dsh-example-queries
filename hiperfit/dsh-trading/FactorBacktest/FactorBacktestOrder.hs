@@ -23,7 +23,11 @@ import Database.DSH.Compiler
 
 import Database.X100Client
 
-data Cell = Cell { row :: Integer, col :: Integer, content :: Double }
+data Cell = Cell 
+    { col :: Integer
+    , content :: Double
+    , row :: Integer
+    }
 
 deriveDSH ''Cell
 deriveTA ''Cell
@@ -43,9 +47,9 @@ spr :: Q [Double] -> Q [Double] -> Q [(Integer, Double)]
 spr as bs = map (\(view -> (p, i)) -> tuple2 i (ret p)) $ number $ zip as bs
   where 
     ret :: Q (Double, Double) -> Q Double
-    ret (view -> (a, b)) = (b - a) / a
+    ret (view -> (a, b)) = (b - a) / (a + 1)
 
--- FIXME could be cheaper to drop instead of reverse + take
+-- FIXME might be cheaper to drop instead of reverse + take
 buckets :: Integer -> Integer -> Q [(Integer, Double)] -> Q ([Integer], [Integer])
 buckets k1 k2 r = tuple2 topBucket bottomBucket
   where 
@@ -79,7 +83,8 @@ backtest m matrix k1 k2 s = map go (align s matrix')
     go (view -> ((view -> (ri, ris)), ri2s)) =
         let r = spr ri ris
             (view -> (b1, b2)) = buckets k1 k2 r
-            w = sumIndex ris b1 / sumIndex ris b2
+            -- FIXME add one to avoid div by zero
+            w = sumIndex ris b1 / (sumIndex ris b2 + 1)
         in (price w ri2s b1 b2) - (price w ris b1 b2)
 
 getConn :: X100Info

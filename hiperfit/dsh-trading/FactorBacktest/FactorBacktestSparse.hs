@@ -28,7 +28,11 @@ import Database.DSH.Compiler
 import Database.HDBC.PostgreSQL
 import Database.X100Client
 
-data Cell = Cell { row :: Integer, col :: Integer, content :: Double }
+data Cell = Cell 
+    { col :: Integer
+    , content :: Double
+    , row :: Integer
+    }
 
 deriveDSH ''Cell
 deriveTA ''Cell
@@ -96,4 +100,4 @@ getConnX100 :: X100Info
 getConnX100 = x100Info "localhost" "48130" Nothing
 
 main :: IO ()
-main = debugQX100 "factor-backtest_sparse" getConnX100 $ backtest 2 (mkMatrix $ storage "foo") 2 2 5
+main = debugQX100 "factor-backtest_sparse" getConnX100 $ backtest 2 (mkMatrix $ storage "10p6_500") 2 2 5
