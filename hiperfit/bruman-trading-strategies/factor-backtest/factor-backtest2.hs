@@ -23,29 +23,31 @@ module Main where
 
 import qualified Prelude as P
 import Database.DSH
-import Database.DSH.Flattening
+import Database.DSH.Compiler
 
+import Database.HDBC.PostgreSQL
 import Database.X100Client
+
+data Cell = Cell { row :: Integer, col :: Integer, content :: Double }
+
+deriveDSH ''Cell
+deriveTA ''Cell
+generateTableSelectors ''Cell
 
 type Row = [(Integer, Double)]
 
-storage :: Q [(Integer, Integer, Double)]
-storage = toQ [ (1,1,10)
-              , (1,2,20)
-              , (1,3,30)
-              , (2,1,40)
-              , (2,2,50)
-              , (2,3,60)
-              , (3,1,70)
-              , (3,2,80)
-              , (3,3,90)
-              ]
+storage :: String -> Q [Cell]
+storage tab = table tab defaultHints { keysHint = [Key ["r", "c"]]
+                                     , nonEmptyHint = NonEmpty
+                                     }
 
-matrix :: Q [(Integer, Row)]
-matrix = let rows = nub $ map (\(view -> (r, _, _)) -> r) storage
-         in [ tuple2 r ([ tuple2 c v | (view -> (r', c, v)) <- storage, r == r' ])
-            | r <- rows
-            ]
+
+-- Try grouping instead of a nestjoin.
+mkMatrix :: Q [Cell] -> Q [(Integer, Row)]
+mkMatrix raw = 
+    [ tuple2 r ([ tuple2 (colQ c) (contentQ c) | c <- raw, rowQ c == r ])
+    | r <- nub $ map rowQ raw
+    ]
 
 spr :: Q Row -> Q Row -> Q Row 
 spr as bs = [ tuple2 i1 ((b - a) / a) | (view -> (i1, a)) <- as
@@ -53,49 +55,45 @@ spr as bs = [ tuple2 i1 ((b - a) / a) | (view -> (i1, a)) <- as
                                       , i1 == i2
                                       ]
 
-buckets :: Q Integer -> Q Integer -> Q [(Integer, Double)] -> Q ([Integer], [Integer])
+buckets :: Integer -> Integer -> Q [(Integer, Double)] -> Q ([Integer], [Integer])
 buckets k1 k2 r = tuple2 topBucket bottomBucket
-  where topBucket    = drop ((length rs) - k1) rs
-        bottomBucket = take k2 rs
-        rs           = map fst $ sortWith snd r
+  where 
+    topBucket    = drop ((length rs) - (toQ k1)) rs
+    bottomBucket = take (toQ k2) rs
+    rs           = map fst $ sortWith snd r
         
 sumIndex :: Q Row -> Q [Integer] -> Q Double
-sumIndex row b = sum [ v | (view -> (i, v)) <- row, i `elem` b ]
+sumIndex r b = sum [ v | (view -> (i, v)) <- r, i `elem` b ]
 
 price :: Q Double -> Q Row -> Q [Integer] -> Q [Integer] -> Q Double
-price w row b1 b2 = sumIndex row b1 + w * sumIndex row b2
+price w r b1 b2 = sumIndex r b1 + w * sumIndex r b2
       
-align :: Q Integer -> Q [(Integer, Row)] -> Q [(Row, Row, Row)]
+align :: Integer -> Q [(Integer, Row)] -> Q [(Row, Row, Row)]
 align s m = [ tuple3 r1 r2 r3 | (view -> (i1, r1)) <- m
                               , (view -> (i2, r2)) <- m
                               , (view -> (i3, r3)) <- m
-                              , i2 == i1 + s
-                              , i3 == i1 + 2 * s
-                              , (i1 `mod` s) == 0
+                              , i2 == i1 + (toQ s)
+                              , i3 == i1 + 2 * (toQ s)
+                              , (i1 `mod` (toQ s)) == 0
                               ]
 
-backtest :: Q [(Integer, Row)] -> Q Integer -> Q Integer -> Q Integer -> Q [Double]
-backtest m k1 k2 s = map go (align s m')
-  where m' = drop (length m `mod` s) m
+backtest :: Integer -> Q [(Integer, Row)] -> Integer -> Integer -> Integer -> Q [Double]
+backtest m matrix k1 k2 s = map go (align s matrix')
+  where 
+    matrix' = drop (toQ $ m `P.mod` s) matrix
         
-        go :: Q (Row, Row, Row) -> Q Double
-        go (view -> (ri, ris, ri2s)) =
-          let r = spr ri ris
-              (view -> (b1, b2)) = buckets k1 k2 r
-              w = sumIndex ris b1 / sumIndex ris b2
-          in (price w ri2s b1 b2) - (price w ris b1 b2)
+    go :: Q (Row, Row, Row) -> Q Double
+    go (view -> (ri, ris, ri2s)) =
+      let r = spr ri ris
+          (view -> (b1, b2)) = buckets k1 k2 r
+          w = sumIndex ris b1 / sumIndex ris b2
+      in (price w ri2s b1 b2) - (price w ris b1 b2)
 
--- getConn :: IO Connection
--- getConn = connectPostgreSQL "user = 'giorgidz' password = '' host = 'localhost' dbname = 'giorgidz'"
+getConn :: IO Connection
+getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' dbname = 'au'"
 
-getConn :: IO X100Info
-getConn = P.return $ x100Info "localhost" "48130" Nothing
-
-runQ :: (Show a,QA a) => Q a -> IO ()
-runQ q = getConn P.>>= \conn -> fromQX100 conn q P.>>= P.print
-
-debugQ :: (Show a, QA a) => Q a -> IO ()
-debugQ q = getConn P.>>= \conn -> debugX100VL "factor-backtest2" conn q
+getConnX100 :: X100Info
+getConnX100 = x100Info "localhost" "48130" Nothing
 
 main :: IO ()
-main = debugQ $ backtest matrix (toQ 2) (toQ 2) (toQ 5)
+main = debugQX100 "factor-backtest_sparse" getConnX100 $ backtest 2 (mkMatrix $ storage "foo") 2 2 5

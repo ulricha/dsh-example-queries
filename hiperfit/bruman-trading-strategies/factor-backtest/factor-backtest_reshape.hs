@@ -23,33 +23,21 @@ import Database.DSH.Compiler
 
 import Database.X100Client
 
-data Cell = Cell
-  { row :: Integer
-  , col :: Integer
-  , val :: Double
-  }
-  
+data Cell = Cell { row :: Integer, col :: Integer, content :: Double }
+
 deriveDSH ''Cell
+deriveTA ''Cell
 generateTableSelectors ''Cell
 
-storage :: Q [Cell]
-storage =    cell 1 1 10
-          <| cell 1 2 20
-          <| cell 1 3 30
-          <| cell 2 1 40
-          <| cell 2 2 50
-          <| cell 2 3 60
-          <| cell 3 1 70
-          <| cell 3 2 80
-          <| cell 3 3 90
-          <| nil
-          
--- FIXME use reshape instead, should be much cheaper
-matrix :: Q [[Double]]
-matrix = map (sortRow . snd) $ groupWithKey rowQ storage
-  where 
-    sortRow :: Q [Cell] -> Q [Double]
-    sortRow cs = map valQ $ sortWith colQ cs
+rawData :: String -> Q [Double]
+rawData tab = map contentQ
+              $ sortWith (\c -> pair (rowQ c) (colQ c))
+              $ table tab defaultHints { keysHint = [Key ["r", "c"]]
+                                       , nonEmptyHint = NonEmpty
+                                       }
+
+mkMatrix :: Integer -> Q [Double] -> Q [[Double]]
+mkMatrix = reshape
 
 spr :: Q [Double] -> Q [Double] -> Q [(Integer, Double)]
 spr as bs = map (\(view -> (p, i)) -> tuple2 i (ret p)) $ number $ zip as bs
@@ -58,32 +46,34 @@ spr as bs = map (\(view -> (p, i)) -> tuple2 i (ret p)) $ number $ zip as bs
     ret (view -> (a, b)) = (b - a) / a
 
 -- FIXME could be cheaper to drop instead of reverse + take
-buckets :: Q Integer -> Q Integer -> Q [(Integer, Double)] -> Q ([Integer], [Integer])
+buckets :: Integer -> Integer -> Q [(Integer, Double)] -> Q ([Integer], [Integer])
 buckets k1 k2 r = tuple2 topBucket bottomBucket
   where 
-    topBucket    = map fst $ take k1 $ reverse rs
-    bottomBucket = map fst $ take k2 rs
+    topBucket    = map fst $ take (toQ k1) $ reverse rs
+    bottomBucket = map fst $ take (toQ k2) rs
     rs           = sortWith snd r
         
 sumIndex :: Q [Double] -> Q [Integer] -> Q Double
-sumIndex row b = sum [ v | (view -> (v, i)) <- number row, i `elem` b ]
+sumIndex r b = sum [ v | (view -> (v, i)) <- number r, i `elem` b ]
 
 price :: Q Double -> Q [Double] -> Q [Integer] -> Q [Integer] -> Q Double
-price w row b1 b2 = sumIndex row b1 + w * sumIndex row b2
+price w r b1 b2 = sumIndex r b1 + w * sumIndex r b2
       
-align :: Q Integer -> Q [[Double]] -> Q [(([Double], [Double]), [Double])]
-align s m = map fst $ filter multiples $ number $ zip (zip m (drop s m)) (drop (2*s) m)
+align :: Integer -> Q [[Double]] -> Q [(([Double], [Double]), [Double])]
+align s matrix = 
+    map fst 
+    $ filter multiples 
+    $ number 
+    $ zip (zip matrix (drop (toQ s) matrix)) (drop (toQ $ 2 P.* s) matrix)
 
   where 
     multiples :: QA r => Q (r, Integer) -> Q Bool
-    multiples p = ((snd p) `mod` s) == 0
+    multiples p = ((snd p) `mod` (toQ s)) == 0
 
--- FIXME assume that the matrix size is statically known => drop the length call.
--- If the length call is to remain, factor out the length computation to avoid the nestproduct.
-backtest :: Q [[Double]] -> Q Integer -> Q Integer -> Q Integer -> Q [Double]
-backtest m k1 k2 s = map go (align s m')
+backtest :: Integer -> Q [[Double]] -> Integer -> Integer -> Integer -> Q [Double]
+backtest m matrix k1 k2 s = map go (align s matrix')
   where 
-    m' = drop (length m `mod` s) m
+    matrix' = drop (toQ $ m `P.mod` s) matrix
         
     go :: Q (([Double], [Double]), [Double]) -> Q Double
     go (view -> ((view -> (ri, ris)), ri2s)) =
@@ -92,14 +82,10 @@ backtest m k1 k2 s = map go (align s m')
             w = sumIndex ris b1 / sumIndex ris b2
         in (price w ri2s b1 b2) - (price w ris b1 b2)
 
-
-
-
--- getConn :: IO Connection
--- getConn = connectPostgreSQL "user = 'giorgidz' password = '' host = 'localhost' dbname = 'giorgidz'"
-
 getConn :: X100Info
 getConn = x100Info "localhost" "48130" Nothing
 
 main :: IO ()
-main = debugQX100 "factor-backtest" getConn $ backtest matrix (toQ 2) (toQ 2) (toQ 5)
+main = debugQX100 "factor-backtest_rs" getConn $ backtest 4 matrix 2 2 5
+  where
+    matrix = mkMatrix 500 $ rawData "10p6_500"
