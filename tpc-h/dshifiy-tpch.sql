@@ -1,3 +1,7 @@
+alter table supplier alter column s_acctbal type real;
+
+alter table lineitem alter column l_acctbal type real;
+
 alter table customer alter column c_acctbal type real;
 
 alter table lineitem alter column l_quantity type real;
