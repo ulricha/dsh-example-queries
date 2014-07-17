@@ -3,7 +3,7 @@ version:             0.1.0.0
 synopsis:            All 22 queries from the TPC-H benchmark written using DSH.
 -- description:         
 homepage:            http://db.inf.uni-tuebingen.de/projects/DatabaseSupportedHaskell.html
-license:             PublicDomain
+license:             BSD3
 license-file:        LICENSE
 author:              Alexander Ulrich
 maintainer:          alex@etc-network.de

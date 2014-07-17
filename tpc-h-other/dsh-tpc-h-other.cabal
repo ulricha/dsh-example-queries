@@ -22,6 +22,7 @@ library
   other-extensions:    TemplateHaskell, FlexibleInstances, TypeFamilies, UndecidableInstances, MultiParamTypeClasses, GADTs, ViewPatterns, MonadComprehensions, OverloadedStrings, RebindableSyntax
   build-depends:       base >=4.7 && <4.8,
                        DSH > 0.9,
-                       dsh-tpc-h
+                       dsh-tpc-h,
+                       HDBC-postgresql
   -- hs-source-dirs:      
   default-language:    Haskell2010
