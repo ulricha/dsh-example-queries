@@ -14,7 +14,8 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     Queries.TPCH  
+  exposed-modules:     Queries.TPCH,
+                       Schema.TPCH
   other-modules:       Queries.TPCH.Q1, 
                        Queries.TPCH.Q2, 
                        Queries.TPCH.Q3, 
@@ -34,9 +35,14 @@ library
                        Queries.TPCH.Q19, 
                        Queries.TPCH.Q20, 
                        Queries.TPCH.Q21, 
-                       Queries.TPCH.Q22, 
-                       Queries.TPCH.Records
+                       Queries.TPCH.Q22
   other-extensions:    TemplateHaskell
-  build-depends:       base, DSH >=0.8 && <0.9, HDBC-postgresql, text
+  build-depends:       base, DSH >=0.9, HDBC-postgresql, text
   -- hs-source-dirs:      
   default-language:    Haskell2010
+
+executable run
+  hs-source-dirs:   Queries/
+  main-is:          Run.hs
+  build-depends:    base, DSH >= 0.9, HDBC-postgresql, text, dsh-tpc-h
+  default-language: Haskell2010

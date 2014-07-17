@@ -6,7 +6,7 @@
 {-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE ViewPatterns          #-}
 
-module Queries.TPCH.Records where
+module Schema.TPCH where
 
 import Database.DSH
 

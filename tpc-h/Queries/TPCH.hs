@@ -22,6 +22,7 @@ module Queries.TPCH
     , module Queries.TPCH.Q22
     , getConn
     ) where
+
 import Database.HDBC.PostgreSQL
 
 import Queries.TPCH.Q1

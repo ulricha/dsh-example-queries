@@ -23,7 +23,7 @@ import Database.DSH.Compiler
 
 import Database.HDBC.PostgreSQL
 
-import Queries.TPCH.Records
+import Schema.TPCH
 
 colorParts :: Text -> Q [Integer]
 colorParts color = [ p_partkeyQ p | p <- parts, p_nameQ p `like` (toQ $ T.append color "%") ]

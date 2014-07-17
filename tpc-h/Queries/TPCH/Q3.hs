@@ -21,7 +21,7 @@ import Database.DSH.Compiler
 
 import Database.HDBC.PostgreSQL
 
-import Queries.TPCH.Records
+import Schema.TPCH
 
 project 
   :: Q ((Integer, Integer, Integer), [((Integer, Integer, Integer), (Double, Double))])

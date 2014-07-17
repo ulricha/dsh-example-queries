@@ -19,7 +19,7 @@ import Database.DSH.Compiler
 
 import Database.HDBC.PostgreSQL
 
-import Queries.TPCH.Records
+import Schema.TPCH
 
 minSupplyCost :: Q Integer -> Q Double
 minSupplyCost partkey = 

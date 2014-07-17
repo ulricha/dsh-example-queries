@@ -19,7 +19,7 @@ import Database.DSH.Compiler
 
 import Database.HDBC.PostgreSQL
 
-import Queries.TPCH.Records
+import Schema.TPCH
 
 withFlagStatus :: Q LineItem -> Q (Text, Text)
 withFlagStatus li = tuple2 (l_returnflagQ li) (l_linestatusQ li)

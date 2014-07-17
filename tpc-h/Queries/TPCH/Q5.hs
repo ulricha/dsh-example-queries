@@ -21,7 +21,7 @@ import Database.DSH.Compiler
 
 import Database.HDBC.PostgreSQL
 
-import Queries.TPCH.Records
+import Schema.TPCH
 
 q5 =
   sortWith (\(view -> (n, r)) -> r * (-1)) $

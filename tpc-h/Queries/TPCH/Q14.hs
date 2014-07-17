@@ -22,7 +22,7 @@ import Database.DSH.Compiler
 
 import Database.HDBC.PostgreSQL
 
-import Queries.TPCH.Records
+import Schema.TPCH
 
 revenue :: Q Double -> Q Double -> Q Double
 revenue ep dis = ep * (1 - dis)

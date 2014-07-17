@@ -21,7 +21,7 @@ import Database.DSH.Compiler
 
 import Database.HDBC.PostgreSQL
 
-import Queries.TPCH.Records
+import Schema.TPCH
 
 between :: Q Integer -> Q Integer -> Q Integer -> Q Bool
 between x l r = x >= l && x <= r

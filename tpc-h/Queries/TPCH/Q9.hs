@@ -21,7 +21,7 @@ import Database.DSH.Compiler
 
 import Database.HDBC.PostgreSQL
 
-import Queries.TPCH.Records
+import Schema.TPCH
 
 thd3 :: (QA a, QA b, QA c) => Q (a, b, c) -> Q c
 thd3 (view -> (_, _, c)) = c

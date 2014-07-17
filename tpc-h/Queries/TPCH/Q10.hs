@@ -21,7 +21,7 @@ import Database.DSH.Compiler
 
 import Database.HDBC.PostgreSQL
 
-import Queries.TPCH.Records
+import Schema.TPCH
 
 q10_join :: Q [((Integer, Text, Double, Text, Text, Text, Text), Double)]
 q10_join = 

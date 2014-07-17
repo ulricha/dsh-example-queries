@@ -22,7 +22,7 @@ import Database.DSH.Compiler
 
 import Database.HDBC.PostgreSQL
 
-import Queries.TPCH.Records
+import Schema.TPCH
 
 relevantShippings :: Text -> Text -> Integer -> Q [(Text, Text)]
 relevantShippings sm1 sm2 date =

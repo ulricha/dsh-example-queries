@@ -23,7 +23,7 @@ import Database.DSH.Compiler
 
 import Database.HDBC.PostgreSQL
 
-import Queries.TPCH.Records
+import Schema.TPCH
 
 customersAvgBalance :: [Text] -> Q Double
 customersAvgBalance areaPrefixes =
