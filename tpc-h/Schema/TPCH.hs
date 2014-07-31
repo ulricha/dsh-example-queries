@@ -151,3 +151,6 @@ lineitems = table "lineitem" $ TableHints [Key ["l_orderkey", "l_linenumber"]] N
 
 customers :: Q [Customer]
 customers = table "customer" $ TableHints [Key ["c_custkey"]] NonEmpty
+
+
+

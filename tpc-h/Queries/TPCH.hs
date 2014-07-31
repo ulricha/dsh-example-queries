@@ -56,25 +56,70 @@ getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' 
 debugAll :: IO ()
 debugAll = do
     c <- getConn
+    putStrLn "Q1"
     debugQ "q1" c q1
+
+    putStrLn "Q2"
     debugQ "q2" c q2
+
+    putStrLn "Q3"
     debugQ "q3" c q3
+    
+    putStrLn "Q4"
     debugQ "q4" c q4
+
+    putStrLn "Q5"
     debugQ "q5" c q5
+
+    putStrLn "Q6"
     debugQ "q6" c q6
+
+    putStrLn "Q7"
     debugQ "q7" c q7
+
+    putStrLn "Q8"
     debugQ "q8" c q8
+
+    putStrLn "Q9"
     debugQ "q9" c q9
+
+    putStrLn "Q10"
     debugQ "q10" c q10
+
+    putStrLn "Q11"
     debugQ "q11" c $ q11 "GERMANY" 0.0001
+
+    putStrLn "Q12"
     debugQ "q12" c $ q12 "MAIL" "SHIP" 0xdeadbeef
+
+    -- putStrLn "Q1"
     -- debugQ "q13" c q13
+
+    putStrLn "Q14"
     debugQ "q14" c $ q14 0xdeadbeef
+
+    {-
+    putStrLn "Q15"
     debugQ "q15" c $ q15 0xdeadbeef
+    -}
+
+    putStrLn "Q16"
     debugQ "q16" c q16
+
+    putStrLn "Q17"
     debugQ "q17" c q17
+
+    putStrLn "Q18"
     debugQ "q18" c $ q18 300
+
+    putStrLn "Q19"
     debugQ "q19" c $ q19 1 10 20 "Brand#12" "Brand#23" "Brand#34"
-    debugQ "q20" c $ q20 "forest" 0xdeadbeef "CANADA"
+
+    putStrLn "Q20"
+    debugQ "q20" c $ q20 "forest" 42 "CANADA"
+
+    putStrLn "Q21"
     debugQ "q21" c $ q21 "SAUDI ARABIA"
+
+    putStrLn "Q22"
     debugQ "q22" c $ q22 ["13", "31", "23", "29", "30", "18", "17"]

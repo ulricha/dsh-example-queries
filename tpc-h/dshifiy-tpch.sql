@@ -15,3 +15,5 @@ alter table orders alter column o_orderdate type int using extract(epoch from o_
 alter table lineitem alter column l_shipdate type int using extract(epoch from l_shipdate); 
 alter table lineitem alter column l_commitdate type int using extract(epoch from l_commitdate); 
 alter table lineitem alter column l_receiptdate type int using extract(epoch from l_receiptdate); 
+
+alter table part alter column p_retailprice type real;
