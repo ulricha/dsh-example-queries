@@ -19,13 +19,25 @@ import Database.HDBC.PostgreSQL
 
 import Schema.TPCH
 
+--------------------------------------------------------------------------------
+-- Query written from a viewpoint taking the list model in consideration
+
+orderQuantity :: Q [LineItem] -> Q Double
+orderQuantity lis = sum $ map l_quantityQ lis
+
+jan_q7a :: Q [LineItem]
+jan_q7a = snd $ head $ sortWith (orderQuantity . snd) $ groupWithKey l_orderkeyQ lineitems
+
+--------------------------------------------------------------------------------
+-- Query written from a database viewpoint
+
 -- List the lineitems of the order with the most parts.
 sumPerOrder :: Q [(Integer, Double)]
 sumPerOrder = map (\(view -> (ok, lis)) -> pair ok (sum $ map l_quantityQ lis)) 
 	      $ groupWithKey l_orderkeyQ lineitems
 
-jan_q7 :: Q [LineItem]
-jan_q7 = 
+jan_q7b :: Q [LineItem]
+jan_q7b = 
     [ l
     | l <- lineitems
     , (view -> (ok, nrItems)) <- sumPerOrder
@@ -37,4 +49,4 @@ getConn :: IO Connection
 getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5432' dbname = 'tpch'"
 
 main :: IO ()
-main = getConn P.>>= \conn -> debugQ "jan_q7" conn jan_q7
+main = getConn P.>>= \conn -> debugQ "jan_q7" conn jan_q7a
