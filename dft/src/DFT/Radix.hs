@@ -141,6 +141,7 @@ shuffle4 vec = zeros <| ones <| twos <| singleton threes
 
     vecPos = number0 vec
 
+-- Bind the numbered vector in a generator to avoid term explosion.
 shuffle4' :: Q [Complex] -> Q [[Complex]]
 shuffle4' vec = map filterPos $ toQ [0..3]
 
