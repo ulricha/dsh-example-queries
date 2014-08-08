@@ -1,16 +1,18 @@
 module Main where
 
 import           Control.Monad
-import qualified Data.ByteString.Lazy as B
+import qualified Data.ByteString.Lazy  as B
 import           Data.Csv
-import qualified Data.Foldable        as F
+import qualified Data.Foldable         as F
 import           Data.IORef
-import           Data.Sequence        (Seq, (<|), (><))
-import qualified Data.Sequence        as Seq
-import qualified Data.Set             as S
-import qualified Data.Traversable     as T
-import           Data.Vector          ((!), (//))
-import qualified Data.Vector          as V
+import           Data.Sequence         (Seq, (<|), (><))
+import qualified Data.Sequence         as Seq
+import qualified Data.Set              as S
+import qualified Data.Traversable      as T
+import           Data.Vector           ((!), (//))
+import qualified Data.Vector           as V
+import           System.Console.GetOpt
+import           System.Environment
 import           System.IO
 import           System.Random.MWC
 
@@ -18,14 +20,63 @@ flowInterrupt :: Int
 flowInterrupt = 120
 
 data Options = Options
-    { o_hosts      :: !Int
-    , o_conns      :: !Int
-    , o_avgFlows   :: !Int
-    , o_avgFlowLen :: !Int
+    { o_hosts      :: !Int         -- ^ Number of hosts
+    , o_conns      :: !Int         -- ^ Number of host pairs that
+                                   -- communicate
+    , o_avgFlows   :: !Int         -- ^ Average number of flows per
+                                   -- host pair
+    , o_avgFlowLen :: !Int         -- ^ Average number of a single
+                                   -- flow
     , o_gen        :: GenIO
     , o_file       :: Handle
     , o_pidSrc     :: IORef Int
     }
+
+mkDefaultOptions :: IO Options
+mkDefaultOptions = do
+    gen    <- withSystemRandom $ asGenIO return
+    f      <- openFile "packets.csv" WriteMode
+    pidSrc <- newIORef (0 :: Int)
+
+    return $ Options { o_hosts      = 100
+                     , o_conns      = 2000
+                     , o_avgFlows   = 5
+                     , o_avgFlowLen = 300
+                     , o_gen        = gen
+                     , o_file       = f
+                     , o_pidSrc     = pidSrc
+                     }
+
+options :: [OptDescr (Options -> IO Options)]
+options =
+    [ Option ['h'] ["hosts"]
+             (ReqArg (\hs opts -> return $ opts { o_hosts = read hs } ) "HOSTS")
+             "number of hosts"
+    , Option ['c'] ["connections"]
+             (ReqArg (\cs opts -> return $ opts { o_conns = read cs } ) "CONNS")
+             "number of connections between pairs of hosts"
+    , Option ['f'] ["avgflows"]
+             (ReqArg (\fs opts -> return $ opts { o_avgFlows = read fs } ) "FLOWS")
+             "average number of flows between a pair of hosts"
+    , Option ['l'] ["avglen"]
+             (ReqArg (\al opts -> return $ opts { o_avgFlowLen = read al } ) "LEN")
+             "average length of a flow"
+    , Option ['o'] ["outfile"]
+             (ReqArg (\fname opts -> hClose (o_file opts)
+                                       >> openFile fname WriteMode
+                                       >>= \h -> return $ opts { o_file = h })
+                     "FILE")
+             "output file"
+    ]
+
+parseOptions :: [String] -> IO Options
+parseOptions argv =
+    case getOpt Permute options argv of
+        (o, [], [])  -> mkDefaultOptions >>= \defOpt -> F.foldlM (flip id) defOpt o
+        (_, _, errs) -> ioError (userError $ concat errs ++ usageInfo header options)
+  where
+    header = "Usage: flowgen [OPTION...]"
+
 
 type Host      = Int
 type Timestamp = Int
@@ -74,7 +125,7 @@ writePackets f ps = B.hPut f $ encode $ F.toList ps
 -- destination hosts
 writeFlows :: Options -> Host -> Host -> IO ()
 writeFlows opts src dst = do
-    startTs <- uniformR (0, 2^31) (o_gen opts)
+    startTs <- uniformR (0, 2^(31 :: Int)) (o_gen opts)
 
     nrFlowFactor <- uniformR (0.5 :: Double, 1.5) (o_gen opts)
     let nrFlows = round $ (fromIntegral $ o_avgFlows opts) * nrFlowFactor
@@ -103,8 +154,6 @@ genFlow opts flowStart src dst = do
 
     genPackets opts flowStart src dst Seq.empty flowLen
 
-
-
 -- | Generate packets for a flow: Compute a random offset between
 -- packets that is smaller than the flow interruption constant
 -- (120). The function returns the packets and the timestamp of the
@@ -126,11 +175,9 @@ genPackets opts ts src dst ps n = do
 
 main :: IO ()
 main = do
-    gen    <- withSystemRandom $ asGenIO $ return
-    f      <- openFile "packets.csv" WriteMode
-    pidSrc <- newIORef (0 :: Int)
-    let opts = Options 5000 10000 15 1000 gen f pidSrc
+    argv <- getArgs
+    opts <- parseOptions argv
     let hosts = genHosts (o_hosts opts)
     conns <- genHostPairs opts hosts
     void $ T.mapM (uncurry (writeFlows opts)) conns
-    hClose f
+    hClose (o_file opts)
