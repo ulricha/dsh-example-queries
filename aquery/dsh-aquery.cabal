@@ -36,3 +36,9 @@ executable flowgen
   build-depends:       base, containers, mwc-random, vector, cassava, bytestring
   ghc-options:         -Wall -O2
   
+executable tradegen
+  default-language:    Haskell2010
+  main-is:             TradeGen.hs
+  build-depends:       base, containers, mwc-random, vector, cassava, bytestring
+  ghc-options:         -Wall -O2
+  
