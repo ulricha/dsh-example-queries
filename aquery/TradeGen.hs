@@ -1,15 +1,10 @@
 module Main where
 
-import           Control.Monad
 import qualified Data.ByteString.Lazy  as B
 import           Data.Csv
 import qualified Data.Foldable         as F
-import           Data.IORef
-import           Data.Sequence         (Seq, (<|), (><))
+import           Data.Sequence         (Seq, (<|))
 import qualified Data.Sequence         as Seq
-import qualified Data.Set              as S
-import qualified Data.Traversable      as T
-import           Data.Vector           ((!), (//))
 import qualified Data.Vector           as V
 import           System.Console.GetOpt
 import           System.Environment
@@ -22,19 +17,21 @@ msPerDay = 10 * 3600 * 24
 type Timestamp = Int
 type Date      = Int
 type ID        = Int
+type Day       = Int
 
 data Trade = Trade
-    { t_price :: Real
+    { t_price :: Double
     , t_tid   :: ID
     , t_ts    :: Timestamp
     , t_date  :: Day
     }
 
 instance ToRecord Trade where
-    toRecord (Trade p id ts date) = 
-        record [ toField p, toField id, toField ts, toField date ]
+    toRecord (Trade p sid ts date) = 
+        record [ toField p, toField sid, toField ts, toField date ]
 
 genDays :: Int -> V.Vector Day
+genDays n = V.enumFromN 1 n
 
 {-
 
@@ -54,7 +51,6 @@ data Options = Options
                                 -- stock
     , o_gen       :: GenIO
     , o_file      :: Handle
-    , o_pidSrc    :: IORef Int
     }
 
 mkDefaultOptions :: IO Options
@@ -108,7 +104,7 @@ for each day d:
 -}
 
 writeTrades :: Options -> Seq Trade -> IO ()
-writeTrades opts trades = B.hPut (o_file opts) $ encode $ T.toList trades
+writeTrades opts trades = B.hPut (o_file opts) $ encode $ F.toList trades
 
 genTrades :: Options -> IO ()
 genTrades opts = do
@@ -116,22 +112,25 @@ genTrades opts = do
     let days   = V.enumFromN 0 (o_days opts)
         stocks = V.enumFromN 0 (o_stocks opts)
     
-    T.forM_ days (\day ->
-        T.forM_ stocks (\stock -> do
+    V.forM_ days $ \day -> do
+        putStrLn $ "day " ++ show day 
+        V.forM_ stocks $ \stock -> do
+            putStrLn $ "stock " ++ show stock
             tradesFactor <- uniformR (0.7 :: Double, 1.3) (o_gen opts)
-            let trades   = round $ tradesFactor * (fromIntegral $ o_avgTrades opts)
+            let nrTrades = round $ tradesFactor * (fromIntegral $ o_avgTrades opts)
                 tsOffset = day * msPerDay
 
-            (trades, _) <- F.foldlM (genDayStockTrades opts day stock) (Seq.empty, tsOffset) trades
+            putStrLn $ "trades " ++ show nrTrades
+            trades <- genDayStockTrades opts day stock Seq.empty tsOffset nrTrades
             writeTrades opts trades
 
-genDayStockTrades :: Options -> Day -> Stock -> Seq Trade -> Timestamp -> Int -> IO (Seq Trade)
-genDayStockTrades opts day stock trades nextTs 0 = return trades
+genDayStockTrades :: Options -> Day -> ID -> Seq Trade -> Timestamp -> Int -> IO (Seq Trade)
+genDayStockTrades _    _   _     trades _      0 = return trades
 genDayStockTrades opts day stock trades nextTs n = do
-    price    <- uniformR (1 :: Int, 10000) (o_gen opts)
+    price    <- uniformR (1 :: Double, 10000) (o_gen opts)
     let trade = Trade price stock nextTs day
     tsOffset <- uniformR (1, 10) (o_gen opts)
-    genDayStockTrades opts day stock (trade |> trades) (nextTs + tsOffset) (n - 1)
+    genDayStockTrades opts day stock (trade <| trades) (nextTs + tsOffset) (n - 1)
 
 main :: IO ()
 main = do
