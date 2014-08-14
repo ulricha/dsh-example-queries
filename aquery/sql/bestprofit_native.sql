@@ -6,4 +6,4 @@ from (select t_tid, t_tradedate,
                 rows unbounded preceding)
                as running_diff
       from tradessmall) as t1
-where t_tid = 94 and t_tradedate = 15;
+where t_tid = 4 and t_tradedate = 2;

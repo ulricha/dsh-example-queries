@@ -4,4 +4,4 @@ from (select t_price - min(t_price) over
                 rows unbounded preceding)
                as running_diff
       from tradessmall
-      where t_tid = 94 and t_tradedate = 15) as t1;
+      where t_tid = 4 and t_tradedate = 2) as t1;
