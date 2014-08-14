@@ -1,5 +1,6 @@
 module Main where
 
+import           Control.Monad
 import qualified Data.ByteString.Lazy  as B
 import           Data.Csv
 import qualified Data.Foldable         as F
@@ -27,7 +28,7 @@ data Trade = Trade
     }
 
 instance ToRecord Trade where
-    toRecord (Trade p sid ts date) = 
+    toRecord (Trade p sid ts date) =
         record [ toField p, toField sid, toField ts, toField date ]
 
 genDays :: Int -> V.Vector Day
@@ -58,8 +59,8 @@ mkDefaultOptions = do
     gen    <- withSystemRandom $ asGenIO return
     f      <- openFile "trades.csv" WriteMode
 
-    return $ Options { o_days       = 365
-                     , o_stocks     = 1000
+    return $ Options { o_days       = 20
+                     , o_stocks     = 100
                      , o_avgTrades  = 6000
                      , o_gen        = gen
                      , o_file       = f
@@ -109,20 +110,27 @@ writeTrades opts trades = B.hPut (o_file opts) $ encode $ F.toList trades
 genTrades :: Options -> IO ()
 genTrades opts = do
 
-    let days   = V.enumFromN 0 (o_days opts)
-        stocks = V.enumFromN 0 (o_stocks opts)
-    
-    V.forM_ days $ \day -> do
-        putStrLn $ "day " ++ show day 
-        V.forM_ stocks $ \stock -> do
-            putStrLn $ "stock " ++ show stock
-            tradesFactor <- uniformR (0.7 :: Double, 1.3) (o_gen opts)
-            let nrTrades = round $ tradesFactor * (fromIntegral $ o_avgTrades opts)
-                tsOffset = day * msPerDay
+    let days   = [0 .. o_days opts]
+        stocks = [0 .. o_stocks opts]
 
-            putStrLn $ "trades " ++ show nrTrades
-            trades <- genDayStockTrades opts day stock Seq.empty tsOffset nrTrades
-            writeTrades opts trades
+    forM_ days $ \day -> do
+        putStrLn $ "day " ++ show day
+
+        let genStockTrades (stock : ss) acc = do
+                putStrLn $ "stock " ++ show stock
+                tradesFactor <- uniformR (0.7 :: Double, 1.3) (o_gen opts)
+                let nrTrades = round $ tradesFactor * (fromIntegral $ o_avgTrades opts)
+                    tsOffset = day * msPerDay
+
+                trades <- genDayStockTrades opts day stock Seq.empty tsOffset nrTrades
+
+                genStockTrades ss (trades Seq.>< acc)
+            genStockTrades [] acc = return acc
+
+        trades <- genStockTrades stocks Seq.empty
+        putStrLn $ "got trades " ++ show (Seq.length trades)
+
+        writeTrades opts trades
 
 genDayStockTrades :: Options -> Day -> ID -> Seq Trade -> Timestamp -> Int -> IO (Seq Trade)
 genDayStockTrades _    _   _     trades _      0 = return trades
