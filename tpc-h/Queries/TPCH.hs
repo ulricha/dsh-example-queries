@@ -40,6 +40,7 @@ import Queries.TPCH.Q9
 import Queries.TPCH.Q10
 import Queries.TPCH.Q11
 import Queries.TPCH.Q12
+import Queries.TPCH.Q13
 import Queries.TPCH.Q14
 import Queries.TPCH.Q15
 import Queries.TPCH.Q16
@@ -92,8 +93,8 @@ debugAll = do
     putStrLn "Q12"
     debugQ "q12" c $ q12 "MAIL" "SHIP" 0xdeadbeef
 
-    -- putStrLn "Q1"
-    -- debugQ "q13" c q13
+    putStrLn "Q13"
+    debugQ "q13" c q13
 
     putStrLn "Q14"
     debugQ "q14" c $ q14 0xdeadbeef
