@@ -35,9 +35,9 @@ revenue intervalFrom =
     ]
 
   where
-    intervalItems = [ tuple3 (l_suppkeyQ l)
-    			     (l_extendedpriceQ l)
-			     (l_discountQ l)
+    intervalItems = [ tup3 (l_suppkeyQ l)
+    			   (l_extendedpriceQ l)
+			   (l_discountQ l)
 		    | l <- lineitems
 		    , l_shipdateQ l >= toQ intervalFrom
 		    , l_shipdateQ l <= (toQ intervalFrom) + 23
@@ -47,10 +47,10 @@ q15 :: Integer -> Q [(Integer, (Text, Text, Text, Double))]
 q15 intervalFrom = 
     sortWith fst
     [ pair (s_suppkeyQ s)
-           (tuple4  (s_nameQ s)
-	            (s_addressQ s)
-	            (s_phoneQ s)
-	            total_rev)
+           (tup4 (s_nameQ s)
+	         (s_addressQ s)
+	         (s_phoneQ s)
+	         total_rev)
     | s <- suppliers
     , (view -> (supplier_no, total_rev)) <- revenue intervalFrom
     , s_suppkeyQ s == supplier_no

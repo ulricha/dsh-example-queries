@@ -27,7 +27,7 @@ q5 =
   sortWith (\(view -> (n, r)) -> r * (-1)) $
   map (\(view -> (k, g)) -> pair k (sum [ e * (1 - d) | (view -> (_, e, d)) <- g ])) $
   groupWithKey (\(view -> (n, e, d)) -> n) $
-  [ tuple3 (n_nameQ n) (l_extendedpriceQ l) (l_discountQ l)
+  [ tup3 (n_nameQ n) (l_extendedpriceQ l) (l_discountQ l)
   | c <- customers
   , o <- orders
   , l <- lineitems

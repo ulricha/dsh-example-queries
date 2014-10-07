@@ -29,7 +29,7 @@ revenue ep dis = ep * (1 - dis)
 
 itemPrices :: Integer -> Q [(Text, Double, Double)]
 itemPrices date = 
-  [ tuple3 (p_typeQ p) (l_extendedpriceQ l) (l_discountQ l)
+  [ tup3 (p_typeQ p) (l_extendedpriceQ l) (l_discountQ l)
   | l <- lineitems
   , p <- parts
   , l_partkeyQ l == p_partkeyQ p
