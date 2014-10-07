@@ -25,32 +25,44 @@ import Database.HDBC.PostgreSQL
 
 import Schema.TPCH
 
+data Interval = Interval { iv_start :: Integer, iv_end :: Integer }
+
+inInterval :: Q Integer -> Interval -> Q Bool
+inInterval d interval = d >= toQ (iv_start interval) && d < toQ (iv_end interval)
+
+
+-- | Only consider parts of a given color
 colorParts :: Text -> Q [Integer]
 colorParts color = [ p_partkeyQ p | p <- parts, p_nameQ p `like` (toQ $ T.append color "%") ]
 
-excessBoundary :: Integer -> Q Integer -> Q Double
-excessBoundary date partkey =
+-- | Having more than 50% of the volume sold in a given time interval
+-- in stock for a given part is considered excessive.
+excessBoundary :: Interval -> Q Integer -> Q Double
+excessBoundary interval partkey =
   0.5 * sum [ l_quantityQ l
             | l <- lineitems
 	    , l_partkeyQ l == partkey
-	    , l_shipdateQ l >= toQ date
-	    , l_shipdateQ l < toQ date + 23
+            , l_shipdateQ l `inInterval` interval
 	    ]
 
-excessSuppliers :: Text -> Integer -> Q [Integer]
-excessSuppliers color date =
+-- | Compute suppliers who have an excess stock for parts of a given
+-- color.
+excessSuppliers :: Text -> Interval -> Q [Integer]
+excessSuppliers color interval =
   [ ps_suppkeyQ ps
   | ps <- partsupps
   , ps_partkeyQ ps `elem` colorParts color
-  , integerToDouble (ps_availqtyQ ps) > excessBoundary date (ps_partkeyQ ps)
+  , integerToDouble (ps_availqtyQ ps) > excessBoundary interval (ps_partkeyQ ps)
   ]
 
-q20 :: Text -> Integer -> Text -> Q [(Text, Text)]
-q20 color date nation = 
+-- | Compute suppliers in a given nation who have an excess stock for
+-- parts of a given color.
+q20 :: Text -> Interval -> Text -> Q [(Text, Text)]
+q20 color interval nation = 
   [ pair (s_nameQ s) (s_addressQ s)
   | s <- suppliers
   , n <- nations
-  , s_suppkeyQ s `elem` excessSuppliers color date
+  , s_suppkeyQ s `elem` excessSuppliers color interval
   , s_nationkeyQ s == n_nationkeyQ n
   , n_nameQ n == toQ nation
   ]
