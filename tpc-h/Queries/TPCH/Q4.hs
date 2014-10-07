@@ -15,6 +15,7 @@ module Queries.TPCH.Q4
     ( q4
     , q4'
     , q4''
+    , Interval(..)
     ) where
 
 import qualified Prelude as P

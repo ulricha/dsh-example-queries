@@ -67,7 +67,7 @@ debugAll = do
     debugQ "q3" c q3
     
     putStrLn "Q4"
-    debugQ "q4" c q4
+    debugQ "q4" c (q4'' $ Interval 42 47)
 
     putStrLn "Q5"
     debugQ "q5" c q5
@@ -99,10 +99,10 @@ debugAll = do
     putStrLn "Q14"
     debugQ "q14" c $ q14 0xdeadbeef
 
-    {-
+{-
     putStrLn "Q15"
     debugQ "q15" c $ q15 0xdeadbeef
-    -}
+-}
 
     putStrLn "Q16"
     debugQ "q16" c q16
