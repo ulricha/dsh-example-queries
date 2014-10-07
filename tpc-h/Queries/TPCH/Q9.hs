@@ -28,9 +28,9 @@ thd3 (view -> (_, _, c)) = c
 
 profit :: Q [(Text, Integer, Double)]
 profit = 
-  [ tuple3 (n_nameQ n) 
-           (o_orderdateQ o)
-           (l_extendedpriceQ l * (1 - l_discountQ l) - ps_supplycostQ ps * l_quantityQ l)
+  [ tup3 (n_nameQ n) 
+         (o_orderdateQ o)
+         (l_extendedpriceQ l * (1 - l_discountQ l) - ps_supplycostQ ps * l_quantityQ l)
   | p <- parts
   , s <- suppliers
   , l <- lineitems
@@ -49,6 +49,6 @@ profit =
 q9 :: Q [(Text, Integer, Double)]
 q9 =
    sortWith (\(view -> (n, y, _)) -> pair n (y * (-1)))
-   [ tuple3 (fst k) (snd k) (sum $ map thd3 g)
+   [ tup3 (fst k) (snd k) (sum $ map thd3 g)
    | (view -> (k, g)) <- groupWithKey (\(view -> (n, y, _)) -> pair n y) profit
    ]

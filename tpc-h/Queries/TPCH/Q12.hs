@@ -60,7 +60,7 @@ lowlineCount ops =
 
 q12 :: Text -> Text -> Integer -> Q [(Text, Integer, Integer)]
 q12 sm1 sm2 date =
-  [ tuple3 shipmode (highlineCount g) (lowlineCount g)
+  [ tup3 shipmode (highlineCount g) (lowlineCount g)
   | (view -> (shipmode, g)) <- groupWithKey fst (relevantShippings sm1 sm2 date)
   ]
 
@@ -75,8 +75,8 @@ lineCount opPred ops = length $ filter opPred $ map snd ops
 
 q12' :: Text -> Text -> Integer -> Q [(Text, Integer, Integer)]
 q12' sm1 sm2 date =
-  [ tuple3 shipmode 
-           (lineCount (\op -> op == "1-URGENT" || op == "2-HIGH") g)
-	   (lineCount (\op -> op /= "1-URGENT" && op /= "2-HIGH") g)
+  [ tup3 shipmode 
+         (lineCount (\op -> op == "1-URGENT" || op == "2-HIGH") g)
+	 (lineCount (\op -> op /= "1-URGENT" && op /= "2-HIGH") g)
   | (view -> (shipmode, g)) <- groupWithKey fst (relevantShippings sm1 sm2 date)
   ]

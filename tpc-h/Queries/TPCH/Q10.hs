@@ -25,13 +25,13 @@ import Schema.TPCH
 
 q10_join :: Q [((Integer, Text, Double, Text, Text, Text, Text), Double)]
 q10_join = 
-  [ pair (tuple7 (c_custkeyQ c)
-  		 (c_nameQ c)
-		 (c_acctbalQ c)
-		 (c_phoneQ c)
-		 (n_nameQ n)
-		 (c_addressQ c)
-		 (c_commentQ c))
+  [ pair (tup7 (c_custkeyQ c)
+               (c_nameQ c)
+               (c_acctbalQ c)
+               (c_phoneQ c)
+               (n_nameQ n)
+               (c_addressQ c)
+               (c_commentQ c))
          (l_extendedpriceQ l * (1 - l_discountQ l))
   | c <- customers
   , o <- orders

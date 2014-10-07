@@ -22,7 +22,7 @@ import Database.HDBC.PostgreSQL
 import Schema.TPCH
 
 withFlagStatus :: Q LineItem -> Q (Text, Text)
-withFlagStatus li = tuple2 (l_returnflagQ li) (l_linestatusQ li)
+withFlagStatus li = tup2 (l_returnflagQ li) (l_linestatusQ li)
 
 filteredItems :: Q [LineItem]
 filteredItems = [ li | li <- lineitems , l_shipdateQ li <= 42 ]
@@ -32,7 +32,7 @@ fst9 (view -> (a, _, _, _, _, _, _, _, _)) = a
 
 q1 :: Q [((Text, Text), Double, Double, Double, Double, Double, Double, Double, Integer)]
 q1 = sortWith fst9 $ 
-     [ tuple9
+     [ tup9
 	  k
 	  (sum $ map l_quantityQ lis)
 	  (sum $ map l_extendedpriceQ lis)

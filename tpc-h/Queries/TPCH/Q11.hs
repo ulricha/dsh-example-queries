@@ -28,9 +28,9 @@ fst3 (view -> (a, _, _)) = a
 
 nationPartsValues :: Text -> Q [(Integer, Double, Integer)]
 nationPartsValues nation =
-  [ tuple3 (ps_partkeyQ ps)
-  	   (ps_supplycostQ ps)
-	   (ps_availqtyQ ps)
+  [ tup3 (ps_partkeyQ ps)
+  	 (ps_supplycostQ ps)
+	 (ps_availqtyQ ps)
   | ps <- partsupps
   , s  <- suppliers
   , n  <- nations

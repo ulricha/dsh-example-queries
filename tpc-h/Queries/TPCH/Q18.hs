@@ -40,7 +40,7 @@ q18 quantity =
   sortWith sortSpec $
   map (\(view -> (k, g)) -> pair k (sum $ map snd g)) $
   groupWithKey fst $
-  [ pair (tuple5 (c_nameQ c) (c_custkeyQ c) (o_orderkeyQ o) (o_orderdateQ o) (o_totalpriceQ o))
+  [ pair (tup5 (c_nameQ c) (c_custkeyQ c) (o_orderkeyQ o) (o_orderdateQ o) (o_totalpriceQ o))
          (l_quantityQ l)
   | c <- customers
   , o <- orders

@@ -38,7 +38,7 @@ q3 =
   sortWith byRevDate $
   map project $
   groupWithKey fst $
-  [ let sep = tuple3 (l_orderkeyQ l) (o_orderdateQ o) (o_shippriorityQ o)
+  [ let sep = tup3 (l_orderkeyQ l) (o_orderdateQ o) (o_shippriorityQ o)
     in pair sep (pair (l_extendedpriceQ l) (l_discountQ l))
   | c <- customers
   , o <- orders

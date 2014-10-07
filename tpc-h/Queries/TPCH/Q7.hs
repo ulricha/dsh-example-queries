@@ -29,12 +29,12 @@ between x l r = x >= l && x <= r
 q7 = 
   sortWith fst $
   map (\(view -> (k, g)) -> pair k (sum $ [ v | (view -> (_, _, _, v)) <- g])) $
-  groupWithKey (\(view -> (n1, n2, y, v)) -> tuple3 n1 n2 y) $
+  groupWithKey (\(view -> (n1, n2, y, v)) -> tup3 n1 n2 y) $
   [ xs
-  | xs <- [ tuple4 (n_nameQ n1) 
-                   (n_nameQ n2) 
-                   (l_shipdateQ l)
-                   (l_extendedpriceQ l * (1 - l_discountQ l))
+  | xs <- [ tup4 (n_nameQ n1) 
+                 (n_nameQ n2) 
+                 (l_shipdateQ l)
+                 (l_extendedpriceQ l * (1 - l_discountQ l))
           | s <- suppliers
           , l <- lineitems
           , o <- orders

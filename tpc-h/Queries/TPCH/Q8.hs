@@ -28,9 +28,9 @@ between x l r = x >= l && x <= r
 
 allNations :: Q [(Integer, Double, Text)]
 allNations =
-  [ tuple3 (o_orderdateQ o) -- should extract the year
-  	   (l_extendedpriceQ l * (1 - l_discountQ l))
-	   (n_nameQ n2)
+  [ tup3 (o_orderdateQ o) -- should extract the year
+  	 (l_extendedpriceQ l * (1 - l_discountQ l))
+	 (n_nameQ n2)
   | p <- parts
   , s <- suppliers
   , l <- lineitems

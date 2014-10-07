@@ -54,7 +54,7 @@ potentialCustomers' areaPrefixes =
 q22 :: [Text] -> Q [(Text, Integer, Double)]
 q22 areaPrefixes = 
   sortWith (\(view -> (c, _, _)) -> c) $
-  [ tuple3 cntrycode
+  [ tup3 cntrycode
            (length pas)
 	   (sum $ map snd pas)
   | (view -> (cntrycode, pas)) <- groupWithKey fst (potentialCustomers areaPrefixes)

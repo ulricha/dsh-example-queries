@@ -28,8 +28,8 @@ fourth (view -> (_, _, _, d)) = d
 
 q16 =
   map (\g -> pair (fst g) (length $ nub $ map fourth $ snd g)) $
-  groupWithKey (\(view -> (b, t, s, k)) -> tuple3 b t s) $
-  [ tuple4 (p_brandQ p) (p_typeQ p) (p_sizeQ p) (ps_suppkeyQ ps)
+  groupWithKey (\(view -> (b, t, s, k)) -> tup3 b t s) $
+  [ tup4 (p_brandQ p) (p_typeQ p) (p_sizeQ p) (ps_suppkeyQ ps)
   | ps <- partsupps
   , p  <- parts
   , p_partkeyQ p == ps_partkeyQ ps
