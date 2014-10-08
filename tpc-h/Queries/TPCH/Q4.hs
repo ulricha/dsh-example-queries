@@ -15,7 +15,6 @@ module Queries.TPCH.Q4
     ( q4
     , q4'
     , q4''
-    , Interval(..)
     ) where
 
 import qualified Prelude as P
@@ -25,6 +24,7 @@ import Database.DSH.Compiler
 import Database.HDBC.PostgreSQL
 
 import Schema.TPCH
+import Queries.TPCH.Common
 
 q4 =
   sortWith fst
@@ -57,11 +57,6 @@ q4' =
     ]
 
 --------------------------------------------------------------------------------
-
-data Interval = Interval { iv_start :: Integer, iv_end :: Integer }
-
-inInterval :: Q Integer -> Interval -> Q Bool
-inInterval d interval = d >= toQ (iv_start interval) && d < toQ (iv_end interval)
 
 -- | Is at least one of the orders' items overdue?
 hasOverdueItem :: Q Order -> Q Bool

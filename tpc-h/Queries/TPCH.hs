@@ -51,6 +51,8 @@ import Queries.TPCH.Q20
 import Queries.TPCH.Q21
 import Queries.TPCH.Q22
 
+import Queries.TPCH.Common
+
 getConn :: IO Connection
 getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5432' dbname = 'tpch'"
 
@@ -79,7 +81,7 @@ debugAll = do
     debugQ "q7" c q7
 
     putStrLn "Q8"
-    debugQ "q8" c q8
+    debugQ "q8" c $ q8 "BRAZIL" "AMERICA" "ECONOMY ANODIZED STELL" (Interval 42 57)
 
     putStrLn "Q9"
     debugQ "q9" c q9
@@ -117,7 +119,7 @@ debugAll = do
     debugQ "q19" c $ q19 1 10 20 "Brand#12" "Brand#23" "Brand#34"
 
     putStrLn "Q20"
-    debugQ "q20" c $ q20 "forest" 42 "CANADA"
+    debugQ "q20" c $ q20 "forest" (Interval 42 57) "CANADA"
 
     putStrLn "Q21"
     debugQ "q21" c $ q21 "SAUDI ARABIA"

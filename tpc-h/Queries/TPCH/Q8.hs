@@ -22,11 +22,7 @@ import Database.DSH.Compiler
 import Database.HDBC.PostgreSQL
 
 import Schema.TPCH
-
-data Interval = Interval { iv_start :: Integer, iv_end :: Integer }
-
-inInterval :: Q Integer -> Interval -> Q Bool
-inInterval d interval = d >= toQ (iv_start interval) && d < toQ (iv_end interval)
+import Queries.TPCH.Common
 
 between :: Q Integer -> Q Integer -> Q Integer -> Q Bool
 between x l r = x >= l && x <= r
@@ -35,8 +31,8 @@ revenue :: Q LineItem -> Q Double
 revenue l = l_extendedpriceQ l * (1 - l_discountQ l)
 
 -- FIXME should extract the year
-allNations :: Text -> Text -> Interval -> Q [(Integer, Double, Text)]
-allNations region typ interval =
+revenueByNation :: Text -> Text -> Interval -> Q [(Integer, Double, Text)]
+revenueByNation region typ interval =
   [ tup3 (o_orderdateQ o) (revenue l) (n_nameQ n2)
   | p  <- parts
   , s  <- suppliers
@@ -68,8 +64,13 @@ completeVolume :: Q [(Integer, Double, Text)] -> Q Double
 completeVolume salesInYear =
     sum [ v | (view -> (_, v, n)) <- salesInYear ]
 
-q8 nation = 
+q8 :: Text -> Text -> Text -> Interval -> Q [(Integer, Double)]
+q8 nation region typ interval = 
   sortWith fst
-  [ tup2 k (nationVolumne nation g / completeVolume g)
-  | (view -> (k, g)) <- groupWithKey (\(view -> (n, _, _)) -> n) allNations
+  [ tup2 y (nationVolumne nation g / completeVolume g)
+  | (view -> (y, g)) <- revenueByYear
   ]
+
+  where
+    revenueByYear = groupWithKey (\(view -> (y, _, _)) -> y) 
+                    $ revenueByNation region typ interval
