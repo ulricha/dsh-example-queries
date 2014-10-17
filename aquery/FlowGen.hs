@@ -125,7 +125,7 @@ writePackets f ps = B.hPut f $ encode $ F.toList ps
 -- destination hosts
 writeFlows :: Options -> Host -> Host -> IO ()
 writeFlows opts src dst = do
-    startTs <- uniformR (0, 2^(31 :: Int)) (o_gen opts)
+    startTs <- uniformR (0, 2^(28 :: Int)) (o_gen opts)
 
     nrFlowFactor <- uniformR (0.5 :: Double, 1.5) (o_gen opts)
     let nrFlows = round $ (fromIntegral $ o_avgFlows opts) * nrFlowFactor
