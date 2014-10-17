@@ -26,7 +26,10 @@ debugAll = do
     debugQ "last10" c $ last10 42
 
     putStrLn "flowStats drop"
-    debugQ "flowstats_drop" c $ flowStatsDrop
+    debugQ "flowstats_drop" c $ flowStatsZip
 
     putStrLn "flowStats self"
-    debugQ "flowstats_self" c $ flowStatsSelf
+    debugQ "flowstats_self" c $ flowStatsSelfJoin
+
+    putStrLn "flowStats win"
+    debugQ "flowstats_win" c $ flowStatsWin

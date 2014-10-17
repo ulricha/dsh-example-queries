@@ -10,8 +10,9 @@
 {-# LANGUAGE ViewPatterns          #-}
 
 module Queries.AQuery.Packets
-    ( flowStatsDrop
-    , flowStatsSelf
+    ( flowStatsZip
+    , flowStatsSelfJoin
+    , flowStatsWin
     ) where
 
 import qualified Prelude as P
@@ -45,11 +46,11 @@ deltasZip xs = cons 0 (map (\(view -> (a, b)) -> a - b) (zip (drop 1 xs) xs))
 
 -- | Aligning with an explicit (order-preserving) self join
 deltasSelfJoin :: Q [Integer] -> Q [Integer]
-deltasSelfJoin' xs = cons 0 [ ts - ts'
-                            | (view -> (ts, i))   <- number xs
-                            , (view -> (ts', i')) <- number xs
-                            , i' == i - 1
-                            ]
+deltasSelfJoin xs = cons 0 [ ts - ts'
+                           | (view -> (ts, i))   <- number xs
+                           , (view -> (ts', i')) <- number xs
+                           , i' == i - 1
+                           ]
 
 -- | Aligning using a nested self join. Note that this is semantically
 -- not equivalent to the other deltas: For each element we compute the
@@ -89,18 +90,18 @@ flowids deltaFun ps = sums [ if d > 120 then 1 else 0 | d <- deltaFun $ map p_ts
 -- between consecutive packets is smaller than 120ms.
 flowStats :: (Q [Integer] -> Q [Integer]) -> Q [(Integer, Integer, Integer, Double)]
 flowStats deltaFun = 
-    [ tuple4 src 
-             dst 
-             (length g)
-             (avg $ map (p_lenQ . fst) g)
+    [ tup4 src 
+           dst 
+           (length g)
+           (avg $ map (p_lenQ . fst) g)
     | (view -> (k, g)) <- flows
     , let (view -> (src, dst, _)) = k
     ]
   where
-    flows = groupWithKey (\p -> tuple3 (p_srcQ $ fst p) (p_destQ $ fst p) (snd p)) 
+    flows = groupWithKey (\p -> tup3 (p_srcQ $ fst p) (p_destQ $ fst p) (snd p)) 
                          $ zip packetsOrdered (flowids deltaFun packetsOrdered)
 
-    packetsOrdered = sortWith (\p -> tuple3 (p_srcQ p) (p_destQ p) (p_tsQ p)) packets
+    packetsOrdered = sortWith (\p -> tup3 (p_srcQ p) (p_destQ p) (p_tsQ p)) packets
 
 {-
 

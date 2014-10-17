@@ -53,7 +53,7 @@ portfolios = table "portfolio" $ TableHints [Key ["po_pid"] ] NonEmpty
 
 -- | For each list element, compute the minimum of all elements up to
 -- the current one.
-mins :: (Ord a, QA a) => Q [a] -> Q [a]
+mins :: (Ord a, QA a, TA a) => Q [a] -> Q [a]
 mins as = [ minimum [ a' | (view -> (a', i')) <- nas, i' <= i ]
           | let nas = number as
 	  , (view -> (a, i)) <- nas
