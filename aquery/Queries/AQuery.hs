@@ -19,11 +19,8 @@ debugAll :: IO ()
 debugAll = do
     c <- getConn
 
-{-
     putStrLn "bestProfit"
     debugQ "bestprofit" c $ bestProfit "foo" 42
-
--}
 
     putStrLn "last10"
     debugQ "last10" c $ last10 42

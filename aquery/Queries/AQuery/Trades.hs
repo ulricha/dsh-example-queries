@@ -59,14 +59,28 @@ mins as = [ minimum [ a' | (view -> (a', i')) <- nas, i' <= i ]
 	  , (view -> (a, i)) <- nas
 	  ]   
 
+{-
+
+Being able to write the query using a parallel comprehension would be
+nice:
+
+maximum [ t_priceQ t - minPrice
+        | t        <- trades'
+        | minPrice <- mins $ map t_priceQ trades'
+        ]
+
+
+-}
+
+
+
 bestProfit :: Text -> Integer -> Q Double
 bestProfit stock date = 
     maximum [ t_priceQ t - minPrice
             | (view -> (t, minPrice)) <- zip trades' (mins $ map t_priceQ trades')
             ]
-                                  
   where
-    trades' = filter (\t -> t_tidQ t == toQ stock && t_tradeDateQ t == toQ date) 
+    trades' = filter (\t -> t_tidQ t == toQ stock && t_tradeDateQ t == toQ date)
               $ sortWith t_timestampQ trades
     
 --------------------------------------------------------------------------------

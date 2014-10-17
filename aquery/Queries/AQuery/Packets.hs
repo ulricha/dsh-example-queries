@@ -38,16 +38,40 @@ packets = table "packets" $ TableHints [ Key ["p_pid"]] NonEmpty
 --------------------------------------------------------------------------------
 -- Flow statistics
 
-deltas :: Q [Integer] -> Q [Integer]
-deltas xs = cons 0 (map (\(view -> (a, b)) -> a - b) (zip (drop 1 xs) xs))
+-- | Positional aligning via zip
+deltasZip :: Q [Integer] -> Q [Integer]
+deltasZip xs = cons 0 (map (\(view -> (a, b)) -> a - b) (zip (drop 1 xs) xs))
+-- deltasZip xs = cons 0 [ a - b | a <- drop 1 xs | b <- xs ]
 
--- TRY OUT: better or worse than drop?
-deltas' :: Q [Integer] -> Q [Integer]
-deltas' xs = [ ts - ts'
-             | (view -> (ts, i))   <- number xs
-             , (view -> (ts', i')) <- number xs
-             , i' == i - 1
-             ]
+-- | Aligning with an explicit (order-preserving) self join
+deltasSelfJoin :: Q [Integer] -> Q [Integer]
+deltasSelfJoin' xs = cons 0 [ ts - ts'
+                            | (view -> (ts, i))   <- number xs
+                            , (view -> (ts', i')) <- number xs
+                            , i' == i - 1
+                            ]
+
+-- | Aligning using a nested self join. Note that this is semantically
+-- not equivalent to the other deltas: For each element we compute the
+-- minimum of the element and its predecessor. If the input is ordered
+-- by timestamps at least in a partitioned way, this will be OK.
+deltasWin :: Q [Integer] -> Q [Integer]
+deltasWin xs = [ ts - minimum [ ts' 
+                             | (view -> (ts', i')) <- number xs
+                             , i' >= i - 1
+                             , i' <= i
+                             ]
+              | (view -> (ts, i)) <- number xs
+              ]
+
+deltasHead :: Q [Integer] -> Q [Integer]
+deltasHead xs = [ ts - head [ ts' 
+                            | (view -> (ts', i')) <- number xs
+                            , i' >= i - 1
+                            , i' <= i
+                            ]
+                | (view -> (ts, i)) <- number xs
+                ]
 
 sums :: (QA a, Num a) => Q [a] -> Q [a]
 sums as = [ sum [ a' | (view -> (a', i')) <- nas, i' <= i ]
@@ -78,11 +102,30 @@ flowStats deltaFun =
 
     packetsOrdered = sortWith (\p -> tuple3 (p_srcQ p) (p_destQ p) (p_tsQ p)) packets
 
-flowStatsDrop :: Q [(Integer, Integer, Integer, Double)]
-flowStatsDrop = flowStats deltas
+{-
 
-flowStatsSelf :: Q [(Integer, Integer, Integer, Double)]
-flowStatsSelf = flowStats deltas' 
+Cleaned up for presentation, the query could look like this:
+
+flowStats :: (Q [Integer] -> Q [Integer]) -> Q [(Integer, Integer, Integer, Double)]
+flowStats = 
+    [ (src, dst, length g, avg $ map (p_lenQ . fst) g)
+    | ((src, dst, _), g) <- flows
+    ]
+  where
+    flows = groupWith (\(p, fid) -> (p_srcQ p, p_destQ p, fid) )
+                      $ zip packetsOrdered (flowids packetsOrdered)
+
+    packetsOrdered = sortWith (\p -> (p_srcQ p, p_destQ p, p_tsQ p)) packets
+-}
+
+flowStatsZip :: Q [(Integer, Integer, Integer, Double)]
+flowStatsZip = flowStats deltasZip
+
+flowStatsSelfJoin :: Q [(Integer, Integer, Integer, Double)]
+flowStatsSelfJoin = flowStats deltasSelfJoin
+
+flowStatsWin :: Q [(Integer, Integer, Integer, Double)]
+flowStatsWin = flowStats deltasWin
 
 --------------------------------------------------------------------------------
 -- Different formulation
