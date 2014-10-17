@@ -64,6 +64,15 @@ deltasWin xs = [ ts - minimum [ ts'
               | (view -> (ts, i)) <- number xs
               ]
 
+deltasHead :: Q [Integer] -> Q [Integer]
+deltasHead xs = [ ts - head [ ts' 
+                            | (view -> (ts', i')) <- number xs
+                            , i' >= i - 1
+                            , i' <= i
+                            ]
+                | (view -> (ts, i)) <- number xs
+                ]
+
 sums :: (QA a, Num a) => Q [a] -> Q [a]
 sums as = [ sum [ a' | (view -> (a', i')) <- nas, i' <= i ]
           | let nas = number as
@@ -92,6 +101,22 @@ flowStats deltaFun =
                          $ zip packetsOrdered (flowids deltaFun packetsOrdered)
 
     packetsOrdered = sortWith (\p -> tuple3 (p_srcQ p) (p_destQ p) (p_tsQ p)) packets
+
+{-
+
+Cleaned up for presentation, the query could look like this:
+
+flowStats :: (Q [Integer] -> Q [Integer]) -> Q [(Integer, Integer, Integer, Double)]
+flowStats = 
+    [ (src, dst, length g, avg $ map (p_lenQ . fst) g)
+    | ((src, dst, _), g) <- flows
+    ]
+  where
+    flows = groupWith (\(p, fid) -> (p_srcQ p, p_destQ p, fid) )
+                      $ zip packetsOrdered (flowids packetsOrdered)
+
+    packetsOrdered = sortWith (\p -> (p_srcQ p, p_destQ p, p_tsQ p)) packets
+-}
 
 flowStatsZip :: Q [(Integer, Integer, Integer, Double)]
 flowStatsZip = flowStats deltasZip

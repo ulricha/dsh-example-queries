@@ -79,7 +79,6 @@ bestProfit stock date =
     maximum [ t_priceQ t - minPrice
             | (view -> (t, minPrice)) <- zip trades' (mins $ map t_priceQ trades')
             ]
-                                  
   where
     trades' = filter (\t -> t_tidQ t == toQ stock && t_tradeDateQ t == toQ date)
               $ sortWith t_timestampQ trades
