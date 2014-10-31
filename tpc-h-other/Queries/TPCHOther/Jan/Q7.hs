@@ -44,9 +44,3 @@ jan_q7b =
     , l_orderkeyQ l == ok
     , nrItems == maximum(map snd sumPerOrder)
     ]
-
-getConn :: IO Connection
-getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5432' dbname = 'tpch'"
-
-main :: IO ()
-main = getConn P.>>= \conn -> debugQ "jan_q7" conn jan_q7a

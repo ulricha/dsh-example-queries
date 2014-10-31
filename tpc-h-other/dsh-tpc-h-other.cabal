@@ -17,11 +17,12 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 library
-  exposed-modules:     Queries.TPCHOther.Jan.Q7, Queries.TPCHOther.PendingProfit
+  exposed-modules:     Queries.TPCHOther.Jan.Q7, Queries.TPCHOther.PendingProfit, Queries.TPCHOther
   other-extensions:    TemplateHaskell, FlexibleInstances, TypeFamilies, UndecidableInstances, MultiParamTypeClasses, GADTs, ViewPatterns, MonadComprehensions, OverloadedStrings, RebindableSyntax
   build-depends:       base >=4.7 && <4.8,
                        DSH > 0.9,
                        dsh-tpc-h,
-                       HDBC-postgresql
+                       HDBC-postgresql,
+                       text
   -- hs-source-dirs:      
   default-language:    Haskell2010
