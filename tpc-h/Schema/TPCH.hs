@@ -29,6 +29,7 @@ data LineItem = LineItem
     , l_suppkey       :: Integer
     , l_tax           :: Double
     }
+    deriving (Show)
 
 deriveDSH ''LineItem
 deriveTA ''LineItem
@@ -43,6 +44,7 @@ data Supplier = Supplier
     , s_phone     :: Text
     , s_suppkey   :: Integer
     }
+    deriving (Show)
 
 deriveDSH ''Supplier
 deriveTA ''Supplier
@@ -59,6 +61,7 @@ data Part = Part
     , p_size        :: Integer
     , p_type        :: Text
     }
+    deriving (Show)
 
 deriveDSH ''Part
 deriveTA ''Part
@@ -71,6 +74,7 @@ data PartSupp = PartSupp
     , ps_suppkey    :: Integer
     , ps_supplycost :: Double -- should be decimal
     }
+    deriving (Show)
 
 deriveDSH ''PartSupp
 deriveTA ''PartSupp
@@ -82,6 +86,7 @@ data Nation = Nation
     , n_nationkey :: Integer
     , n_regionkey :: Integer
     }
+    deriving (Show)
 
 deriveDSH ''Nation
 deriveTA ''Nation
@@ -92,6 +97,7 @@ data Region = Region
     , r_name      :: Text
     , r_regionkey :: Integer
     }
+    deriving (Show)
 
 deriveDSH ''Region
 deriveTA ''Region
@@ -108,6 +114,7 @@ data Order = Order
     , o_shippriority  :: Integer
     , o_totalprice    :: Double
     }
+    deriving (Show)
 
 deriveDSH ''Order
 deriveTA ''Order
@@ -123,6 +130,7 @@ data Customer = Customer
     , c_nationkey  :: Integer
     , c_phone      :: Text
     }
+    deriving (Show)
 
 deriveDSH ''Customer
 deriveTA ''Customer
