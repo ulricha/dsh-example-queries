@@ -2,7 +2,6 @@
 *.hi
 *.plan
 *.shape
-*.sql
 *~
 *.pdf
 
