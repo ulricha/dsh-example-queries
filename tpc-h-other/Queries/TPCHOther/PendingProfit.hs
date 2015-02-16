@@ -11,16 +11,11 @@
 
 module Queries.TPCHOther.PendingProfit where
 
-import qualified Prelude as P
 import Database.DSH
-import Database.DSH.Compiler
-
-import Database.HDBC.PostgreSQL
-
 import Schema.TPCH
 
 hasNationality :: Q Customer -> Text -> Q Bool
-hasNationality c nn = 
+hasNationality c nn =
     or [ n_nameQ n == toQ nn && n_nationkeyQ n == c_nationkeyQ c
        | n <- nations
        ]
@@ -39,10 +34,10 @@ revenue o = sum [ l_extendedpriceQ l * (1 - l_discountQ l)
                 ]
 
 expectedRevenueFor :: Text -> Q [(Text, [(Integer, Double)])]
-expectedRevenueFor nation =
+expectedRevenueFor nationName =
     [ pair (c_nameQ c) [ pair (o_orderdateQ o) (revenue o)
                        | o <- ordersWithStatus "P" c ]
     | c <- customers
-    , c `hasNationality` nation
+    , c `hasNationality` nationName
     , or [ toQ True | _ <- ordersWithStatus "P" c ]
     ]
