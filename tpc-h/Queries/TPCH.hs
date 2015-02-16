@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Queries.TPCH 
+module Queries.TPCH
     ( module Queries.TPCH.Q1
     , module Queries.TPCH.Q2
     , module Queries.TPCH.Q3
@@ -27,6 +27,7 @@ module Queries.TPCH
 import Data.Text
 import Database.HDBC.PostgreSQL
 import Database.DSH.Compiler
+import Database.DSH.Backend.Sql
 
 import Queries.TPCH.Q1
 import Queries.TPCH.Q2
@@ -53,8 +54,12 @@ import Queries.TPCH.Q22
 
 import Queries.TPCH.Common
 
-getConn :: IO Connection
-getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5432' dbname = 'tpch'"
+getConn :: IO SqlBackend
+getConn = do
+    c <- connectPostgreSQL connString
+    return $ sqlBackend c
+  where
+    connString = "user = 'au' password = 'foobar' host = 'localhost' port = '5432' dbname = 'tpch'"
 
 debugAll :: IO ()
 debugAll = do
@@ -67,7 +72,7 @@ debugAll = do
 
     putStrLn "Q3"
     debugQ "q3" c q3
-    
+
     putStrLn "Q4"
     debugQ "q4" c (q4'' $ Interval 42 47)
 
