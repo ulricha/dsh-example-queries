@@ -6,9 +6,13 @@ module Queries.AQuery
     , getConn
     ) where
 
+import Control.Applicative
+
 import Data.Text
 import Database.HDBC.PostgreSQL
 import Database.DSH.Compiler
+import Database.DSH.Backend.Sql
+
 import Queries.AQuery.Trades
 import Queries.AQuery.Packets
 
@@ -17,7 +21,7 @@ getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' 
 
 debugAll :: IO ()
 debugAll = do
-    c <- getConn
+    c <- sqlBackend <$> getConn
 
     putStrLn "bestProfit"
     debugQ "bestprofit" c $ bestProfit "foo" 42
