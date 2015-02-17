@@ -86,7 +86,7 @@ debugAll = do
     debugQ "q7" c q7
 
     putStrLn "Q8"
-    debugQ "q8" c $ q8 "BRAZIL" "AMERICA" "ECONOMY ANODIZED STELL" (Interval 42 57)
+    debugQ "q8" c $ q8 "BRAZIL" "AMERICA" "ECONOMY ANODIZED STEEL" (Interval 42 57)
 
     putStrLn "Q9"
     debugQ "q9" c q9
@@ -106,10 +106,8 @@ debugAll = do
     putStrLn "Q14"
     debugQ "q14" c $ q14 0xdeadbeef
 
-{-
     putStrLn "Q15"
     debugQ "q15" c $ q15 0xdeadbeef
--}
 
     putStrLn "Q16"
     debugQ "q16" c q16

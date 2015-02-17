@@ -1,6 +1,6 @@
 rm q*.pdf
 
-for p in q*_opt_vl.plan; do
+for p in q*_vl_opt.plan; do
 	.cabal-sandbox/bin/vldot -i ${p} | dot -Tpdf -o `basename ${p} .plan`.pdf;
 done
 
