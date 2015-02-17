@@ -17,14 +17,14 @@ import Queries.AQuery.Trades
 import Queries.AQuery.Packets
 
 getConn :: IO Connection
-getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5432' dbname = 'au'"
+getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5432' dbname = 'trades'"
 
 debugAll :: IO ()
 debugAll = do
     c <- sqlBackend <$> getConn
 
     putStrLn "bestProfit"
-    debugQ "bestprofit" c $ bestProfit "foo" 42
+    debugQ "bestprofit" c $ bestProfit 23 42
 
     putStrLn "last10"
     debugQ "last10" c $ last10 42

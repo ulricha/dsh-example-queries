@@ -21,8 +21,9 @@ import Database.DSH
 -- Schema definition
 
 data Trade = Trade
-    { t_price     :: Double
-    , t_tid       :: Text
+    { t_amount    :: Double
+    , t_price     :: Double
+    , t_tid       :: Integer
     , t_timestamp :: Integer
     , t_tradeDate :: Integer
     }
@@ -33,7 +34,7 @@ generateTableSelectors ''Trade
 
 data Portfolio = Portfolio
     { po_pid         :: Integer
-    , po_tid         :: Text
+    , po_tid         :: Integer
     , po_tradedSince :: Integer
     }
 
@@ -56,8 +57,8 @@ portfolios = table "portfolio" $ TableHints [Key ["po_pid"] ] NonEmpty
 mins :: (Ord a, QA a, TA a) => Q [a] -> Q [a]
 mins as = [ minimum [ a' | (view -> (a', i')) <- nas, i' <= i ]
           | let nas = number as
-	  , (view -> (a, i)) <- nas
-	  ]   
+          , (view -> (a, i)) <- nas
+          ]
 
 {-
 
@@ -68,34 +69,30 @@ maximum [ t_priceQ t - minPrice
         | t        <- trades'
         | minPrice <- mins $ map t_priceQ trades'
         ]
-
-
 -}
 
-
-
-bestProfit :: Text -> Integer -> Q Double
-bestProfit stock date = 
+bestProfit :: Integer -> Integer -> Q Double
+bestProfit stock date =
     maximum [ t_priceQ t - minPrice
             | (view -> (t, minPrice)) <- zip trades' (mins $ map t_priceQ trades')
             ]
   where
     trades' = filter (\t -> t_tidQ t == toQ stock && t_tradeDateQ t == toQ date)
               $ sortWith t_timestampQ trades
-    
+
 --------------------------------------------------------------------------------
 -- Compute the ten last stocks for each quote in a portfolio.
 
 lastn :: QA a => Integer -> Q [a] -> Q [a]
 lastn n xs = drop (length xs - toQ n) xs
 
-last10 :: Integer -> Q [(Text, [Double])]
-last10 portfolio = 
+last10 :: Integer -> Q [(Integer, [Double])]
+last10 portfolioId =
     map (\(view -> (tid, g)) -> pair tid (map snd $ lastn 10 g))
     $ groupWithKey fst
     [ pair (t_tidQ t) (t_priceQ t)
     | t <- trades
     , p <- portfolios
     , t_tidQ t == po_tidQ p
-    , po_pidQ p == toQ portfolio
+    , po_pidQ p == toQ portfolioId
     ]
