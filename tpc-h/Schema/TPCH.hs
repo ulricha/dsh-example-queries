@@ -14,20 +14,20 @@ import Database.DSH
 data LineItem = LineItem
     { l_comment       :: Text
     , l_commitdate    :: Integer
-    , l_discount      :: Double
-    , l_extendedprice :: Double
+    , l_discount      :: Decimal
+    , l_extendedprice :: Decimal
     , l_linenumber    :: Integer
     , l_linestatus    :: Text
     , l_orderkey      :: Integer
     , l_partkey       :: Integer
-    , l_quantity      :: Double
+    , l_quantity      :: Decimal
     , l_receiptdate   :: Integer
     , l_returnflag    :: Text
     , l_shipdate      :: Integer
     , l_shipinstruct  :: Text
     , l_shipmode      :: Text
     , l_suppkey       :: Integer
-    , l_tax           :: Double
+    , l_tax           :: Decimal
     }
     deriving (Show)
 
@@ -36,7 +36,7 @@ deriveTA ''LineItem
 generateTableSelectors ''LineItem
 
 data Supplier = Supplier
-    { s_acctbal   :: Double -- should be decimal
+    { s_acctbal   :: Decimal -- should be decimal
     , s_address   :: Text
     , s_comment   :: Text
     , s_name      :: Text
@@ -57,7 +57,7 @@ data Part = Part
     , p_mfgr        :: Text
     , p_name        :: Text
     , p_partkey     :: Integer
-    , p_retailprice :: Double -- should be decimal
+    , p_retailprice :: Decimal -- should be decimal
     , p_size        :: Integer
     , p_type        :: Text
     }
@@ -72,7 +72,7 @@ data PartSupp = PartSupp
     , ps_comment    :: Text
     , ps_partkey    :: Integer
     , ps_suppkey    :: Integer
-    , ps_supplycost :: Double -- should be decimal
+    , ps_supplycost :: Decimal -- should be decimal
     }
     deriving (Show)
 
@@ -112,7 +112,7 @@ data Order = Order
     , o_orderpriority :: Text
     , o_orderstatus   :: Text
     , o_shippriority  :: Integer
-    , o_totalprice    :: Double
+    , o_totalprice    :: Decimal
     }
     deriving (Show)
 
@@ -121,7 +121,7 @@ deriveTA ''Order
 generateTableSelectors ''Order
 
 data Customer = Customer
-    { c_acctbal    :: Double
+    { c_acctbal    :: Decimal
     , c_address    :: Text
     , c_comment    :: Text
     , c_custkey    :: Integer

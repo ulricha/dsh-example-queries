@@ -8,31 +8,27 @@
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
-    
+
 -- TPC-H Q7
 
 module Queries.TPCH.Q7
     ( q7
     ) where
 
-import qualified Prelude as P
 import Database.DSH
-import Database.DSH.Compiler
-
-import Database.HDBC.PostgreSQL
-
 import Schema.TPCH
 
 between :: Q Integer -> Q Integer -> Q Integer -> Q Bool
 between x l r = x >= l && x <= r
 
-q7 = 
+q7 :: Q [((Text, Text, Integer), Decimal)]
+q7 =
   sortWith fst $
   map (\(view -> (k, g)) -> pair k (sum $ [ v | (view -> (_, _, _, v)) <- g])) $
-  groupWithKey (\(view -> (n1, n2, y, v)) -> tup3 n1 n2 y) $
+  groupWithKey (\(view -> (n1, n2, y, _)) -> tup3 n1 n2 y) $
   [ xs
-  | xs <- [ tup4 (n_nameQ n1) 
-                 (n_nameQ n2) 
+  | xs <- [ tup4 (n_nameQ n1)
+                 (n_nameQ n2)
                  (l_shipdateQ l)
                  (l_extendedpriceQ l * (1 - l_discountQ l))
           | s <- suppliers

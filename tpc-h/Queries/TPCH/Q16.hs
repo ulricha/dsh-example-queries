@@ -8,27 +8,23 @@
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
-    
+
 -- TPC-H Q16
 
 module Queries.TPCH.Q16
     ( q16
     ) where
 
-import qualified Prelude as P
 import Database.DSH
-import Database.DSH.Compiler
-
-import Database.HDBC.PostgreSQL
-
 import Schema.TPCH
 
 fourth :: (QA a, QA b, QA c, QA d) => Q (a, b, c, d) -> Q d
 fourth (view -> (_, _, _, d)) = d
 
+q16 :: Q [((Text, Text, Integer), Integer)]
 q16 =
   map (\g -> pair (fst g) (length $ nub $ map fourth $ snd g)) $
-  groupWithKey (\(view -> (b, t, s, k)) -> tup3 b t s) $
+  groupWithKey (\(view -> (b, t, s, _)) -> tup3 b t s) $
   [ tup4 (p_brandQ p) (p_typeQ p) (p_sizeQ p) (ps_suppkeyQ ps)
   | ps <- partsupps
   , p  <- parts

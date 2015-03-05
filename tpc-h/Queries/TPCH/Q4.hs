@@ -8,7 +8,7 @@
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
-    
+
 -- TPC-H Q4
 
 module Queries.TPCH.Q4
@@ -17,18 +17,14 @@ module Queries.TPCH.Q4
     , q4''
     ) where
 
-import qualified Prelude as P
 import Database.DSH
-import Database.DSH.Compiler
-
-import Database.HDBC.PostgreSQL
-
 import Schema.TPCH
 import Queries.TPCH.Common
 
+q4 :: Q [(Text, Integer)]
 q4 =
   sortWith fst
-  $ map (\(view -> (k, g)) -> pair k (length g)) 
+  $ map (\(view -> (k, g)) -> pair k (length g))
   $ groupWithKey id
     [ o_orderpriorityQ o
     | o <- orders
@@ -43,16 +39,17 @@ q4 =
 
 --------------------------------------------------------------------------------
 
+q4' :: Q [(Text, Integer)]
 q4' =
   sortWith fst
-  $ map (\(view -> (k, g)) -> pair k (length g)) 
+  $ map (\(view -> (k, g)) -> pair k (length g))
   $ groupWithKey id
     [ o_orderpriorityQ o
     | o <- orders
     , o_orderdateQ o >= 42
     , o_orderdateQ o < 42 + 57
-    , any (\l -> l_commitdateQ l < l_receiptdateQ l 
-                 && l_orderkeyQ l == o_orderkeyQ o) 
+    , any (\l -> l_commitdateQ l < l_receiptdateQ l
+                 && l_orderkeyQ l == o_orderkeyQ o)
           lineitems
     ]
 

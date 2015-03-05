@@ -8,23 +8,18 @@
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
-    
+
 -- TPC-H Q10
 
 module Queries.TPCH.Q10
     ( q10
     ) where
 
-import qualified Prelude as P
 import Database.DSH
-import Database.DSH.Compiler
-
-import Database.HDBC.PostgreSQL
-
 import Schema.TPCH
 
-q10_join :: Q [((Integer, Text, Double, Text, Text, Text, Text), Double)]
-q10_join = 
+q10_join :: Q [((Integer, Text, Decimal, Text, Text, Text, Text), Decimal)]
+q10_join =
   [ pair (tup7 (c_custkeyQ c)
                (c_nameQ c)
                (c_acctbalQ c)
@@ -45,8 +40,8 @@ q10_join =
   , c_nationkeyQ c == n_nationkeyQ n
   ]
 
-q10 :: Q [((Integer, Text, Double, Text, Text, Text, Text), Double)]
-q10 = 
+q10 :: Q [((Integer, Text, Decimal, Text, Text, Text, Text), Decimal)]
+q10 =
   sortWith snd $
   [ pair k (sum $ map snd g)
   | (view -> (k, g)) <- groupWithKey fst q10_join

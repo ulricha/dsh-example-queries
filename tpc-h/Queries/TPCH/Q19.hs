@@ -8,27 +8,22 @@
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
-    
+
 -- TPC-H Q19
 
 module Queries.TPCH.Q19
     ( q19
     ) where
 
-import qualified Prelude as P
 import Database.DSH
-import Database.DSH.Compiler
-
-import Database.HDBC.PostgreSQL
-
 import Schema.TPCH
 
 between :: Q Integer -> Q Integer -> Q Integer -> Q Bool
 between x l r = x >= l && x <= r
 
 -- Literal transcription of the TPC-H benchmark query
-smPred :: Text -> Double -> Q Part -> Q LineItem -> Q Bool
-smPred brand1 quantity1 p l = 
+smPred :: Text -> Decimal -> Q Part -> Q LineItem -> Q Bool
+smPred brand1 quantity1 p l =
   (p_partkeyQ p == l_partkeyQ l)
   && (p_brandQ p == toQ brand1)
   && (p_containerQ p `elem` toQ ["SM CASE", "SM BOX", "SM PACK", "SM PKG"])
@@ -38,8 +33,8 @@ smPred brand1 quantity1 p l =
   && (l_shipmodeQ l `elem` toQ ["AIR", "AIR REG"])
   && (l_shipinstructQ l == "DELIVER IN PERSON")
 
-medPred :: Text -> Double -> Q Part -> Q LineItem -> Q Bool
-medPred brand2 quantity2 p l = 
+medPred :: Text -> Decimal -> Q Part -> Q LineItem -> Q Bool
+medPred brand2 quantity2 p l =
   p_partkeyQ p == l_partkeyQ l
   && p_brandQ p == toQ brand2
   && p_containerQ p `elem` toQ ["MED BAG", "MED BOX", "MED PKG", "MED PACK"]
@@ -49,8 +44,8 @@ medPred brand2 quantity2 p l =
   && l_shipmodeQ l `elem` toQ ["AIR", "AIR REG"]
   && l_shipinstructQ l == "DELIVER IN PERSON"
 
-lgPred :: Text -> Double -> Q Part -> Q LineItem -> Q Bool
-lgPred brand3 quantity3 p l = 
+lgPred :: Text -> Decimal -> Q Part -> Q LineItem -> Q Bool
+lgPred brand3 quantity3 p l =
   p_partkeyQ p == l_partkeyQ l
   && p_brandQ p == toQ brand3
   && p_containerQ p `elem` toQ ["LG CASE", "LG BOX", "LG PACK", "LG PKG"]
@@ -59,9 +54,8 @@ lgPred brand3 quantity3 p l =
   && between (p_sizeQ p) 1 15
   && l_shipmodeQ l `elem` toQ ["AIR", "AIR REG"]
   && l_shipinstructQ l == "DELIVER IN PERSON"
-  
 
-q19 :: Double -> Double -> Double -> Text -> Text -> Text -> Q Double
+q19 :: Decimal -> Decimal -> Decimal -> Text -> Text -> Text -> Q Decimal
 q19 quantity1 quantity2 quantity3 brand1 brand2 brand3 =
   sum $
   [ l_extendedpriceQ l * (1 - l_discountQ l)

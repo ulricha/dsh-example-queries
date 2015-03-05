@@ -8,7 +8,7 @@
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
-    
+
 -- TPC-H Q12
 
 module Queries.TPCH.Q12
@@ -16,12 +16,7 @@ module Queries.TPCH.Q12
     , q12'
     ) where
 
-import qualified Prelude as P
 import Database.DSH
-import Database.DSH.Compiler
-
-import Database.HDBC.PostgreSQL
-
 import Schema.TPCH
 
 relevantShippings :: Text -> Text -> Integer -> Q [(Text, Text)]
@@ -43,18 +38,18 @@ relevantShippings sm1 sm2 date =
 -- looks rather awkward.
 
 highlineCount :: Q [(Text, Text)] -> Q Integer
-highlineCount ops = 
+highlineCount ops =
   sum [ if op == "1-URGENT" || op == "2-HIGH"
         then 1
-	else 0
+        else 0
       | op <- map snd ops
       ]
 
 lowlineCount :: Q [(Text, Text)] -> Q Integer
-lowlineCount ops = 
+lowlineCount ops =
   sum [ if op /= "1-URGENT" && op /= "2-HIGH"
         then 1
-	else 0
+        else 0
       | op <- map snd ops
       ]
 
@@ -64,7 +59,6 @@ q12 sm1 sm2 date =
   | (view -> (shipmode, g)) <- groupWithKey fst (relevantShippings sm1 sm2 date)
   ]
 
-  
 -------------------------------------------------------------------------------
 -- Alternative implementation of highline and lowline counts: exploit the
 -- explicit representation of groups, which we may freely filter.
@@ -75,8 +69,8 @@ lineCount opPred ops = length $ filter opPred $ map snd ops
 
 q12' :: Text -> Text -> Integer -> Q [(Text, Integer, Integer)]
 q12' sm1 sm2 date =
-  [ tup3 shipmode 
+  [ tup3 shipmode
          (lineCount (\op -> op == "1-URGENT" || op == "2-HIGH") g)
-	 (lineCount (\op -> op /= "1-URGENT" && op /= "2-HIGH") g)
+         (lineCount (\op -> op /= "1-URGENT" && op /= "2-HIGH") g)
   | (view -> (shipmode, g)) <- groupWithKey fst (relevantShippings sm1 sm2 date)
   ]

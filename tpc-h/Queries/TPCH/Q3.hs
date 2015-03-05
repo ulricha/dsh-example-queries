@@ -8,32 +8,27 @@
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
-    
+
 -- TPC-H Q3
 
 module Queries.TPCH.Q3
     ( q3
     ) where
 
-import qualified Prelude as P
 import Database.DSH
-import Database.DSH.Compiler
-
-import Database.HDBC.PostgreSQL
-
 import Schema.TPCH
 
-project 
-  :: Q ((Integer, Integer, Integer), [((Integer, Integer, Integer), (Double, Double))])
-  -> Q ((Integer, Integer, Integer), Double)
+project
+  :: Q ((Integer, Integer, Integer), [((Integer, Integer, Integer), (Decimal, Decimal))])
+  -> Q ((Integer, Integer, Integer), Decimal)
 project gk = pair (fst gk) revenue
   where
     revenue = sum [ ep * (1 - d) | (view -> (ep, d)) <- [ snd x | x <- snd gk ] ]
-    
-byRevDate :: Q ((Integer, Integer, Integer), Double) -> Q (Double, Integer)
+
+byRevDate :: Q ((Integer, Integer, Integer), Decimal) -> Q (Decimal, Integer)
 byRevDate (view -> (((view -> (_, _, sp)), r))) = pair (r * (-1)) sp
 
-q3 :: Q [((Integer, Integer, Integer), Double)]
+q3 :: Q [((Integer, Integer, Integer), Decimal)]
 q3 =
   sortWith byRevDate $
   map project $

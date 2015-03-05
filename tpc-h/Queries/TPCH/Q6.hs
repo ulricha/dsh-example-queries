@@ -13,19 +13,14 @@ module Queries.TPCH.Q6
     ( q6
     ) where
 
-import qualified Prelude as P
 import Database.DSH
-import Database.DSH.Compiler
-
-import Database.HDBC.PostgreSQL
-
 import Schema.TPCH
 
-between :: Q Double -> Q Double -> Q Double -> Q Bool
+between :: Q Decimal -> Q Decimal -> Q Decimal -> Q Bool
 between x l r = x >= l && x <= r
 
-q6 :: Q Double
-q6 = 
+q6 :: Q Decimal
+q6 =
   sum $
   [ l_extendedpriceQ l * l_discountQ l
   | l <- lineitems

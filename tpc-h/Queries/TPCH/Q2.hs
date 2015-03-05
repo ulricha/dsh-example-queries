@@ -13,17 +13,12 @@ module Queries.TPCH.Q2
     ( q2
     ) where
 
-import qualified Prelude as P
 import Database.DSH
-import Database.DSH.Compiler
-
-import Database.HDBC.PostgreSQL
-
 import Schema.TPCH
 
-minSupplyCost :: Q Integer -> Q Double
-minSupplyCost partkey = 
-  minimum $ 
+minSupplyCost :: Q Integer -> Q Decimal
+minSupplyCost partkey =
+  minimum $
   [ ps_supplycostQ ps
   | ps <- partsupps
   , s  <- suppliers
@@ -37,22 +32,22 @@ minSupplyCost partkey =
   ]
 
 sortingCriteria
-  :: Q (Double, Text, Text, Integer, Text, Text, Text, Text)
-  -> Q (Double, Text, Text, Integer)
+  :: Q (Decimal, Text, Text, Integer, Text, Text, Text, Text)
+  -> Q (Decimal, Text, Text, Integer)
 sortingCriteria (view -> (b, sn, nn, pk, _, _, _, _)) =
   tup4 (b * (toQ $ -1.0)) nn sn pk
 
-q2 :: Q [(Double, Text, Text, Integer, Text, Text, Text, Text)]
-q2 = 
+q2 :: Q [(Decimal, Text, Text, Integer, Text, Text, Text, Text)]
+q2 =
   sortWith sortingCriteria $
   [ tup8 (s_acctbalQ s)
-           (s_nameQ s)
-	   (n_nameQ n)
-	   (p_partkeyQ p)
-	   (p_mfgrQ p)
-	   (s_addressQ s)
-	   (s_phoneQ s)
-	   (s_commentQ s)
+         (s_nameQ s)
+         (n_nameQ n)
+         (p_partkeyQ p)
+         (p_mfgrQ p)
+         (s_addressQ s)
+         (s_phoneQ s)
+         (s_commentQ s)
   | p  <- parts
   , ps <- partsupps
   , s  <- suppliers

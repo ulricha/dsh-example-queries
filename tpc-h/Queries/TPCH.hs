@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+
 module Queries.TPCH
     ( module Queries.TPCH.Q1
     , module Queries.TPCH.Q2
@@ -21,13 +22,10 @@ module Queries.TPCH
     , module Queries.TPCH.Q20
     , module Queries.TPCH.Q21
     , module Queries.TPCH.Q22
-    , getConn
     ) where
 
-import Data.Text
-import Database.HDBC.PostgreSQL
 import Database.DSH.Compiler
-import Database.DSH.Backend.Sql
+import Database.DSH.Backend
 
 import Queries.TPCH.Q1
 import Queries.TPCH.Q2
@@ -54,16 +52,8 @@ import Queries.TPCH.Q22
 
 import Queries.TPCH.Common
 
-getConn :: IO SqlBackend
-getConn = do
-    c <- connectPostgreSQL connString
-    return $ sqlBackend c
-  where
-    connString = "user = 'au' password = 'foobar' host = 'localhost' port = '5432' dbname = 'tpch'"
-
-debugAll :: IO ()
-debugAll = do
-    c <- getConn
+debugAll :: Backend c => c -> IO ()
+debugAll c = do
     putStrLn "Q1"
     debugQ "q1" c q1
 
