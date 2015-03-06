@@ -16,7 +16,7 @@ module Queries.TPCH.Q20
     ) where
 
 import qualified Data.Text as T
-
+import qualified Data.Time.Calendar as C
 import Database.DSH
 import Schema.TPCH
 import Queries.TPCH.Common
@@ -47,12 +47,14 @@ excessSuppliers color interval =
 
 -- | Compute suppliers in a given nation who have an excess stock for
 -- parts of a given color.
-q20 :: Text -> Interval -> Text -> Q [(Text, Text)]
-q20 color interval nationName =
-  [ pair (s_nameQ s) (s_addressQ s)
-  | s <- suppliers
-  , n <- nations
-  , s_suppkeyQ s `elem` excessSuppliers color interval
-  , s_nationkeyQ s == n_nationkeyQ n
-  , n_nameQ n == toQ nationName
-  ]
+q20 :: Text -> Day -> Text -> Q [(Text, Text)]
+q20 color startDate nationName =
+    [ pair (s_nameQ s) (s_addressQ s)
+    | s <- suppliers
+    , n <- nations
+    , s_suppkeyQ s `elem` excessSuppliers color interval
+    , s_nationkeyQ s == n_nationkeyQ n
+    , n_nameQ n == toQ nationName
+    ]
+  where
+    interval = Interval startDate (C.addDays 365 startDate)

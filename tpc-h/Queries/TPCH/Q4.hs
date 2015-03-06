@@ -17,19 +17,20 @@ module Queries.TPCH.Q4
     , q4''
     ) where
 
-import Database.DSH
-import Schema.TPCH
-import Queries.TPCH.Common
+import qualified Data.Time.Calendar  as C
+import           Database.DSH
+import           Queries.TPCH.Common
+import           Schema.TPCH
 
-q4 :: Q [(Text, Integer)]
-q4 =
+q4 :: Day -> Q [(Text, Integer)]
+q4 startDate =
   sortWith fst
   $ map (\(view -> (k, g)) -> pair k (length g))
   $ groupWithKey id
     [ o_orderpriorityQ o
     | o <- orders
-    , o_orderdateQ o >= 42
-    , o_orderdateQ o < 42 + 57
+    , o_orderdateQ o >= toQ startDate
+    , o_orderdateQ o < toQ (C.addDays 90 startDate)
     , not $ null [ toQ ()
                  | l <- lineitems
                  , l_orderkeyQ l == o_orderkeyQ o
@@ -39,15 +40,15 @@ q4 =
 
 --------------------------------------------------------------------------------
 
-q4' :: Q [(Text, Integer)]
-q4' =
+q4' :: Day -> Q [(Text, Integer)]
+q4' startDate =
   sortWith fst
   $ map (\(view -> (k, g)) -> pair k (length g))
   $ groupWithKey id
     [ o_orderpriorityQ o
     | o <- orders
-    , o_orderdateQ o >= 42
-    , o_orderdateQ o < 42 + 57
+    , o_orderdateQ o >= toQ startDate
+    , o_orderdateQ o < toQ (C.addDays 90 startDate)
     , any (\l -> l_commitdateQ l < l_receiptdateQ l
                  && l_orderkeyQ l == o_orderkeyQ o)
           lineitems
@@ -91,13 +92,13 @@ q4'' interval =
 
 hasOverdueItem :: Q Order -> Q Bool
 hasOverdueItem o =
-    any (\l -> l_commitdateQ l < l_receiptdateQ l 
-               && l_orderkeyQ l == o_orderkeyQ o) 
+    any (\l -> l_commitdateQ l < l_receiptdateQ l
+               && l_orderkeyQ l == o_orderkeyQ o)
         lineitems
 
 q4'' =
   sortWith fst
-  $ map (\(view -> (k, g)) -> pair k (length g)) 
+  $ map (\(view -> (k, g)) -> pair k (length g))
   $ groupWithKey id
     [ o_orderpriorityQ o
     | o <- orders
@@ -117,7 +118,7 @@ hasOverdueItem' o = or [ l_commitdateQ l < l_receiptdateQ l
 q4''' :: Q [(Text, Integer)]
 q4''' =
   sortWith fst
-  $ map (\(view -> (k, g)) -> pair k (length g)) 
+  $ map (\(view -> (k, g)) -> pair k (length g))
   $ groupWithKey id
     [ o_orderpriorityQ o
     | o <- orders
@@ -151,7 +152,7 @@ group' p as =
 q4''' :: Q [(Text, Integer)]
 q4''' =
   sortWith fst
-  $ map (\(view -> (k, g)) -> pair k (length g)) 
+  $ map (\(view -> (k, g)) -> pair k (length g))
   $ group' id
     [ o_orderpriorityQ o
     | o <- orders

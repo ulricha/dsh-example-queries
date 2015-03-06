@@ -15,11 +15,12 @@ module Queries.TPCH.Q5
     ( q5
     ) where
 
-import Database.DSH
-import Schema.TPCH
+import qualified Data.Time.Calendar as C
+import           Database.DSH
+import           Schema.TPCH
 
-q5 :: Q [(Text, Decimal)]
-q5 =
+q5 :: Day -> Text -> Q [(Text, Decimal)]
+q5 startDate regionName =
   sortWith (\(view -> (_, r)) -> r * (-1)) $
   map (\(view -> (k, g)) -> pair k (sum [ e * (1 - d) | (view -> (_, e, d)) <- g ])) $
   groupWithKey (\(view -> (n, _, _)) -> n) $
@@ -36,7 +37,7 @@ q5 =
   , c_nationkeyQ c == s_nationkeyQ s
   , s_nationkeyQ s == n_nationkeyQ n
   , n_regionkeyQ n == r_regionkeyQ r
-  , r_nameQ r == (toQ "ASIA")
-  , o_orderdateQ o >= 42
-  , o_orderdateQ o < 60
+  , r_nameQ r == toQ regionName
+  , o_orderdateQ o >= toQ startDate
+  , o_orderdateQ o < toQ (C.addDays 365 startDate)
   ]

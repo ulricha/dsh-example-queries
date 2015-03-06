@@ -17,6 +17,7 @@ module Queries.TPCH.Q9
 
 import Database.DSH
 import Schema.TPCH
+import Queries.TPCH.Common
 
 thd3 :: (QA a, QA b, QA c) => Q (a, b, c) -> Q c
 thd3 (view -> (_, _, c)) = c
@@ -24,8 +25,8 @@ thd3 (view -> (_, _, c)) = c
 profit :: Q [(Text, Integer, Decimal)]
 profit =
   [ tup3 (n_nameQ n)
-         (o_orderdateQ o)
-         (l_extendedpriceQ l * (1 - l_discountQ l) - ps_supplycostQ ps * l_quantityQ l)
+         (dateYear $ o_orderdateQ o)
+         (revenue l - ps_supplycostQ ps * l_quantityQ l)
   | p <- parts
   , s <- suppliers
   , l <- lineitems

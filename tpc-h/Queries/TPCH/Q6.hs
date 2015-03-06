@@ -7,25 +7,27 @@
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
-{-# LANGUAGE ViewPatterns          #-}
 
 module Queries.TPCH.Q6
     ( q6
     ) where
 
-import Database.DSH
-import Schema.TPCH
+import qualified Data.Time.Calendar as C
+import           Database.DSH
+import           Schema.TPCH
 
 between :: Q Decimal -> Q Decimal -> Q Decimal -> Q Bool
 between x l r = x >= l && x <= r
 
-q6 :: Q Decimal
-q6 =
-  sum $
-  [ l_extendedpriceQ l * l_discountQ l
-  | l <- lineitems
-  , l_shipdateQ l >= 23
-  , l_shipdateQ l < 42
-  , between (l_discountQ l) ((toQ 0.05) - (toQ 0.01)) ((toQ 0.05) + (toQ 0.01))
-  , l_quantityQ l < 24
-  ]
+q6 :: Day -> Decimal -> Decimal -> Q Decimal
+q6 startDate discount quantity =
+  sum [ l_extendedpriceQ l * l_discountQ l
+      | l <- lineitems
+      , l_shipdateQ l >= toQ startDate
+      , l_shipdateQ l < toQ (C.addDays 365 startDate)
+      , between (l_discountQ l) lowerDiscount upperDiscount 
+      , l_quantityQ l < toQ quantity
+      ]
+  where
+    lowerDiscount = toQ discount - 0.01
+    upperDiscount = toQ discount + 0.01

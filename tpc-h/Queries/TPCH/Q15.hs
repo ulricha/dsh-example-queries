@@ -15,14 +15,15 @@ module Queries.TPCH.Q15
     ( q15
     ) where
 
-import Database.DSH
-import Schema.TPCH
+import qualified Data.Time.Calendar as C
+import           Database.DSH
+import           Schema.TPCH
 
 fst3 :: (QA a, QA b, QA c) => Q (a, b, c) -> Q a
 fst3 (view -> (a, _, _)) = a
 
-revenue :: Integer -> Q [(Integer, Decimal)]
-revenue intervalFrom =
+revenue :: Day -> Q [(Integer, Decimal)]
+revenue startDate =
     [ pair supplier_no (sum [ ep * (1 - discount)
                             | (view -> (_, ep, discount)) <- g
                             ])
@@ -34,11 +35,11 @@ revenue intervalFrom =
                            (l_extendedpriceQ l)
                            (l_discountQ l)
                     | l <- lineitems
-                    , l_shipdateQ l >= toQ intervalFrom
-                    , l_shipdateQ l <= (toQ intervalFrom) + 23
+                    , l_shipdateQ l >= toQ startDate
+                    , l_shipdateQ l <= toQ (C.addDays 90 startDate)
                     ]
 
-q15 :: Integer -> Q [(Integer, (Text, Text, Text, Decimal))]
+q15 :: Day -> Q [(Integer, (Text, Text, Text, Decimal))]
 q15 intervalFrom =
     sortWith fst
     [ pair (s_suppkeyQ s)

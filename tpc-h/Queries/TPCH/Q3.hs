@@ -19,17 +19,17 @@ import Database.DSH
 import Schema.TPCH
 
 project
-  :: Q ((Integer, Integer, Integer), [((Integer, Integer, Integer), (Decimal, Decimal))])
-  -> Q ((Integer, Integer, Integer), Decimal)
+  :: Q ((Integer, Day, Integer), [((Integer, Day, Integer), (Decimal, Decimal))])
+  -> Q ((Integer, Day, Integer), Decimal)
 project gk = pair (fst gk) revenue
   where
     revenue = sum [ ep * (1 - d) | (view -> (ep, d)) <- [ snd x | x <- snd gk ] ]
 
-byRevDate :: Q ((Integer, Integer, Integer), Decimal) -> Q (Decimal, Integer)
+byRevDate :: Q ((Integer, Day, Integer), Decimal) -> Q (Decimal, Integer)
 byRevDate (view -> (((view -> (_, _, sp)), r))) = pair (r * (-1)) sp
 
-q3 :: Q [((Integer, Integer, Integer), Decimal)]
-q3 =
+q3 :: Day -> Text -> Q [((Integer, Day, Integer), Decimal)]
+q3 date marketSegment =
   sortWith byRevDate $
   map project $
   groupWithKey fst $
@@ -38,9 +38,9 @@ q3 =
   | c <- customers
   , o <- orders
   , l <- lineitems
-  , c_mktsegmentQ c == (toQ "foo")
+  , c_mktsegmentQ c == toQ marketSegment
   , c_custkeyQ c == o_custkeyQ o
   , l_orderkeyQ l == o_orderkeyQ o
-  , o_orderdateQ o < (toQ 42)
-  , l_shipdateQ l > (toQ 23)
+  , o_orderdateQ o < toQ date
+  , l_shipdateQ l > toQ date
   ]

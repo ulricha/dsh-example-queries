@@ -27,6 +27,9 @@ module Queries.TPCH
 import Database.DSH.Compiler
 import Database.DSH.Backend
 
+import qualified Data.Time.Calendar as C
+import qualified Data.Decimal as D
+
 import Queries.TPCH.Q1
 import Queries.TPCH.Q2
 import Queries.TPCH.Q3
@@ -55,49 +58,51 @@ import Queries.TPCH.Common
 debugAll :: Backend c => c -> IO ()
 debugAll c = do
     putStrLn "Q1"
-    debugQ "q1" c q1
+    debugQ "q1" c $ q1 90
 
     putStrLn "Q2"
     debugQ "q2" c q2
 
     putStrLn "Q3"
-    debugQ "q3" c q3
+    debugQ "q3" c $ q3 (C.fromGregorian 1995 3 15) "BUILDING"
 
     putStrLn "Q4"
-    debugQ "q4" c (q4'' $ Interval 42 47)
+    let startDate = C.fromGregorian 1993 7 1
+    debugQ "q4" c (q4'' $ Interval startDate (C.addDays 90 startDate))
 
     putStrLn "Q5"
-    debugQ "q5" c q5
+    debugQ "q5" c $ q5 (C.fromGregorian 1994 1 1) "ASIA"
 
     putStrLn "Q6"
-    debugQ "q6" c q6
+    let discount = D.realFracToDecimal 2 0.06
+    debugQ "q6" c $ q6 (C.fromGregorian 1994 1 1) discount 24
 
     putStrLn "Q7"
-    debugQ "q7" c q7
+    debugQ "q7" c $ q7 "FRANCE" "GERMANY"
 
     putStrLn "Q8"
-    debugQ "q8" c $ q8 "BRAZIL" "AMERICA" "ECONOMY ANODIZED STEEL" (Interval 42 57)
+    debugQ "q8" c $ q8 "BRAZIL" "AMERICA" "ECONOMY ANODIZED STEEL"
 
     putStrLn "Q9"
     debugQ "q9" c q9
 
     putStrLn "Q10"
-    debugQ "q10" c q10
+    debugQ "q10" c $ q10 (C.fromGregorian 1993 10 1)
 
     putStrLn "Q11"
     debugQ "q11" c $ q11 "GERMANY" 0.0001
 
     putStrLn "Q12"
-    debugQ "q12" c $ q12 "MAIL" "SHIP" 0xdeadbeef
+    debugQ "q12" c $ q12 "MAIL" "SHIP" (C.fromGregorian 1994 1 1)
 
     putStrLn "Q13"
     debugQ "q13" c q13
 
     putStrLn "Q14"
-    debugQ "q14" c $ q14 0xdeadbeef
+    debugQ "q14" c $ q14 (C.fromGregorian 1995 9 1)
 
     putStrLn "Q15"
-    debugQ "q15" c $ q15 0xdeadbeef
+    debugQ "q15" c $ q15 (C.fromGregorian 1996 1 1)
 
     putStrLn "Q16"
     debugQ "q16" c q16
@@ -112,7 +117,7 @@ debugAll c = do
     debugQ "q19" c $ q19 1 10 20 "Brand#12" "Brand#23" "Brand#34"
 
     putStrLn "Q20"
-    debugQ "q20" c $ q20 "forest" (Interval 42 57) "CANADA"
+    debugQ "q20" c $ q20 "forest" (C.fromGregorian 1994 1 1) "CANADA"
 
     putStrLn "Q21"
     debugQ "q21" c $ q21 "SAUDI ARABIA"

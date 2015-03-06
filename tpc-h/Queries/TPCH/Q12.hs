@@ -16,10 +16,11 @@ module Queries.TPCH.Q12
     , q12'
     ) where
 
-import Database.DSH
-import Schema.TPCH
+import qualified Data.Time.Calendar as C
+import           Database.DSH
+import           Schema.TPCH
 
-relevantShippings :: Text -> Text -> Integer -> Q [(Text, Text)]
+relevantShippings :: Text -> Text -> Day -> Q [(Text, Text)]
 relevantShippings sm1 sm2 date =
   [ pair (l_shipmodeQ l) (o_orderpriorityQ o)
   | o <- orders
@@ -29,7 +30,7 @@ relevantShippings sm1 sm2 date =
   , l_commitdateQ l < l_receiptdateQ l
   , l_shipdateQ l < l_commitdateQ l
   , l_receiptdateQ l >= toQ date
-  , l_receiptdateQ l < (toQ date + 42)
+  , l_receiptdateQ l < toQ (C.addDays 365 date)
   ]
 
 -------------------------------------------------------------------------------
@@ -53,7 +54,7 @@ lowlineCount ops =
       | op <- map snd ops
       ]
 
-q12 :: Text -> Text -> Integer -> Q [(Text, Integer, Integer)]
+q12 :: Text -> Text -> Day -> Q [(Text, Integer, Integer)]
 q12 sm1 sm2 date =
   [ tup3 shipmode (highlineCount g) (lowlineCount g)
   | (view -> (shipmode, g)) <- groupWithKey fst (relevantShippings sm1 sm2 date)
@@ -67,7 +68,7 @@ q12 sm1 sm2 date =
 lineCount :: (Q Text -> Q Bool) -> Q [(Text, Text)] -> Q Integer
 lineCount opPred ops = length $ filter opPred $ map snd ops
 
-q12' :: Text -> Text -> Integer -> Q [(Text, Integer, Integer)]
+q12' :: Text -> Text -> Day -> Q [(Text, Integer, Integer)]
 q12' sm1 sm2 date =
   [ tup3 shipmode
          (lineCount (\op -> op == "1-URGENT" || op == "2-HIGH") g)

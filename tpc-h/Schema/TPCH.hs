@@ -13,7 +13,7 @@ import Database.DSH
 -- primary key: l_orderkey, l_linenumber
 data LineItem = LineItem
     { l_comment       :: Text
-    , l_commitdate    :: Integer
+    , l_commitdate    :: Day
     , l_discount      :: Decimal
     , l_extendedprice :: Decimal
     , l_linenumber    :: Integer
@@ -21,9 +21,9 @@ data LineItem = LineItem
     , l_orderkey      :: Integer
     , l_partkey       :: Integer
     , l_quantity      :: Decimal
-    , l_receiptdate   :: Integer
+    , l_receiptdate   :: Day
     , l_returnflag    :: Text
-    , l_shipdate      :: Integer
+    , l_shipdate      :: Day
     , l_shipinstruct  :: Text
     , l_shipmode      :: Text
     , l_suppkey       :: Integer
@@ -36,7 +36,7 @@ deriveTA ''LineItem
 generateTableSelectors ''LineItem
 
 data Supplier = Supplier
-    { s_acctbal   :: Decimal -- should be decimal
+    { s_acctbal   :: Decimal
     , s_address   :: Text
     , s_comment   :: Text
     , s_name      :: Text
@@ -57,7 +57,7 @@ data Part = Part
     , p_mfgr        :: Text
     , p_name        :: Text
     , p_partkey     :: Integer
-    , p_retailprice :: Decimal -- should be decimal
+    , p_retailprice :: Decimal
     , p_size        :: Integer
     , p_type        :: Text
     }
@@ -72,7 +72,7 @@ data PartSupp = PartSupp
     , ps_comment    :: Text
     , ps_partkey    :: Integer
     , ps_suppkey    :: Integer
-    , ps_supplycost :: Decimal -- should be decimal
+    , ps_supplycost :: Decimal
     }
     deriving (Show)
 
@@ -107,7 +107,7 @@ data Order = Order
     { o_clerk         :: Text
     , o_comment       :: Text
     , o_custkey       :: Integer
-    , o_orderdate     :: Integer
+    , o_orderdate     :: Day
     , o_orderkey      :: Integer
     , o_orderpriority :: Text
     , o_orderstatus   :: Text

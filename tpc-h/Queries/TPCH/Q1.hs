@@ -13,20 +13,24 @@ module Queries.TPCH.Q1
     ( q1
     ) where
 
+import qualified Data.Time.Calendar as C
 import Database.DSH
 import Schema.TPCH
 
 withFlagStatus :: Q LineItem -> Q (Text, Text)
 withFlagStatus li = tup2 (l_returnflagQ li) (l_linestatusQ li)
 
-filteredItems :: Q [LineItem]
-filteredItems = [ li | li <- lineitems , l_shipdateQ li <= 42 ]
+itemsBefore :: Day -> Q [LineItem]
+itemsBefore maxDate =
+    [ li
+    | li <- lineitems
+    , l_shipdateQ li <= toQ maxDate ]
 
 fst9 :: (QA a, QA b, QA c, QA d, QA e, QA f, QA g, QA h, QA i) => Q (a, b, c, d, e, f, g, h, i) -> Q a
 fst9 (view -> (a, _, _, _, _, _, _, _, _)) = a
 
-q1 :: Q [((Text, Text), Decimal, Decimal, Decimal, Decimal, Decimal, Decimal, Decimal, Integer)]
-q1 = sortWith fst9 $
+q1 :: Integer -> Q [((Text, Text), Decimal, Decimal, Decimal, Decimal, Decimal, Decimal, Decimal, Integer)]
+q1 delta = sortWith fst9 $
      [ tup9
           k
           (sum $ map l_quantityQ lis)
@@ -37,5 +41,8 @@ q1 = sortWith fst9 $
           (avg $ map l_extendedpriceQ lis)
           (avg $ map l_discountQ lis)
           (length lis)
-      | (view -> (k, lis)) <- groupWithKey withFlagStatus filteredItems
+      | (view -> (k, lis)) <- groupWithKey withFlagStatus (itemsBefore maxDate)
       ]
+
+  where
+    maxDate = C.addDays delta (C.fromGregorian 1998 12 1)

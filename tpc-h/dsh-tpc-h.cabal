@@ -40,6 +40,8 @@ library
                        DSH >=0.10,
                        dsh-sql >= 0.1,
                        HDBC-postgresql,
-                       text
+                       text,
+                       time >= 1.4,
+                       Decimal >= 0.4
   -- hs-source-dirs:
   default-language:    Haskell2010

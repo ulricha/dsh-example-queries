@@ -25,12 +25,12 @@ largeOrders quantity =
   , toQ quantity < sum (map l_quantityQ ls)
   ]
 
-sortSpec :: Q ((Text, Integer, Integer, Integer, Decimal), Decimal) -> Q (Decimal, Integer)
+sortSpec :: Q ((Text, Integer, Integer, Day, Decimal), Decimal) -> Q (Decimal, Day)
 sortSpec gs =
   let (view -> (_, _, _, orderDate, totalPrice)) = fst gs
   in pair (-1 * totalPrice) orderDate
 
-q18 :: Decimal -> Q [((Text, Integer, Integer, Integer, Decimal), Decimal)]
+q18 :: Decimal -> Q [((Text, Integer, Integer, Day, Decimal), Decimal)]
 q18 quantity =
   sortWith sortSpec $
   map (\(view -> (k, g)) -> pair k (sum $ map snd g)) $
