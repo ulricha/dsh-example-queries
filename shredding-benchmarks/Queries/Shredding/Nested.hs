@@ -1,20 +1,25 @@
 {-# LANGUAGE MonadComprehensions #-}
-{-# LANGUAGE RebindableSyntax #-}
-{-# LANGUAGE ViewPatterns #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings   #-}
+{-# LANGUAGE RebindableSyntax    #-}
+{-# LANGUAGE ViewPatterns        #-}
 
-    
-import           Data.Text hiding (all, singleton)
+module Queries.Shredding.Nested
+    ( q1
+    , q2
+    , q3
+    , q4
+    , q5
+    , q6
+    ) where
+
 
 import           Database.DSH
-import           Database.DSH.Compiler
-import           Database.X100Client
-import qualified Prelude as P
-       
-import           Database.HDBC
-import           Database.HDBC.PostgreSQL
-       
-import           Records
+import qualified Prelude          as P
+
+import           Schema.Shredding
+
+--------------------------------------------------------------------------------
+-- Helper queries
 
 tasksOfEmployee :: Q Employee -> Q [Text]
 tasksOfEmployee e = [ t_tskQ t | t <- tasks, e_empQ e == t_empQ t ]
@@ -23,25 +28,25 @@ employeesOfDepartment :: Q Department -> Q [(Text, [Text])]
 employeesOfDepartment d = [ pair (e_empQ e) (tasksOfEmployee e)
                           | e <- employees
                           , d == e_dptQ e ]
-                          
+
 contactsOfDepartment :: Q Department -> Q [(Text, Bool)]
 contactsOfDepartment d = [ pair (c_nameQ c) (c_clientQ c)
                          | c <- contacts
                          , d == c_dptQ c ]
-                         
--- q3: nestedOrg
--- nestjoin over multiple levels
+
 q1 :: Q [(Text, [(Text, [Text])], [(Text, Bool)])]
-q1 = [ tuple3 d (employeesOfDepartment d) (contactsOfDepartment d)
+q1 = [ tup3 d (employeesOfDepartment d) (contactsOfDepartment d)
      | d <- departments ]
-            
+
+-- | A complex object describing a department. It contains a name, the
+-- list of employees with their tasks and a list of contacts.
 type NestedOrg = (Text, [(Text, Integer, [Text])], [(Text, Bool)])
 
 nestedOrg2 :: Q [NestedOrg]
 nestedOrg2 =
-  [ let es = [ tuple3 (e_empQ e)
-                      (e_salaryQ e)
-                      [ t_tskQ t | t <- tasks, e_empQ e == t_empQ t ]
+  [ let es = [ tup3 (e_empQ e)
+                    (e_salaryQ e)
+                    [ t_tskQ t | t <- tasks, e_empQ e == t_empQ t ]
              | e <- employees
              , d == e_dptQ e ]
 
@@ -49,17 +54,17 @@ nestedOrg2 =
              | c <- contacts
              , d == c_dptQ c ]
 
-    in tuple3 d es cs
+    in tup3 d es cs
   | d <- departments
   ]
-  
+
 expertise :: Q [NestedOrg] -> Q Text -> Q [Department]
 expertise nestedOrg u =
   [ d
   | (view -> (d, es, _)) <- nestedOrg
   , all (\(view -> (_, _, tsks)) -> u `elem` tsks) es
   ]
-  
+
 -- Q2
 q2 :: Q [Department]
 q2 = expertise nestedOrg2 (toQ "abstract")
@@ -69,12 +74,12 @@ q3 :: Q [(Text, [Text])]
 q3 = [ pair (e_empQ e) (tasksOfEmployee e)
      | e <- employees
      ]
-                  
+
 -- Q4
 q4 :: Q [(Department, [Text])]
 q4 = [ pair d [ e_empQ e | e <- employees, e_dptQ e == d ]
      | d <- departments ]
-     
+
 -- Q5
 employeesByTask :: Q Task -> Q [(Text, Text)]
 employeesByTask t = [ pair (e_empQ e) d
@@ -82,17 +87,17 @@ employeesByTask t = [ pair (e_empQ e) d
                     , d <- departments
                     , e_empQ e == t_empQ t && e_dptQ e == d
                     ]
- 
+
 q5 :: Q [(Text, [(Text, Text)])]
 q5 = [ pair (t_tskQ t) (employeesByTask t)
      | t <- tasks
      ]
-   
+
 -- Q6
 outliersQ :: Q [(Text, [(Text, [Text])])]
 outliersQ =
   [ let a = [ pair (e_empQ e)
-                   [ t_tskQ t | t <- tasks, e_empQ e == t_empQ t ] 
+                   [ t_tskQ t | t <- tasks, e_empQ e == t_empQ t ]
             | e <- employees
             , d == e_dptQ e && (e_salaryQ e < 1000 || e_salaryQ e > 1000000)
             ]
@@ -106,7 +111,7 @@ isPoor (view -> (_, sal, _)) = sal < 1000
 
 isRich :: Q (Text, Integer, [Text]) -> Q Bool
 isRich (view -> (_, sal, _)) = sal > 1000000
-  
+
 outliers :: Q [(Text, Integer, [Text])] -> Q [(Text, Integer, [Text])]
 outliers xs = [ x | x <- xs, isRich x || isPoor x ]
 
@@ -125,30 +130,6 @@ outliersFactored orgs =
         b = [ pair (fst c) (singleton $ toQ "buy") | c <- clients cs ]
     in pair d (a ++ b)
   | (view -> (d, es, cs)) <- orgs ]
-  
+
 q6 :: Q [(Text, [(Text, [Text])])]
 q6 = outliersFactored nestedOrg2
-
-getConn :: IO X100Info
-getConn = P.return $ x100Info "localhost" "48130" Nothing
-
-getPGConn :: IO Connection
-getPGConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' dbname = 'organisation16'"
-
-allQueries :: IO ()
-allQueries = getPGConn 
-       P.>>= (\conn -> sequence_ [ debugTAOpt "q1" conn q1
-                                 , debugTAOpt "q2" conn q2
-                                 , debugTAOpt "q3" conn q3
-                                 , debugTAOpt "q4" conn q4
-                                 , debugTAOpt "q5" conn q5
-                                 , debugTAOpt "q6" conn q6
-			         ])
-
-someQuery :: IO ()
-someQuery = getPGConn 
-         -- P.>>= (\conn -> debugVLOpt "q62" conn q6)
-         P.>>= (\conn -> debugTAOpt "q6" conn q6)
-
-main :: IO ()
-main = allQueries
