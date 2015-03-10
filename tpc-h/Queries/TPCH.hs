@@ -22,6 +22,7 @@ module Queries.TPCH
     , module Queries.TPCH.Q20
     , module Queries.TPCH.Q21
     , module Queries.TPCH.Q22
+    , debugAll
     ) where
 
 import Database.DSH.Compiler

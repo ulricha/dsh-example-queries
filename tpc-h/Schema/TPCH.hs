@@ -137,28 +137,104 @@ deriveTA ''Customer
 generateTableSelectors ''Customer
 
 parts :: Q [Part]
-parts = table "part" $ TableHints [ Key ["p_partkey"] ] NonEmpty
+parts = table "part" [ "p_brand"
+                     , "p_comment"
+                     , "p_container"
+                     , "p_mfgr"
+                     , "p_name"
+                     , "p_partkey"
+                     , "p_retailprice"
+                     , "p_size"
+                     , "p_type"
+                     ]
+                     (TableHints [ Key ["p_partkey"] ] NonEmpty)
 
 suppliers :: Q [Supplier]
-suppliers = table "supplier" $ TableHints [ Key ["s_suppkey"] ] NonEmpty
+suppliers = table "supplier"
+                  [ "s_acctbal"
+                  , "s_address"
+                  , "s_comment"
+                  , "s_name"
+                  , "s_nationkey"
+                  , "s_phone"
+                  , "s_suppkey"
+                  ]
+                  (TableHints [ Key ["s_suppkey"] ] NonEmpty)
 
 partsupps :: Q [PartSupp]
-partsupps = table "partsupp" $ TableHints [Key ["ps_partkey", "ps_suppkey"]] NonEmpty
+partsupps = table "partsupp"
+                  [ "ps_availqty"
+                  , "ps_comment"
+                  , "ps_partkey"
+                  , "ps_suppkey"
+                  , "ps_supplycost"
+                  ]
+                  (TableHints [Key ["ps_partkey", "ps_suppkey"]] NonEmpty)
 
 nations :: Q [Nation]
-nations = table "nation" $ TableHints [Key ["n_nationkey"]] NonEmpty
+nations = table "nation"
+                [ "n_comment"
+                , "n_name"
+                , "n_nationkey"
+                , "n_regionkey"
+                ]
+                (TableHints [Key ["n_nationkey"]] NonEmpty)
 
 regions :: Q [Region]
-regions = table "region" $ TableHints [Key ["r_regionkey"]] NonEmpty
+regions = table "region"
+                [ "r_comment"
+                , "r_name"
+                , "r_regionkey"
+                ]
+                (TableHints [Key ["r_regionkey"]] NonEmpty)
 
 orders :: Q [Order]
-orders = table "orders" $ TableHints [Key ["o_orderkey"]] NonEmpty
+orders = table "orders"
+               [ "o_clerk"
+               , "o_comment"
+               , "o_custkey"
+               , "o_orderdate"
+               , "o_orderkey"
+               , "o_orderpriority"
+               , "o_orderstatus"
+               , "o_shippriority"
+               , "o_totalprice"
+               ]
+               (TableHints [Key ["o_orderkey"]] NonEmpty)
 
 lineitems :: Q [LineItem]
-lineitems = table "lineitem" $ TableHints [Key ["l_orderkey", "l_linenumber"]] NonEmpty
+lineitems = table "lineitem"
+                  [ "l_comment"
+                  , "l_commitdate"
+                  , "l_discount"
+                  , "l_extendedprice"
+                  , "l_linenumber"
+                  , "l_linestatus"
+                  , "l_orderkey"
+                  , "l_partkey"
+                  , "l_quantity"
+                  , "l_receiptdate"
+                  , "l_returnflag"
+                  , "l_shipdate"
+                  , "l_shipinstruct"
+                  , "l_shipmode"
+                  , "l_suppkey"
+                  , "l_tax"
+                  ]
+                  (TableHints [Key ["l_orderkey", "l_linenumber"]] NonEmpty)
 
 customers :: Q [Customer]
-customers = table "customer" $ TableHints [Key ["c_custkey"]] NonEmpty
+customers = table "customer"
+                  [ "c_acctbal"
+                  , "c_address"
+                  , "c_comment"
+                  , "c_custkey"
+                  , "c_mktsegment"
+                  , "c_name"
+                  , "c_nationkey"
+                  , "c_phone"
+                  ]
+                  (TableHints [Key ["c_custkey"]] NonEmpty)
 
 
 
