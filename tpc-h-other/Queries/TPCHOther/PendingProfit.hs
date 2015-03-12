@@ -13,29 +13,11 @@ module Queries.TPCHOther.PendingProfit where
 
 import Database.DSH
 import Schema.TPCH
+import Queries.TPCH.BuildingBlocks
 
-hasNationality :: Q Customer -> Text -> Q Bool
-hasNationality c nn =
-    or [ n_nameQ n == toQ nn && n_nationkeyQ n == c_nationkeyQ c
-       | n <- nations
-       ]
-
-ordersOf :: Q Customer -> Q [Order]
-ordersOf c = [ o | o <- orders, o_custkeyQ o == c_custkeyQ c ]
-
-ordersWithStatus :: Text -> Q Customer -> Q [Order]
-ordersWithStatus status c =
-    [ o | o <- ordersOf c, o_orderstatusQ o == toQ status ]
-
-revenue :: Q Order -> Q Double
-revenue o = sum [ l_extendedpriceQ l * (1 - l_discountQ l)
-                | l <- lineitems
-                , l_orderkeyQ l == o_orderkeyQ o
-                ]
-
-expectedRevenueFor :: Text -> Q [(Text, [(Integer, Double)])]
+expectedRevenueFor :: Text -> Q [(Text, [(Day, Decimal)])]
 expectedRevenueFor nationName =
-    [ pair (c_nameQ c) [ pair (o_orderdateQ o) (revenue o)
+    [ pair (c_nameQ c) [ pair (o_orderdateQ o) (orderRevenue o)
                        | o <- ordersWithStatus "P" c ]
     | c <- customers
     , c `hasNationality` nationName

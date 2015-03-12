@@ -15,7 +15,9 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     Queries.TPCHOther
-  other-modules:       Queries.TPCHOther.Jan.Q7, Queries.TPCHOther.PendingProfit
+  other-modules:       Queries.TPCHOther.Jan.Q7,
+                       Queries.TPCHOther.PendingProfit,
+                       Queries.TPCHOther.TopK
   other-extensions:    TemplateHaskell, FlexibleInstances, TypeFamilies, UndecidableInstances, MultiParamTypeClasses, GADTs, ViewPatterns, MonadComprehensions, OverloadedStrings, RebindableSyntax
   build-depends:       base >=4.7 && <4.8,
                        DSH >= 0.10,

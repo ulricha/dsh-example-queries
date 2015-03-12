@@ -2,6 +2,7 @@
 module Queries.TPCHOther
     ( module Queries.TPCHOther.Jan.Q7
     , module Queries.TPCHOther.PendingProfit
+    , module Queries.TPCHOther.TopK
     , getConn
     , debugAll
     ) where
@@ -15,6 +16,7 @@ import Database.DSH.Backend.Sql
 
 import Queries.TPCHOther.Jan.Q7
 import Queries.TPCHOther.PendingProfit
+import Queries.TPCHOther.TopK
 
 getConn :: IO Connection
 getConn = connectPostgreSQL "user = 'au' password = 'foobar' host = 'localhost' port = '5432' dbname = 'tpchsmall'"

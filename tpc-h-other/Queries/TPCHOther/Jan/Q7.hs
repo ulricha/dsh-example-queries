@@ -22,7 +22,7 @@ import Schema.TPCH
 --------------------------------------------------------------------------------
 -- Query written from a viewpoint taking the list model in consideration
 
-orderQuantity :: Q [LineItem] -> Q Double
+orderQuantity :: Q [LineItem] -> Q Decimal
 orderQuantity lis = sum $ map l_quantityQ lis
 
 jan_q7a :: Q [LineItem]
@@ -32,12 +32,12 @@ jan_q7a = snd $ head $ sortWith (orderQuantity . snd) $ groupWithKey l_orderkeyQ
 -- Query written from a database viewpoint
 
 -- List the lineitems of the order with the most parts.
-sumPerOrder :: Q [(Integer, Double)]
-sumPerOrder = map (\(view -> (ok, lis)) -> pair ok (sum $ map l_quantityQ lis)) 
-	      $ groupWithKey l_orderkeyQ lineitems
+sumPerOrder :: Q [(Integer, Decimal)]
+sumPerOrder = map (\(view -> (ok, lis)) -> pair ok (sum $ map l_quantityQ lis))
+              $ groupWithKey l_orderkeyQ lineitems
 
 jan_q7b :: Q [LineItem]
-jan_q7b = 
+jan_q7b =
     [ l
     | l <- lineitems
     , (view -> (ok, nrItems)) <- sumPerOrder
