@@ -12,6 +12,7 @@ cabal-version:       >=1.10
 
 library
   exposed-modules:     Queries.TPCH,
+                       Queries.TPCH.BuildingBlocks
                        Schema.TPCH
   other-modules:       Queries.TPCH.Q1,
                        Queries.TPCH.Q2,
