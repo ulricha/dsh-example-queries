@@ -20,11 +20,11 @@ import Schema.TPCH
 withFlagStatus :: Q LineItem -> Q (Text, Text)
 withFlagStatus li = tup2 (l_returnflagQ li) (l_linestatusQ li)
 
-itemsBefore :: Day -> Q [LineItem]
+itemsBefore :: Q Day -> Q [LineItem]
 itemsBefore maxDate =
     [ li
     | li <- lineitems
-    , l_shipdateQ li <= toQ maxDate ]
+    , l_shipdateQ li <= maxDate ]
 
 fst9 :: (QA a, QA b, QA c, QA d, QA e, QA f, QA g, QA h, QA i) => Q (a, b, c, d, e, f, g, h, i) -> Q a
 fst9 (view -> (a, _, _, _, _, _, _, _, _)) = a
@@ -45,4 +45,4 @@ q1 delta = sortWith fst9 $
       ]
 
   where
-    maxDate = C.addDays delta (C.fromGregorian 1998 12 1)
+    maxDate = subDays (toQ delta) (toQ $ C.fromGregorian 1998 12 1)

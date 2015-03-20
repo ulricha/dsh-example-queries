@@ -31,6 +31,7 @@ library
                        Queries.TPCH.Q15,
                        Queries.TPCH.Q16,
                        Queries.TPCH.Q17,
+                       Queries.TPCH.Q18,
                        Queries.TPCH.Q19,
                        Queries.TPCH.Q20,
                        Queries.TPCH.Q21,

@@ -10,6 +10,7 @@ module Queries.TPCH.BuildingBlocks
     , ordersWithStatus
     ) where
 
+
 import qualified Prelude as P
 import Database.DSH
 import Schema.TPCH
