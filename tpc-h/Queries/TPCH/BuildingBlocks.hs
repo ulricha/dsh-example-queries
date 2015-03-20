@@ -1,13 +1,22 @@
 {-# LANGUAGE MonadComprehensions #-}
 {-# LANGUAGE RebindableSyntax    #-}
 
+-- | Common building blocks for TPC-H queries
 module Queries.TPCH.BuildingBlocks
-    ( hasNationality
+    ( -- * Date intervals
+      Interval(..)
+    , inInterval
+      -- * Various predicates
+    , hasNationality
+    , ordersWithStatus
+      -- * One-to-many relationships along foreign keys
     , custOrders
     , orderItems
+      -- * Price and revenue
+    , discPrice
+    , chargedPrice
     , revenue
     , orderRevenue
-    , ordersWithStatus
     ) where
 
 
@@ -15,11 +24,20 @@ import qualified Prelude as P
 import Database.DSH
 import Schema.TPCH
 
-orderItems :: Q Order -> Q [LineItem]
-orderItems o = [ l | l <- lineitems, l_orderkeyQ l == o_orderkeyQ o ]
+--------------------------------------------------------------------------------
+-- Date intervals
 
-custOrders :: Q Customer -> Q [Order]
-custOrders c = [ o | o <- orders, o_custkeyQ o == c_custkeyQ c ]
+data Interval = Interval { iv_start :: Day, iv_end :: Day }
+
+inInterval :: Q Day -> Interval -> Q Bool
+inInterval d interval = d >= toQ (iv_start interval) && d < toQ (iv_end interval)
+
+--------------------------------------------------------------------------------
+-- Various predicates
+
+ordersWithStatus :: Text -> Q Customer -> Q [Order]
+ordersWithStatus status c =
+    [ o | o <- custOrders c, o_orderstatusQ o == toQ status ]
 
 hasNationality :: Q Customer -> Text -> Q Bool
 hasNationality c nn =
@@ -27,15 +45,28 @@ hasNationality c nn =
        | n <- nations
        ]
 
-revenue :: Q LineItem -> Q Decimal
-revenue l = l_extendedpriceQ l * (1 - l_discountQ l)
+--------------------------------------------------------------------------------
+-- One-to-many relationships along foreign keys
+
+orderItems :: Q Order -> Q [LineItem]
+orderItems o = [ l | l <- lineitems, l_orderkeyQ l == o_orderkeyQ o ]
+
+custOrders :: Q Customer -> Q [Order]
+custOrders c = [ o | o <- orders, o_custkeyQ o == c_custkeyQ c ]
+
+
+--------------------------------------------------------------------------------
+-- Price and revenue
+
+discPrice :: Q LineItem -> Q Decimal
+discPrice l = l_extendedpriceQ l * (1 - l_discountQ l)
+
+chargedPrice :: Q LineItem -> Q Decimal
+chargedPrice l = discPrice l * (1 + l_taxQ l)
+
+revenue :: Q [LineItem] -> Q Decimal
+revenue ls = sum $ map discPrice ls
 
 orderRevenue :: Q Order -> Q Decimal
-orderRevenue o = sum [ revenue l
-                | l <- lineitems
-                , l_orderkeyQ l == o_orderkeyQ o
-                ]
+orderRevenue o = revenue $ orderItems o
 
-ordersWithStatus :: Text -> Q Customer -> Q [Order]
-ordersWithStatus status c =
-    [ o | o <- custOrders c, o_orderstatusQ o == toQ status ]

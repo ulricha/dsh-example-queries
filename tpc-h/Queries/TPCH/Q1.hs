@@ -16,31 +16,28 @@ module Queries.TPCH.Q1
 import qualified Data.Time.Calendar as C
 import Database.DSH
 import Schema.TPCH
+import Queries.TPCH.BuildingBlocks
 
 withFlagStatus :: Q LineItem -> Q (Text, Text)
 withFlagStatus li = tup2 (l_returnflagQ li) (l_linestatusQ li)
 
 itemsBefore :: Q Day -> Q [LineItem]
-itemsBefore maxDate =
-    [ li
-    | li <- lineitems
-    , l_shipdateQ li <= maxDate ]
+itemsBefore maxDate = [ li | li <- lineitems , l_shipdateQ li <= maxDate ]
 
-fst9 :: (QA a, QA b, QA c, QA d, QA e, QA f, QA g, QA h, QA i) => Q (a, b, c, d, e, f, g, h, i) -> Q a
-fst9 (view -> (a, _, _, _, _, _, _, _, _)) = a
+type PricingTotals = (Decimal, Decimal, Decimal, Decimal,
+                      Decimal, Decimal, Decimal, Integer)
 
-q1 :: Integer -> Q [((Text, Text), Decimal, Decimal, Decimal, Decimal, Decimal, Decimal, Decimal, Integer)]
-q1 delta = sortWith fst9 $
-     [ tup9
-          k
-          (sum $ map l_quantityQ lis)
-          (sum $ map l_extendedpriceQ lis)
-          (sum $ map (\li -> l_extendedpriceQ li * (1 - l_discountQ li)) lis)
-	  (sum $ map (\li -> l_extendedpriceQ li * (1 - l_discountQ li) * (1 + l_taxQ li)) lis)
-          (avg $ map l_quantityQ lis)
-          (avg $ map l_extendedpriceQ lis)
-          (avg $ map l_discountQ lis)
-          (length lis)
+-- | TPC-H Query Q1. Validation parameter: DELTA = 90
+q1 :: Integer -> Q [((Text, Text), PricingTotals)]
+q1 delta = sortWith fst $
+     [ pair k (tup8 (sum $ map l_quantityQ lis)
+                    (sum $ map l_extendedpriceQ lis)
+                    (sum $ map discPrice lis)
+                    (sum $ map chargedPrice lis)
+                    (avg $ map l_quantityQ lis)
+                    (avg $ map l_extendedpriceQ lis)
+                    (avg $ map l_discountQ lis)
+                    (length lis))
       | (view -> (k, lis)) <- groupWithKey withFlagStatus (itemsBefore maxDate)
       ]
 

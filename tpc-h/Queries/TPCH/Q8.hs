@@ -17,12 +17,12 @@ module Queries.TPCH.Q8
 
 import qualified Data.Time.Calendar  as C
 import           Database.DSH
-import           Queries.TPCH.Common
+import           Queries.TPCH.BuildingBlocks
 import           Schema.TPCH
 
 revenueByNation :: Text -> Text -> Interval -> Q [(Integer, Decimal, Text)]
 revenueByNation regionName typ interval =
-    [ tup3 (dateYear $ o_orderdateQ o) (revenue l) (n_nameQ n2)
+    [ tup3 (dateYear $ o_orderdateQ o) (discPrice l) (n_nameQ n2)
     | p  <- parts
     , s  <- suppliers
     , l  <- lineitems
