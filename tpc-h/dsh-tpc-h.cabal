@@ -35,8 +35,7 @@ library
                        Queries.TPCH.Q19,
                        Queries.TPCH.Q20,
                        Queries.TPCH.Q21,
-                       Queries.TPCH.Q22,
-                       Queries.TPCH.Common
+                       Queries.TPCH.Q22
   other-extensions:    TemplateHaskell
   build-depends:       base,
                        DSH >=0.10,

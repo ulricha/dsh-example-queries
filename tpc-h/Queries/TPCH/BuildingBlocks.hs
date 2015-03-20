@@ -7,11 +7,13 @@ module Queries.TPCH.BuildingBlocks
       Interval(..)
     , inInterval
       -- * Various predicates
-    , hasNationality
+    , custFromNation
     , ordersWithStatus
       -- * One-to-many relationships along foreign keys
     , custOrders
     , orderItems
+    , partSuppliers
+    , regionNations
       -- * Price and revenue
     , discPrice
     , chargedPrice
@@ -39,8 +41,8 @@ ordersWithStatus :: Text -> Q Customer -> Q [Order]
 ordersWithStatus status c =
     [ o | o <- custOrders c, o_orderstatusQ o == toQ status ]
 
-hasNationality :: Q Customer -> Text -> Q Bool
-hasNationality c nn =
+custFromNation :: Q Customer -> Text -> Q Bool
+custFromNation c nn =
     or [ n_nameQ n == toQ nn && n_nationkeyQ n == c_nationkeyQ c
        | n <- nations
        ]
@@ -54,6 +56,16 @@ orderItems o = [ l | l <- lineitems, l_orderkeyQ l == o_orderkeyQ o ]
 custOrders :: Q Customer -> Q [Order]
 custOrders c = [ o | o <- orders, o_custkeyQ o == c_custkeyQ c ]
 
+partSuppliers :: Q Part -> Q [(Supplier, PartSupp)]
+partSuppliers p = [ tup2 s ps
+                  | s <- suppliers
+                  , ps <- partsupps
+                  , ps_partkeyQ ps == p_partkeyQ p
+                  , ps_suppkeyQ ps == s_suppkeyQ s
+                  ]
+
+regionNations :: Q Region -> Q [Nation]
+regionNations r = [ n | n <- nations, n_regionkeyQ n == r_regionkeyQ r ]
 
 --------------------------------------------------------------------------------
 -- Price and revenue

@@ -17,7 +17,7 @@ module Queries.TPCH.Q7
 
 import qualified Data.Time.Calendar  as C
 import           Database.DSH
-import           Queries.TPCH.Common
+import           Queries.TPCH.BuildingBlocks
 import           Schema.TPCH
 
 q7 :: Text -> Text -> Q [((Text, Text, Integer), Decimal)]

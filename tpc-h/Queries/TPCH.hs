@@ -31,6 +31,7 @@ import Database.DSH.Backend
 import qualified Data.Time.Calendar as C
 import qualified Data.Decimal as D
 
+import Queries.TPCH.BuildingBlocks
 import Queries.TPCH.Q1
 import Queries.TPCH.Q2
 import Queries.TPCH.Q3
@@ -54,15 +55,16 @@ import Queries.TPCH.Q20
 import Queries.TPCH.Q21
 import Queries.TPCH.Q22
 
-import Queries.TPCH.Common
-
 debugAll :: Backend c => c -> IO ()
 debugAll c = do
     putStrLn "Q1"
     debugQ "q1" c $ q1 90
 
     putStrLn "Q2"
-    debugQ "q2" c q2
+    debugQ "q2" c $ q2 15 "BRASS" "EUROPE"
+
+    putStrLn "Q2a"
+    debugQ "q2a" c $ q2' 15 "BRASS" "EUROPE"
 
     putStrLn "Q3"
     debugQ "q3" c $ q3 (C.fromGregorian 1995 3 15) "BUILDING"

@@ -19,7 +19,7 @@ module Queries.TPCH.Q4
 
 import qualified Data.Time.Calendar  as C
 import           Database.DSH
-import           Queries.TPCH.Common
+import           Queries.TPCH.BuildingBlocks
 import           Schema.TPCH
 
 q4 :: Day -> Q [(Text, Integer)]

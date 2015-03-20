@@ -19,7 +19,7 @@ import qualified Data.Text as T
 import qualified Data.Time.Calendar as C
 import Database.DSH
 import Schema.TPCH
-import Queries.TPCH.Common
+import Queries.TPCH.BuildingBlocks
 
 -- | Only consider parts of a given color
 colorParts :: Text -> Q [Integer]
