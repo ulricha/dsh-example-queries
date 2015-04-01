@@ -8,7 +8,13 @@
 
 module Schema.TPCH where
 
+import qualified Prelude as P
+import Prelude(Show, Integer)
 import Database.DSH
+import Data.List.NonEmpty
+
+sng :: a -> NonEmpty a
+sng = P.return
 
 -- primary key: l_orderkey, l_linenumber
 data LineItem = LineItem
@@ -137,8 +143,8 @@ deriveTA ''Customer
 generateTableSelectors ''Customer
 
 parts :: Q [Part]
-parts = table "part" [ "p_brand"
-                     , "p_comment"
+parts = table "part" ( "p_brand" :|
+                     [ "p_comment"
                      , "p_container"
                      , "p_mfgr"
                      , "p_name"
@@ -146,52 +152,52 @@ parts = table "part" [ "p_brand"
                      , "p_retailprice"
                      , "p_size"
                      , "p_type"
-                     ]
-                     (TableHints [ Key ["p_partkey"] ] NonEmpty)
+                     ])
+                     (TableHints (sng $ Key (sng "p_partkey") ) NonEmpty)
 
 suppliers :: Q [Supplier]
 suppliers = table "supplier"
-                  [ "s_acctbal"
-                  , "s_address"
+                  ( "s_acctbal" :|
+                  [ "s_address"
                   , "s_comment"
                   , "s_name"
                   , "s_nationkey"
                   , "s_phone"
                   , "s_suppkey"
-                  ]
-                  (TableHints [ Key ["s_suppkey"] ] NonEmpty)
+                  ])
+                  (TableHints ( sng $  Key (sng "s_suppkey") ) NonEmpty)
 
 partsupps :: Q [PartSupp]
 partsupps = table "partsupp"
-                  [ "ps_availqty"
-                  , "ps_comment"
+                  ( "ps_availqty" :|
+                  [ "ps_comment"
                   , "ps_partkey"
                   , "ps_suppkey"
                   , "ps_supplycost"
-                  ]
-                  (TableHints [Key ["ps_partkey", "ps_suppkey"]] NonEmpty)
+                  ])
+                  (TableHints (sng $ Key ("ps_partkey" :| ["ps_suppkey"])) NonEmpty)
 
 nations :: Q [Nation]
 nations = table "nation"
-                [ "n_comment"
-                , "n_name"
+                ( "n_comment" :|
+                [ "n_name"
                 , "n_nationkey"
                 , "n_regionkey"
-                ]
-                (TableHints [Key ["n_nationkey"]] NonEmpty)
+                ])
+                (TableHints (sng $ Key (sng "n_nationkey")) NonEmpty)
 
 regions :: Q [Region]
 regions = table "region"
-                [ "r_comment"
-                , "r_name"
+                ( "r_comment" :|
+                [ "r_name"
                 , "r_regionkey"
-                ]
-                (TableHints [Key ["r_regionkey"]] NonEmpty)
+                ])
+                (TableHints (sng $ Key (sng "r_regionkey")) NonEmpty)
 
 orders :: Q [Order]
 orders = table "orders"
-               [ "o_clerk"
-               , "o_comment"
+               ( "o_clerk" :|
+               [ "o_comment"
                , "o_custkey"
                , "o_orderdate"
                , "o_orderkey"
@@ -199,13 +205,13 @@ orders = table "orders"
                , "o_orderstatus"
                , "o_shippriority"
                , "o_totalprice"
-               ]
-               (TableHints [Key ["o_orderkey"]] NonEmpty)
+               ])
+               (TableHints (sng $ Key (sng "o_orderkey")) NonEmpty)
 
 lineitems :: Q [LineItem]
 lineitems = table "lineitem"
-                  [ "l_comment"
-                  , "l_commitdate"
+                  ( "l_comment" :|
+                  [ "l_commitdate"
                   , "l_discount"
                   , "l_extendedprice"
                   , "l_linenumber"
@@ -214,27 +220,27 @@ lineitems = table "lineitem"
                   , "l_partkey"
                   , "l_quantity"
                   , "l_receiptdate"
-                  , "l_returnflag"
+                  , "l_sngflag"
                   , "l_shipdate"
                   , "l_shipinstruct"
                   , "l_shipmode"
                   , "l_suppkey"
                   , "l_tax"
-                  ]
-                  (TableHints [Key ["l_orderkey", "l_linenumber"]] NonEmpty)
+                  ])
+                  (TableHints (sng $ Key ("l_orderkey" :| ["l_linenumber"])) NonEmpty)
 
 customers :: Q [Customer]
 customers = table "customer"
-                  [ "c_acctbal"
-                  , "c_address"
+                  ("c_acctbal" :|
+                  [ "c_address"
                   , "c_comment"
                   , "c_custkey"
                   , "c_mktsegment"
                   , "c_name"
                   , "c_nationkey"
                   , "c_phone"
-                  ]
-                  (TableHints [Key ["c_custkey"]] NonEmpty)
+                  ])
+                  (TableHints (sng $ Key (sng "c_custkey")) NonEmpty)
 
 
 

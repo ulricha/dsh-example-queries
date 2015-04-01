@@ -40,9 +40,10 @@ library
   build-depends:       base,
                        DSH >=0.10,
                        dsh-sql >= 0.1,
-                       HDBC-postgresql,
+                       HDBC-odbc,
                        text,
                        time >= 1.4,
-                       Decimal >= 0.4
+                       Decimal >= 0.4,
+                       semigroups
   -- hs-source-dirs:
   default-language:    Haskell2010

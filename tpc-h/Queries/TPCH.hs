@@ -99,7 +99,7 @@ debugAll c = do
     debugQ "q12" c $ q12 "MAIL" "SHIP" (C.fromGregorian 1994 1 1)
 
     putStrLn "Q13"
-    debugQ "q13" c q13
+    debugQ "q13" c $ q13 "special" "requests"
 
     putStrLn "Q14"
     debugQ "q14" c $ q14 (C.fromGregorian 1995 9 1)

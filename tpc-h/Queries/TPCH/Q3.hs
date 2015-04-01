@@ -13,10 +13,46 @@
 
 module Queries.TPCH.Q3
     ( q3
+    , q3'
     ) where
 
 import Database.DSH
 import Schema.TPCH
+import Queries.TPCH.BuildingBlocks
+
+byRevDate :: Q ((Integer, Day, Integer), Decimal) -> Q (Decimal, Integer)
+byRevDate (view -> (((view -> (_, _, sp)), r))) = pair (r * (-1)) sp
+
+--------------------------------------------------------------------------------
+
+unshippedOrders :: Day -> Q [(Order, [LineItem])]
+unshippedOrders date =
+    [ pair o [ l | l <- orderItems o, l_shipdateQ l > toQ date ]
+    | o <- orders
+    , o_orderdateQ o < toQ date
+    ]
+
+unshippedInMktSeg :: Text -> Day -> Q [((Integer, Day, Integer), LineItem)]
+unshippedInMktSeg mktSeg date =
+    [ pair (tup3 (l_orderkeyQ l) (o_orderdateQ o) (o_shippriorityQ o)) l
+    | c <- customers
+    , c_mktsegmentQ c == toQ mktSeg
+    , (view -> (o, ls)) <- unshippedOrders date
+    , o_custkeyQ o `elem` map o_custkeyQ (custOrders c)
+    , l <- ls
+    ]
+
+-- | TPC-H Query Q3.
+-- Validation parameters: SEGMENT = "BUILDING", DATE = '1995-03-15'
+q3 :: Day -> Text -> Q [((Integer, Day, Integer), Decimal)]
+q3 date mktSeg =
+    take 10
+    $ sortWith byRevDate
+      [ pair k (revenue $ map snd g)
+      | (view -> (k, g)) <- groupWithKey fst (unshippedInMktSeg mktSeg date)
+      ]
+
+--------------------------------------------------------------------------------
 
 project
   :: Q ((Integer, Day, Integer), [((Integer, Day, Integer), (Decimal, Decimal))])
@@ -25,11 +61,12 @@ project gk = pair (fst gk) revenue
   where
     revenue = sum [ ep * (1 - d) | (view -> (ep, d)) <- [ snd x | x <- snd gk ] ]
 
-byRevDate :: Q ((Integer, Day, Integer), Decimal) -> Q (Decimal, Integer)
-byRevDate (view -> (((view -> (_, _, sp)), r))) = pair (r * (-1)) sp
 
-q3 :: Day -> Text -> Q [((Integer, Day, Integer), Decimal)]
-q3 date marketSegment =
+-- | A rather literal transcription of TPC-H Query Q3.
+-- Validation parameters: SEGMENT = "BUILDING", DATE = '1995-03-15'
+q3' :: Day -> Text -> Q [((Integer, Day, Integer), Decimal)]
+q3' date marketSegment =
+  take 10 $
   sortWith byRevDate $
   map project $
   groupWithKey fst $
