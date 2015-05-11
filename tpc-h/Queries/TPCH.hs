@@ -13,6 +13,7 @@ module Queries.TPCH
     , module Queries.TPCH.Q10
     , module Queries.TPCH.Q11
     , module Queries.TPCH.Q12
+    , module Queries.TPCH.Q13
     , module Queries.TPCH.Q14
     , module Queries.TPCH.Q15
     , module Queries.TPCH.Q16
