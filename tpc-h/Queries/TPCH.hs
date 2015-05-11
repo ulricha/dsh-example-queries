@@ -59,23 +59,31 @@ import Queries.TPCH.Q22
 debugAll :: Backend c => c -> IO ()
 debugAll c = do
     putStrLn "Q1"
-    debugQ "q1" c $ q1 90
+    debugQ "q1" c q1Default
 
     putStrLn "Q2"
-    debugQ "q2" c $ q2 15 "BRASS" "EUROPE"
+    debugQ "q2" c q2Default
 
     putStrLn "Q2a"
-    debugQ "q2a" c $ q2' 15 "BRASS" "EUROPE"
+    debugQ "q2a" c q2aDefault
 
     putStrLn "Q3"
-    debugQ "q3" c $ q3 (C.fromGregorian 1995 3 15) "BUILDING"
+    debugQ "q3" c q3Default
+
+    putStrLn "Q3a"
+    debugQ "q3a" c q3aDefault
 
     putStrLn "Q4"
-    let startDate = C.fromGregorian 1993 7 1
-    debugQ "q4" c (q4'' $ Interval startDate (C.addDays 90 startDate))
+    debugQ "q4" c q4Default
+
+    putStrLn "Q4a"
+    debugQ "q4a" c q4aDefault
+
+    putStrLn "Q4b"
+    debugQ "q4b" c q4bDefault
 
     putStrLn "Q5"
-    debugQ "q5" c $ q5 (C.fromGregorian 1994 1 1) "ASIA"
+    debugQ "q5" c q5Default
 
     putStrLn "Q6"
     let discount = D.realFracToDecimal 2 0.06

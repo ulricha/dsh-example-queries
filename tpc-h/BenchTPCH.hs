@@ -50,8 +50,28 @@ benchmarkNative benchName c q =
 benchmarks :: O.Connection -> [B.Benchmark]
 benchmarks c =
     [ B.bgroup "Q1"
-        [ benchmarkDSH "q1" c q1'
+        [ benchmarkDSH "q1" c q1Default
         , benchmarkNative "q1n" c "q1.sql"
+        ]
+    , B.bgroup "Q2"
+        [ benchmarkDSH "q2" c q2Default
+        , benchmarkDSH "q2a" c q2aDefault
+        , benchmarkNative "q2n" c "q2.sql"
+        ]
+    , B.bgroup "Q3"
+        [ benchmarkDSH "q3" c q3Default
+        , benchmarkDSH "q3a" c q3Default
+        , benchmarkNative "q3n" c "q3.sql"
+        ]
+    , B.bgroup "Q4"
+        [ benchmarkDSH "q4" c q4Default
+        , benchmarkDSH "q4a" c q4aDefault
+        , benchmarkDSH "q4b" c q4bDefault
+        , benchmarkNative "q4n" c "q4.sql"
+        ]
+    , B.bgroup "Q5"
+        [ benchmarkDSH "q5" c q5Default
+        , benchmarkNative "q5n" c "q5.sql"
         ]
     ]
 

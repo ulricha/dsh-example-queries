@@ -11,7 +11,7 @@
 
 module Queries.TPCH.Q1
     ( q1
-    , q1'
+    , q1Default
     ) where
 
 import qualified Data.Time.Calendar as C
@@ -46,5 +46,5 @@ q1 delta = sortWith fst $
     maxDate = subDays (toQ delta) (toQ $ C.fromGregorian 1998 12 1)
 
 -- | Q1 with standard validation parameters
-q1' :: Q [((Text, Text), PricingTotals)]
-q1' = q1 90
+q1Default :: Q [((Text, Text), PricingTotals)]
+q1Default = q1 90

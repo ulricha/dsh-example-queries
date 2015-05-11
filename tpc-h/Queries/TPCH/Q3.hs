@@ -13,12 +13,28 @@
 
 module Queries.TPCH.Q3
     ( q3
-    , q3'
+    , q3a
+    , q3Default
+    , q3aDefault
     ) where
+
+import qualified Data.Time.Calendar as C
 
 import Database.DSH
 import Schema.TPCH
 import Queries.TPCH.BuildingBlocks
+
+--------------------------------------------------------------------------------
+
+-- | TPC-H Query Q3 with standard validation parameters
+q3Default :: Q [((Integer, Day, Integer), Decimal)]
+q3Default = q3 (C.fromGregorian 1995 3 15) "BUILDING"
+
+-- | TPC-H Query Q3 with standard validation parameters (alternative formulation)
+q3aDefault :: Q [((Integer, Day, Integer), Decimal)]
+q3aDefault = q3 (C.fromGregorian 1995 3 15) "BUILDING"
+
+--------------------------------------------------------------------------------
 
 byRevDate :: Q ((Integer, Day, Integer), Decimal) -> Q (Decimal, Integer)
 byRevDate (view -> (((view -> (_, _, sp)), r))) = pair (r * (-1)) sp
@@ -64,8 +80,8 @@ project gk = pair (fst gk) revenue
 
 -- | A rather literal transcription of TPC-H Query Q3.
 -- Validation parameters: SEGMENT = "BUILDING", DATE = '1995-03-15'
-q3' :: Day -> Text -> Q [((Integer, Day, Integer), Decimal)]
-q3' date marketSegment =
+q3a :: Day -> Text -> Q [((Integer, Day, Integer), Decimal)]
+q3a date marketSegment =
   take 10 $
   sortWith byRevDate $
   map project $

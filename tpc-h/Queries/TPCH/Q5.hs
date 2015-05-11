@@ -13,12 +13,18 @@
 
 module Queries.TPCH.Q5
     ( q5
+    , q5Default
     ) where
 
 import qualified Data.Time.Calendar as C
 import           Database.DSH
 import           Schema.TPCH
 
+-- | TPC-H Query Q5 with standard validation parameters
+q5Default :: Q [(Text, Decimal)]
+q5Default = q5 (C.fromGregorian 1994 1 1) "ASIA"
+
+-- | TPC-H Query Q5
 q5 :: Day -> Text -> Q [(Text, Decimal)]
 q5 startDate regionName =
   sortWith (\(view -> (_, r)) -> r * (-1)) $

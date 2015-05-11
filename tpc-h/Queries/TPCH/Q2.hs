@@ -11,7 +11,9 @@
 
 module Queries.TPCH.Q2
     ( q2
-    , q2'
+    , q2a
+    , q2Default
+    , q2aDefault
     ) where
 
 import qualified Data.Text as T
@@ -20,6 +22,14 @@ import Database.DSH
 import Schema.TPCH
 import Queries.TPCH.BuildingBlocks
 
+-- | TPC-H Query Q2 with standard validation parameters
+q2Default :: Q [(Decimal, Text, Text, Integer, Text, Text, Text, Text)]
+q2Default = q2 15 "BRASS" "EUROPE"
+
+-- | TPC-H Query Q2 with standard validation parameters (alternative
+-- formulation)
+q2aDefault :: Q [(Decimal, Text, Text, Integer, Text, Text, Text, Text)]
+q2aDefault = q2a 15 "BRASS" "EUROPE"
 
 -- | FIXME implement proper descending sorting
 sortingCriteria :: Q (Decimal, Text, Text, Integer, Text, Text, Text, Text)
@@ -87,11 +97,11 @@ minSupplyCost regionName partkey =
 
 -- | A rather literal implementation of TPC-H Query Q2.
 -- Validation parameters: 15, "BRASS", "EUROPE"
-q2' :: Integer
+q2a :: Integer
     -> Text
     -> Text
     -> Q [(Decimal, Text, Text, Integer, Text, Text, Text, Text)]
-q2' size typ regionName =
+q2a size typ regionName =
   sortWith sortingCriteria $
   [ tup8 (s_acctbalQ s)
          (s_nameQ s)
