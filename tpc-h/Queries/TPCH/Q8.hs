@@ -13,6 +13,7 @@
 
 module Queries.TPCH.Q8
     ( q8
+    , q8Default
     ) where
 
 import qualified Data.Time.Calendar  as C
@@ -53,6 +54,10 @@ completeVolume :: Q [(Integer, Decimal, Text)] -> Q Decimal
 completeVolume salesInYear =
     sum [ v | (view -> (_, v, _)) <- salesInYear ]
 
+q8Default :: Q [(Integer, Decimal)]
+q8Default = q8 "BRAZIL" "AMERICA" "ECONOMY ANODIZED STEEL"
+
+-- | TPC-H Query Q8
 q8 :: Text -> Text -> Text -> Q [(Integer, Decimal)]
 q8 nationName regionName typ =
   sortWith fst

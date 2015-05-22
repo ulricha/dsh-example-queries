@@ -73,6 +73,23 @@ benchmarks c =
         [ benchmarkDSH "q5" c q5Default
         , benchmarkNative "q5n" c "q5.sql"
         ]
+    , B.bgroup "Q6"
+        [ benchmarkDSH "q6" c q6Default
+        , benchmarkNative "q6n" c "q6.sql"
+        ]
+    , B.bgroup "Q7"
+        [ benchmarkDSH "q7" c q7Default
+        , benchmarkDSH "q7a" c q7aDefault
+        , benchmarkNative "q7n" c "q7.sql"
+        ]
+    , B.bgroup "Q8"
+        [ benchmarkDSH "q8" c q7Default
+        , benchmarkNative "q8n" c "q8.sql"
+        ]
+    , B.bgroup "Q8"
+        [ benchmarkDSH "q8" c q7Default
+        , benchmarkNative "q8n" c "q8.sql"
+        ]
     ]
 
 main :: IO ()

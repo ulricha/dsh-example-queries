@@ -86,17 +86,19 @@ debugAll c = do
     debugQ "q5" c q5Default
 
     putStrLn "Q6"
-    let discount = D.realFracToDecimal 2 0.06
-    debugQ "q6" c $ q6 (C.fromGregorian 1994 1 1) discount 24
+    debugQ "q6" c q6Default
 
     putStrLn "Q7"
-    debugQ "q7" c $ q7 "FRANCE" "GERMANY"
+    debugQ "q7" c q7Default
+
+    putStrLn "Q7a"
+    debugQ "q7a" c q7aDefault
 
     putStrLn "Q8"
-    debugQ "q8" c $ q8 "BRAZIL" "AMERICA" "ECONOMY ANODIZED STEEL"
+    debugQ "q8" c q8Default
 
     putStrLn "Q9"
-    debugQ "q9" c q9
+    debugQ "q9" c q9Default
 
     putStrLn "Q10"
     debugQ "q10" c $ q10 (C.fromGregorian 1993 10 1)
