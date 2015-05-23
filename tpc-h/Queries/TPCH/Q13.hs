@@ -13,6 +13,7 @@
 
 module Queries.TPCH.Q13
     ( q13
+    , q13Default
     ) where
 
 import qualified Data.Text as T
@@ -41,13 +42,14 @@ ordersPerCustomer pat =
     | c <- customers
     ]
 
+-- | TPC-H Query Q13 with standard validation parameters
+q13Default :: Q [(Integer, Integer)]
+q13Default = q13 "special" "requests"
+
 -- | TPC-H Q13: Distribution of orders per customer, including
 -- customers without orders.
 q13 :: Text -> Text -> Q [(Integer, Integer)]
-q13 pat1 pat2 =
-    reverse $ sortWith id $
-    [ tup2 c_count (length g)
-    | (view -> (c_count, g)) <- groupWithKey snd (ordersPerCustomer pat)
-    ]
+q13 w1 w2 =
+    reverse $ sortWith id $ groupAggr snd id length (ordersPerCustomer pat)
   where
-    pat = T.append (T.cons '%' pat1) (T.cons '%' pat2)
+    pat = T.append (T.cons '%' w1) (T.cons '%' w2)

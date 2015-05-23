@@ -13,6 +13,7 @@
 
 module Queries.TPCH.Q11
     ( q11
+    , q11Default
     ) where
 
 import Database.DSH
@@ -50,6 +51,11 @@ partValue g = sum [ supplycost * integerToDecimal availqty
                   | (view -> (_, supplycost, availqty)) <- g
                   ]
 
+-- | TPC-H Query Q11 with standard validation parameters
+q11Default :: Q [(Integer, Decimal)]
+q11Default = q11 "GERMANY" 0.0001
+
+-- | TPC-H Query Q11
 q11 :: Text -> Decimal -> Q [(Integer, Decimal)]
 q11 nationName fraction =
   [ pair k (partValue g)

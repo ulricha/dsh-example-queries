@@ -83,12 +83,29 @@ benchmarks c =
         , benchmarkNative "q7n" c "q7.sql"
         ]
     , B.bgroup "Q8"
-        [ benchmarkDSH "q8" c q7Default
+        [ benchmarkDSH "q8" c q8Default
         , benchmarkNative "q8n" c "q8.sql"
         ]
-    , B.bgroup "Q8"
-        [ benchmarkDSH "q8" c q7Default
-        , benchmarkNative "q8n" c "q8.sql"
+    , B.bgroup "Q9"
+        [ benchmarkDSH "q9" c q9Default
+        , benchmarkNative "q9n" c "q9.sql"
+        ]
+    , B.bgroup "Q10"
+        [ benchmarkDSH "q10" c q10Default
+        , benchmarkNative "q10n" c "q10.sql"
+        ]
+    , B.bgroup "Q11"
+        [ benchmarkDSH "q11" c q11Default
+        , benchmarkNative "q11n" c "q11.sql"
+        ]
+    , B.bgroup "Q12"
+        [ benchmarkDSH "q12" c q12Default
+        , benchmarkDSH "q12a" c q12aDefault
+        , benchmarkNative "q12n" c "q12.sql"
+        ]
+    , B.bgroup "Q13"
+        [ benchmarkDSH "q13" c q13Default
+        , benchmarkNative "q13n" c "q13.sql"
         ]
     ]
 

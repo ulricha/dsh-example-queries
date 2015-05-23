@@ -13,7 +13,9 @@
 
 module Queries.TPCH.Q12
     ( q12
-    , q12'
+    , q12a
+    , q12Default
+    , q12aDefault
     ) where
 
 import qualified Data.Time.Calendar as C
@@ -54,6 +56,11 @@ lowlineCount ops =
       | op <- map snd ops
       ]
 
+-- | TPC-H Query Q12 with standard validation parameters
+q12Default :: Q [(Text, Integer, Integer)]
+q12Default = q12 "MAIL" "SHIP" (C.fromGregorian 1994 1 1)
+
+-- | TPC-H Query Q12
 q12 :: Text -> Text -> Day -> Q [(Text, Integer, Integer)]
 q12 sm1 sm2 date =
   [ tup3 shipmode (highlineCount g) (lowlineCount g)
@@ -61,15 +68,18 @@ q12 sm1 sm2 date =
   ]
 
 -------------------------------------------------------------------------------
--- Alternative implementation of highline and lowline counts: exploit the
--- explicit representation of groups, which we may freely filter.
--- Question: is this beneficial?
 
 lineCount :: (Q Text -> Q Bool) -> Q [(Text, Text)] -> Q Integer
 lineCount opPred ops = length $ filter opPred $ map snd ops
 
-q12' :: Text -> Text -> Day -> Q [(Text, Integer, Integer)]
-q12' sm1 sm2 date =
+q12aDefault :: Q [(Text, Integer, Integer)]
+q12aDefault = q12a "MAIL" "SHIP" (C.fromGregorian 1994 1 1)
+
+-- | Alternative implementation of highline and lowline counts: exploit the
+-- explicit representation of groups, which we may freely filter.
+-- Question: is this beneficial?
+q12a :: Text -> Text -> Day -> Q [(Text, Integer, Integer)]
+q12a sm1 sm2 date =
   [ tup3 shipmode
          (lineCount (\op -> op == "1-URGENT" || op == "2-HIGH") g)
          (lineCount (\op -> op /= "1-URGENT" && op /= "2-HIGH") g)

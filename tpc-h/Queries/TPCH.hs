@@ -101,16 +101,19 @@ debugAll c = do
     debugQ "q9" c q9Default
 
     putStrLn "Q10"
-    debugQ "q10" c $ q10 (C.fromGregorian 1993 10 1)
+    debugQ "q10" c q10Default
 
     putStrLn "Q11"
-    debugQ "q11" c $ q11 "GERMANY" 0.0001
+    debugQ "q11" c q11Default
 
     putStrLn "Q12"
-    debugQ "q12" c $ q12 "MAIL" "SHIP" (C.fromGregorian 1994 1 1)
+    debugQ "q12" c q12Default
+
+    putStrLn "Q12a"
+    debugQ "q12a" c q12aDefault
 
     putStrLn "Q13"
-    debugQ "q13" c $ q13 "special" "requests"
+    debugQ "q13" c q13Default
 
     putStrLn "Q14"
     debugQ "q14" c $ q14 (C.fromGregorian 1995 9 1)

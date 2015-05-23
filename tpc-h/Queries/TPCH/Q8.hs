@@ -54,6 +54,7 @@ completeVolume :: Q [(Integer, Decimal, Text)] -> Q Decimal
 completeVolume salesInYear =
     sum [ v | (view -> (_, v, _)) <- salesInYear ]
 
+-- | TPC-H Query Q8 with standard validation parameters
 q8Default :: Q [(Integer, Decimal)]
 q8Default = q8 "BRAZIL" "AMERICA" "ECONOMY ANODIZED STEEL"
 
