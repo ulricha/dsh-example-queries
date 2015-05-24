@@ -22,7 +22,7 @@ module Queries.TPCH.BuildingBlocks
     ) where
 
 
-import qualified Prelude as P
+
 import Database.DSH
 import Schema.TPCH
 

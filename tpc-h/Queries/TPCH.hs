@@ -26,13 +26,14 @@ module Queries.TPCH
     , debugAll
     ) where
 
+import Database.HDBC.ODBC
+
 import Database.DSH.Compiler
 import Database.DSH.Backend
+import Database.DSH.Backend.Sql
 
 import qualified Data.Time.Calendar as C
-import qualified Data.Decimal as D
 
-import Queries.TPCH.BuildingBlocks
 import Queries.TPCH.Q1
 import Queries.TPCH.Q2
 import Queries.TPCH.Q3

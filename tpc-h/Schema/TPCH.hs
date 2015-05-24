@@ -9,7 +9,7 @@
 module Schema.TPCH where
 
 import qualified Prelude as P
-import Prelude(Show, Integer)
+
 import Database.DSH
 import Data.List.NonEmpty
 
