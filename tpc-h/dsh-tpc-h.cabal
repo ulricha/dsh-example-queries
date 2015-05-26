@@ -47,6 +47,22 @@ library
                        semigroups
   -- hs-source-dirs:
   default-language:    Haskell2010
+  ghc-options:         -Wall -fno-warn-orphans -O2 -fprof-auto
+
+executable Tests
+  default-language: Haskell2010
+  main-is: Tests.hs
+  ghc-options: -O2 -fprof-auto
+  build-depends: base >= 4.8,
+                 HDBC,
+                 HDBC-odbc,
+                 dsh-tpc-h >= 0.1,
+                 DSH,
+                 dsh-sql >= 0.1,
+                 text,
+                 time >= 1.4,
+                 Decimal >= 0.4,
+                 semigroups
 
 benchmark bench-tpch
   default-language: Haskell2010

@@ -16,6 +16,7 @@ module Queries.TPCH.Q3
     , q3a
     , q3Default
     , q3aDefault
+    , q3bDefault
     ) where
 
 import qualified Data.Time.Calendar as C
@@ -32,7 +33,11 @@ q3Default = q3 (C.fromGregorian 1995 3 15) "BUILDING"
 
 -- | TPC-H Query Q3 with standard validation parameters (alternative formulation)
 q3aDefault :: Q [((Integer, Day, Integer), Decimal)]
-q3aDefault = q3 (C.fromGregorian 1995 3 15) "BUILDING"
+q3aDefault = q3a (C.fromGregorian 1995 3 15) "BUILDING"
+
+-- | TPC-H Query Q3 with standard validation parameters (alternative formulation)
+q3bDefault :: Q [((Integer, Day, Integer), Decimal)]
+q3bDefault = q3b (C.fromGregorian 1995 3 15) "BUILDING"
 
 --------------------------------------------------------------------------------
 
@@ -54,7 +59,8 @@ unshippedInMktSeg mktSeg date =
     | c <- customers
     , c_mktsegmentQ c == toQ mktSeg
     , (view -> (o, ls)) <- unshippedOrders date
-    , o_custkeyQ o `elem` map o_custkeyQ (custOrders c)
+    -- , o_custkeyQ o `elem` map o_custkeyQ (custOrders c)
+    , c_custkeyQ c == o_custkeyQ o
     , l <- ls
     ]
 
@@ -97,3 +103,27 @@ q3a date marketSegment =
   , o_orderdateQ o < toQ date
   , l_shipdateQ l > toQ date
   ]
+
+--------------------------------------------------------------------------------
+
+-- | Unnesting challenge: an indirect correlation between customers
+-- and orders.
+unshippedInMktSeg' :: Text -> Day -> Q [((Integer, Day, Integer), LineItem)]
+unshippedInMktSeg' mktSeg date =
+    [ pair (tup3 (l_orderkeyQ l) (o_orderdateQ o) (o_shippriorityQ o)) l
+    | c <- customers
+    , c_mktsegmentQ c == toQ mktSeg
+    , (view -> (o, ls)) <- unshippedOrders date
+    , o_custkeyQ o `elem` map o_custkeyQ (custOrders c)
+    , l <- ls
+    ]
+
+-- | TPC-H Query Q3 (alternative formulation)
+-- Validation parameters: SEGMENT = "BUILDING", DATE = '1995-03-15'
+q3b :: Day -> Text -> Q [((Integer, Day, Integer), Decimal)]
+q3b date mktSeg =
+    take 10
+    $ sortWith byRevDate
+      [ pair k (revenue $ map snd g)
+      | (view -> (k, g)) <- groupWithKey fst (unshippedInMktSeg' mktSeg date)
+      ]
