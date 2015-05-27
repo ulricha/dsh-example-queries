@@ -61,6 +61,7 @@ benchmarks c =
     , B.bgroup "Q3"
         [ benchmarkDSH "q3" c q3Default
         , benchmarkDSH "q3a" c q3Default
+        , benchmarkDSH "q3b" c q3Default
         , benchmarkNative "q3n" c "q3.sql"
         ]
     , B.bgroup "Q4"

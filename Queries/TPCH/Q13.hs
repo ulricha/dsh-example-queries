@@ -9,8 +9,7 @@
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
 
--- TPC-H Q13
-
+-- | TPC-H Q13
 module Queries.TPCH.Q13
     ( q13
     , q13Default
@@ -19,26 +18,20 @@ module Queries.TPCH.Q13
 import qualified Data.Text as T
 
 import Database.DSH
+import Queries.TPCH.BuildingBlocks
 import Schema.TPCH
 
 -- TPC-H Q13. Note that we replace the LEFT OUTER JOIN and grouping
 -- with a nestjoin, to include those customers with an empty list of
 -- (relevant) orders.
 
--- | Compute all orders for a given customer that do not fall into
--- certain categories.
-custOrders :: Text -> Q Customer -> Q [Order]
-custOrders pat c = [ o
-                   | o <- orders
-                   , c_custkeyQ c == o_custkeyQ o
-                   , not $ o_commentQ o `like` (toQ pat)
-                   ]
-
 -- | Compute number of orders per customer, including those that have
 -- not placed any orders.
 ordersPerCustomer :: Text -> Q [(Integer, Integer)]
 ordersPerCustomer pat =
-    [ tup2 (c_custkeyQ c) (length $ (custOrders pat c))
+    [ tup2 (c_custkeyQ c)
+           (length $ filter (\o -> o_commentQ o `notLike` (toQ pat))
+                   $ custOrders c)
     | c <- customers
     ]
 
