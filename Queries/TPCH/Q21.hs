@@ -13,18 +13,36 @@
 
 module Queries.TPCH.Q21
     ( q21
-    , q21'
-    , q21''
+    , q21a
+    , q21b
+    , q21c
+    , q21Default
+    , q21aDefault
+    , q21bDefault
+    , q21cDefault
     ) where
 
 import Database.DSH
 import Schema.TPCH
+import Queries.TPCH.BuildingBlocks
 
+q21Default :: Q [(Text, Integer)]
+q21Default = q21 "SAUDI ARABIA"
+
+q21aDefault :: Q [(Text, Integer)]
+q21aDefault = q21a "SAUDI ARABIA"
+
+q21bDefault :: Q [(Text, Integer)]
+q21bDefault = q21b "SAUDI ARABIA"
+
+q21cDefault :: Q [(Text, Integer)]
+q21cDefault = q21c "SAUDI ARABIA"
+
+-- | TPC-H Q21 (quantifiers based on 'null')
 q21 :: Text -> Q [(Text, Integer)]
 q21 nationName =
   sortWith (\(view -> (name, nw)) -> pair (-1 * nw) name) $
-  map (\kg -> pair (fst kg) (length $ snd kg)) $
-  groupWithKey id $
+  groupAggr id id length
   [ s_nameQ s
   | s  <- suppliers
   , l1 <- lineitems
@@ -49,12 +67,11 @@ q21 nationName =
   , n_nameQ n == toQ nationName
   ]
 
--- Variant of TPC-H Q21 with explicit universal and existential quantifiers.
-q21' :: Text -> Q [(Text, Integer)]
-q21' nationName =
+-- | TPC-H Q21 (explicit universal and existential quantifiers)
+q21a :: Text -> Q [(Text, Integer)]
+q21a nationName =
   sortWith (\(view -> (name, nw)) -> pair (-1 * nw) name) $
-  map (\kg -> pair (fst kg) (length $ snd kg)) $
-  groupWithKey id $
+  groupAggr id id length
   [ s_nameQ s
   | s <- suppliers
   , l1 <- lineitems
@@ -90,11 +107,11 @@ noOtherFailingSupplier l =
       , l_suppkeyQ l' /= l_suppkeyQ l
       ]
 
-q21'' :: Text -> Q [(Text, Integer)]
-q21'' nationName =
+-- | TPC-H Q21 (quantifier functions)
+q21b :: Text -> Q [(Text, Integer)]
+q21b nationName =
   sortWith (\(view -> (name, nw)) -> pair (-1 * nw) name) $
-  map (\kg -> pair (fst kg) (length $ snd kg)) $
-  groupWithKey id $
+  groupAggr id id length
   [ s_nameQ s
   | s <- suppliers
   , l1 <- lineitems
@@ -109,3 +126,20 @@ q21'' nationName =
   , s_nationkeyQ s == n_nationkeyQ n
   , n_nameQ n == toQ nationName
   ]
+
+--------------------------------------------------------------------------------
+
+-- | TPC-H Q21 (quantifier functions, rely more on building blocks)
+q21c :: Text -> Q [(Text, Integer)]
+q21c nationName =
+    sortWith (\(view -> (name, nw)) -> pair (-1 * nw) name) $
+    groupAggr id id length
+    [ s_nameQ s
+    | s <- filter (supplierFromNation nationName) suppliers
+    , l <- supplierItems s
+    , o <- ordersWithStatus "F"
+    , o_orderkeyQ o == l_orderkeyQ l
+    , l_receiptdateQ l > l_commitdateQ l
+    , multiSupplierOrder l
+    , noOtherFailingSupplier l
+    ]

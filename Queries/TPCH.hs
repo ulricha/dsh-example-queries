@@ -32,7 +32,7 @@ import Database.DSH.Compiler
 import Database.DSH.Backend
 
 
-import qualified Data.Time.Calendar as C
+
 
 import Queries.TPCH.Q1
 import Queries.TPCH.Q2
@@ -132,16 +132,28 @@ debugAll c = do
     debugQ "q17" c q17
 
     putStrLn "Q18"
-    debugQ "q18" c $ q18 300
+    debugQ "q18" c q18Default
 
     putStrLn "Q19"
-    debugQ "q19" c $ q19 1 10 20 "Brand#12" "Brand#23" "Brand#34"
+    debugQ "q19" c q19Default
+
+    putStrLn "Q19a"
+    debugQ "q19a" c q19aDefault
 
     putStrLn "Q20"
-    debugQ "q20" c $ q20 "forest" (C.fromGregorian 1994 1 1) "CANADA"
+    debugQ "q20" c q20Default
 
     putStrLn "Q21"
-    debugQ "q21" c $ q21 "SAUDI ARABIA"
+    debugQ "q21" c q21Default
+
+    putStrLn "Q21a"
+    debugQ "q21a" c q21aDefault
+
+    putStrLn "Q21b"
+    debugQ "q21b" c q21bDefault
+
+    putStrLn "Q21c"
+    debugQ "q21c" c q21cDefault
 
     putStrLn "Q22"
-    debugQ "q22" c $ q22 ["13", "31", "23", "29", "30", "18", "17"]
+    debugQ "q22" c q22Default

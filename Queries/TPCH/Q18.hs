@@ -12,7 +12,8 @@
 -- TPC-H Q18
 
 module Queries.TPCH.Q18
-    ( q18
+    ( q18Default
+    , q18
     ) where
 
 import Database.DSH
@@ -30,11 +31,15 @@ sortSpec gs =
   let (view -> (_, _, _, orderDate, totalPrice)) = fst gs
   in pair (-1 * totalPrice) orderDate
 
+-- | TPC-H Query Q18 with standard validation parameters
+q18Default :: Q [((Text, Integer, Integer, Day, Decimal), Decimal)]
+q18Default = q18 300
+
+-- | TPC-H Query Q18
 q18 :: Decimal -> Q [((Text, Integer, Integer, Day, Decimal), Decimal)]
 q18 quantity =
   sortWith sortSpec $
-  map (\(view -> (k, g)) -> pair k (sum $ map snd g)) $
-  groupWithKey fst $
+  groupAggr fst snd sum
   [ pair (tup5 (c_nameQ c) (c_custkeyQ c) (o_orderkeyQ o) (o_orderdateQ o) (o_totalpriceQ o))
          (l_quantityQ l)
   | c <- customers

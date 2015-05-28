@@ -9,10 +9,10 @@
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
 
--- TPC-H Q20
-
+-- | TPC-H Q20
 module Queries.TPCH.Q20
     ( q20
+    , q20Default
     ) where
 
 import qualified Data.Text as T
@@ -23,30 +23,37 @@ import Queries.TPCH.BuildingBlocks
 
 -- | Only consider parts of a given color
 colorParts :: Text -> Q [Integer]
-colorParts color = [ p_partkeyQ p | p <- parts, p_nameQ p `like` (toQ $ T.append color "%") ]
+colorParts color = [ p_partkeyQ p
+                   | p <- parts
+                   , p_nameQ p `like` (toQ $ T.append color "%")
+                   ]
 
 -- | Having more than 50% of the volume sold in a given time interval
 -- in stock for a given part is considered excessive.
 excessBoundary :: Interval -> Q Integer -> Q Decimal
 excessBoundary interval partkey =
-  0.5 * sum [ l_quantityQ l
-            | l <- lineitems
-            , l_partkeyQ l == partkey
-            , l_shipdateQ l `inInterval` interval
-            ]
+    0.5 * sum [ l_quantityQ l
+              | l <- lineitems
+              , l_partkeyQ l == partkey
+              , l_shipdateQ l `inInterval` interval
+              ]
 
 -- | Compute suppliers who have an excess stock for parts of a given
 -- color.
 excessSuppliers :: Text -> Interval -> Q [Integer]
 excessSuppliers color interval =
-  [ ps_suppkeyQ ps
-  | ps <- partsupps
-  , ps_partkeyQ ps `elem` colorParts color
-  , integerToDecimal (ps_availqtyQ ps) > excessBoundary interval (ps_partkeyQ ps)
-  ]
+    [ ps_suppkeyQ ps
+    | ps <- partsupps
+    , ps_partkeyQ ps `elem` colorParts color
+    , integerToDecimal (ps_availqtyQ ps) > excessBoundary interval (ps_partkeyQ ps)
+    ]
 
--- | Compute suppliers in a given nation who have an excess stock for
--- parts of a given color.
+-- | TPC-H Query Q20 with standard validation parameters
+q20Default :: Q [(Text, Text)]
+q20Default = q20 "forest" (C.fromGregorian 1994 1 1) "CANADA"
+
+-- | TPC-H Query Q20: Compute suppliers in a given nation who have an
+-- excess stock for parts of a given color.
 q20 :: Text -> Day -> Text -> Q [(Text, Text)]
 q20 color startDate nationName =
     [ pair (s_nameQ s) (s_addressQ s)
