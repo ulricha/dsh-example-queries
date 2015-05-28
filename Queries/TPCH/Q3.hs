@@ -59,7 +59,6 @@ unshippedInMktSeg mktSeg date =
     | c <- customers
     , c_mktsegmentQ c == toQ mktSeg
     , (view -> (o, ls)) <- unshippedOrders date
-    -- , o_custkeyQ o `elem` map o_custkeyQ (custOrders c)
     , c_custkeyQ c == o_custkeyQ o
     , l <- ls
     ]
@@ -67,21 +66,18 @@ unshippedInMktSeg mktSeg date =
 -- | TPC-H Query Q3.
 -- Validation parameters: SEGMENT = "BUILDING", DATE = '1995-03-15'
 q3 :: Day -> Text -> Q [((Integer, Day, Integer), Decimal)]
-q3 date mktSeg =
-    take 10
-    $ sortWith byRevDate
-      [ pair k (revenue $ map snd g)
-      | (view -> (k, g)) <- groupWithKey fst (unshippedInMktSeg mktSeg date)
-      ]
+q3 date mktSeg = sortWith byRevDate
+                 $ groupAggr fst snd revenue
+                 $ unshippedInMktSeg mktSeg date
 
 --------------------------------------------------------------------------------
 
 project
   :: Q ((Integer, Day, Integer), [((Integer, Day, Integer), (Decimal, Decimal))])
   -> Q ((Integer, Day, Integer), Decimal)
-project gk = pair (fst gk) revenue
+project gk = pair (fst gk) rev
   where
-    revenue = sum [ ep * (1 - d) | (view -> (ep, d)) <- [ snd x | x <- snd gk ] ]
+    rev = sum [ ep * (1 - d) | (view -> (ep, d)) <- [ snd x | x <- snd gk ] ]
 
 
 -- | A rather literal transcription of TPC-H Query Q3.
