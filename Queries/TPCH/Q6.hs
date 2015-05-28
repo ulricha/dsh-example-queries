@@ -20,7 +20,8 @@ import           Schema.TPCH
 
 -- | TPC-H Query Q6 with standard validation parameters
 q6Default :: Q Decimal
-q6Default = q6 (C.fromGregorian 1994 1 1) (D.realFracToDecimal 2 0.06) 24
+q6Default = q6 (C.fromGregorian 1994 1 1)
+               (D.realFracToDecimal 2 (0.06::Double)) 24
 
 between :: Q Decimal -> Q Decimal -> Q Decimal -> Q Bool
 between x l r = x >= l && x <= r

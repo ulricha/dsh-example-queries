@@ -26,17 +26,17 @@ customersAvgBalance areaPrefixes =
       , subString 1 2 (c_phoneQ c) `elem` toQ areaPrefixes
       ]
 
+-- potentialCustomers :: [Text] -> Q [(Text, Decimal)]
+-- potentialCustomers areaPrefixes =
+--   [ pair (subString 1 2 (c_phoneQ c)) (c_acctbalQ c)
+--   | c <- customers
+--   , subString 1 2 (c_phoneQ c) `elem` toQ areaPrefixes
+--   , c_acctbalQ c > customersAvgBalance areaPrefixes
+--   , null [ 1 :: Q Integer | o <- orders, o_custkeyQ o == c_custkeyQ c ]
+--   ]
+
 potentialCustomers :: [Text] -> Q [(Text, Decimal)]
 potentialCustomers areaPrefixes =
-  [ pair (subString 1 2 (c_phoneQ c)) (c_acctbalQ c)
-  | c <- customers
-  , subString 1 2 (c_phoneQ c) `elem` toQ areaPrefixes
-  , c_acctbalQ c > customersAvgBalance areaPrefixes
-  , null [ 1 :: Q Integer | o <- orders, o_custkeyQ o == c_custkeyQ c ]
-  ]
-
-potentialCustomers' :: [Text] -> Q [(Text, Decimal)]
-potentialCustomers' areaPrefixes =
   [ pair (subString 1 2 (c_phoneQ c)) (c_acctbalQ c)
   | c <- customers
   , subString 1 2 (c_phoneQ c) `elem` toQ areaPrefixes

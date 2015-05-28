@@ -40,9 +40,9 @@ sortingCriteria (view -> (b, sn, nn, pk, _, _, _, _)) =
 --------------------------------------------------------------------------------
 
 partSuppliersFrom :: Q Part -> Text -> Q [(PartSupp, Supplier, Nation)]
-partSuppliersFrom part regionName =
+partSuppliersFrom p regionName =
     [ tup3 ps s n
-    | (view -> (s, ps)) <- partSuppliers part
+    | (view -> (s, ps)) <- partSuppliers p
     , r <- regions
     , r_nameQ r == toQ regionName
     , n <- regionNations r
@@ -75,7 +75,7 @@ q2 size typ regionName =
   , (view -> (ps, s, n)) <- partSuppliersFrom p regionName
   , p_typeQ p `like` (toQ $ T.cons '%' typ)
   , p_sizeQ p == (toQ size)
-  , ps_supplycostQ ps == minSupplyCost regionName (p_partkeyQ p)
+  , ps_supplycostQ ps == minSupplyCost' regionName p
   ]
 
 --------------------------------------------------------------------------------

@@ -9,8 +9,7 @@
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
 
--- TPC-H Q9
-
+-- | TPC-H Q9
 module Queries.TPCH.Q9
     ( q9
     , q9Default
@@ -41,7 +40,7 @@ profit color =
     , p_partkeyQ p == l_partkeyQ l
     , o_orderkeyQ o == l_orderkeyQ l
     , s_nationkeyQ s == n_nationkeyQ n
-    , p_nameQ p `like` (toQ "%green%")
+    , p_nameQ p `like` (toQ colorPattern)
     ]
   where
     colorPattern = T.append (T.append "%" color) "%"

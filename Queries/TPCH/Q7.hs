@@ -9,8 +9,7 @@
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
 
--- TPC-H Q7
-
+-- | TPC-H Q7
 module Queries.TPCH.Q7
     ( q7
     , q7a
@@ -52,7 +51,7 @@ totalRevenueBetweenNations nationName1 nationName2 =
 revenueBetweenNations :: Text -> Text -> Q [((Text, Text, Integer), Decimal)]
 revenueBetweenNations nationName1 nationName2 =
     [ tup2 (tup3 n1 n2 (dateYear $ l_shipdateQ l)) (discPrice l)
-    | (view -> (s, l, n1, n2)) <- binationalOrderItems nationName1 nationName2
+    | (view -> (_, l, n1, n2)) <- binationalOrderItems nationName1 nationName2
     , inInterval (l_shipdateQ l) interval
     ]
   where
