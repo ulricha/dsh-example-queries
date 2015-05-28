@@ -9,16 +9,31 @@
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
 
--- TPC-H Q14
-
+-- | TPC-H Q14
 module Queries.TPCH.Q14
     ( q14
-    , q14'
+    , q14a
+    , q14Default
+    , q14aDefault
     ) where
 
 import qualified Data.Time.Calendar as C
 import Database.DSH
 import Schema.TPCH
+
+
+-------------------------------------------------------------------------------
+
+-- | TPC-H Query Q14 with standard validation parameters
+q14Default :: Q Decimal
+q14Default = q14 (C.fromGregorian 1995 9 1)
+
+-- | TPC-H Query Q14 with standard validation parameters (alternative
+-- formulation)
+q14aDefault :: Q Decimal
+q14aDefault = q14a (C.fromGregorian 1995 9 1)
+
+-------------------------------------------------------------------------------
 
 revenue :: Q Decimal -> Q Decimal -> Q Decimal
 revenue ep dis = ep * (1 - dis)
@@ -54,8 +69,8 @@ q14 startDate = 100.0 * promoRev / totalRev
 -- into the aggregate. This formulation might be beneficial if the p_type 
 -- predicate can be pushed to an index.
 
-q14' :: Day -> Q Decimal
-q14' startDate = 100.0 * integerToDecimal promoRev / totalRev
+q14a :: Day -> Q Decimal
+q14a startDate = 100.0 * integerToDecimal promoRev / totalRev
   where
     promoRev = length [ revenue ep dis
                       | (view -> (ty, ep, dis)) <- itemPrices startDate

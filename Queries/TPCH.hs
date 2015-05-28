@@ -26,11 +26,11 @@ module Queries.TPCH
     , debugAll
     ) where
 
-import Database.HDBC.ODBC
+
 
 import Database.DSH.Compiler
 import Database.DSH.Backend
-import Database.DSH.Backend.Sql
+
 
 import qualified Data.Time.Calendar as C
 
@@ -117,10 +117,13 @@ debugAll c = do
     debugQ "q13" c q13Default
 
     putStrLn "Q14"
-    debugQ "q14" c $ q14 (C.fromGregorian 1995 9 1)
+    debugQ "q14" c q14Default
+
+    putStrLn "Q14a"
+    debugQ "q14a" c q14aDefault
 
     putStrLn "Q15"
-    debugQ "q15" c $ q15 (C.fromGregorian 1996 1 1)
+    debugQ "q15" c q15Default
 
     putStrLn "Q16"
     debugQ "q16" c q16

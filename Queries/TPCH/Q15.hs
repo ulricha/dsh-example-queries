@@ -9,38 +9,32 @@
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
 
--- TPC-H Q15
-
+-- | TPC-H Q15
 module Queries.TPCH.Q15
     ( q15
+    , q15Default
     ) where
 
-import qualified Data.Time.Calendar as C
+import qualified Data.Time.Calendar          as C
 import           Database.DSH
+import           Queries.TPCH.BuildingBlocks
 import           Schema.TPCH
 
-fst3 :: (QA a, QA b, QA c) => Q (a, b, c) -> Q a
-fst3 (view -> (a, _, _)) = a
+-- | For each supplier, compute the revenue in a 90 day interval
+-- specified by the start date
+revenueInInterval :: Day -> Q [(Integer, Decimal)]
+revenueInInterval startDate =
+    groupAggr l_suppkeyQ discPrice sum
+    $ filter (\l -> inInterval (l_shipdateQ l) (intervalFrom startDate 90))
+             lineitems
 
-revenue :: Day -> Q [(Integer, Decimal)]
-revenue startDate =
-    [ pair supplier_no (sum [ ep * (1 - discount)
-                            | (view -> (_, ep, discount)) <- g
-                            ])
-    | (view -> (supplier_no, g)) <- groupWithKey fst3 intervalItems
-    ]
+-- | TPC-H Query Q15 with standard validation parameters
+q15Default :: Q [(Integer, (Text, Text, Text, Decimal))]
+q15Default = q15 (C.fromGregorian 1996 1 1)
 
-  where
-    intervalItems = [ tup3 (l_suppkeyQ l)
-                           (l_extendedpriceQ l)
-                           (l_discountQ l)
-                    | l <- lineitems
-                    , l_shipdateQ l >= toQ startDate
-                    , l_shipdateQ l <= toQ (C.addDays 90 startDate)
-                    ]
-
+-- | TPC-H Query Q15
 q15 :: Day -> Q [(Integer, (Text, Text, Text, Decimal))]
-q15 intervalFrom =
+q15 startDate =
     sortWith fst
     [ pair (s_suppkeyQ s)
            (tup4 (s_nameQ s)
@@ -48,7 +42,7 @@ q15 intervalFrom =
            (s_phoneQ s)
            total_rev)
     | s <- suppliers
-    , (view -> (supplier_no, total_rev)) <- revenue intervalFrom
+    , (view -> (supplier_no, total_rev)) <- revenueInInterval startDate
     , s_suppkeyQ s == supplier_no
-    , total_rev == (maximum $ map snd $ revenue intervalFrom)
+    , total_rev == (maximum $ map snd $ revenueInInterval startDate)
     ]

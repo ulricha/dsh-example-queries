@@ -108,6 +108,19 @@ benchmarks c =
         [ benchmarkDSH "q13" c q13Default
         , benchmarkNative "q13n" c "q13.sql"
         ]
+    , B.bgroup "Q14"
+        [ benchmarkDSH "q14" c q14Default
+        [ benchmarkDSH "q14a" c q14aDefault
+        , benchmarkNative "q14n" c "q14.sql"
+        ]
+    , B.bgroup "Q15"
+        [ benchmarkDSH "q15" c q15Default
+        , benchmarkNative "q15n" c "q15.sql"
+        ]
+    , B.bgroup "Q16"
+        [ benchmarkDSH "q16" c q16Default
+        , benchmarkNative "q16n" c "q16.sql"
+        ]
     ]
 
 main :: IO ()

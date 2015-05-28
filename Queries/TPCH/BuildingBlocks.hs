@@ -6,6 +6,7 @@ module Queries.TPCH.BuildingBlocks
     ( -- * Date intervals
       Interval(..)
     , inInterval
+    , intervalFrom
       -- * Various predicates
     , custFromNation
     , ordersWithStatus
@@ -22,9 +23,9 @@ module Queries.TPCH.BuildingBlocks
     ) where
 
 
-
 import Database.DSH
 import Schema.TPCH
+import qualified Data.Time.Calendar as C
 
 --------------------------------------------------------------------------------
 -- Date intervals
@@ -33,6 +34,9 @@ data Interval = Interval { iv_start :: Day, iv_end :: Day }
 
 inInterval :: Q Day -> Interval -> Q Bool
 inInterval d interval = d >= toQ (iv_start interval) && d < toQ (iv_end interval)
+
+intervalFrom :: Day -> Integer -> Interval
+intervalFrom d len = Interval d (C.addDays len d)
 
 --------------------------------------------------------------------------------
 -- Various predicates
