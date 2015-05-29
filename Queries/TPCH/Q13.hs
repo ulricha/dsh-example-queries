@@ -47,4 +47,4 @@ q13 w1 w2 =
                                                      (c_count * (-1)))
     $ groupAggr snd id length (ordersPerCustomer pat)
   where
-    pat = T.append (T.cons '%' w1) (T.cons '%' w2)
+    pat = foldr T.append "" ["%", w1, "%", w2, "%"]
