@@ -12,6 +12,7 @@ module Queries.TPCH.BuildingBlocks
     , supplierFromNation
     , ordersWithStatus
     , customersFrom
+    , orderedBy
       -- * One-to-many relationships along foreign keys
     , custOrders
     , orderItems
@@ -68,6 +69,10 @@ customersFrom :: [Text] -> Q [Customer]
 customersFrom areaPrefixes =
     filter (\c -> subString 1 2 (c_phoneQ c) `elem` toQ areaPrefixes)
            customers
+
+-- | Has the order been ordered by a given customer?
+orderedBy :: Q Order -> Q Customer -> Q Bool
+orderedBy o c = o_custkeyQ o == c_custkeyQ c
 
 --------------------------------------------------------------------------------
 -- One-to-many relationships along foreign keys
