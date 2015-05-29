@@ -38,6 +38,7 @@ q18Default = q18 300
 -- | TPC-H Query Q18
 q18 :: Decimal -> Q [((Text, Integer, Integer, Day, Decimal), Decimal)]
 q18 quantity =
+  take 100 $
   sortWith sortSpec $
   groupAggr fst snd sum
   [ pair (tup5 (c_nameQ c) (c_custkeyQ c) (o_orderkeyQ o) (o_orderdateQ o) (o_totalpriceQ o))

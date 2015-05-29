@@ -66,7 +66,8 @@ unshippedInMktSeg mktSeg date =
 -- | TPC-H Query Q3.
 -- Validation parameters: SEGMENT = "BUILDING", DATE = '1995-03-15'
 q3 :: Day -> Text -> Q [((Integer, Day, Integer), Decimal)]
-q3 date mktSeg = sortWith byRevDate
+q3 date mktSeg = take 10
+                 $ sortWith byRevDate
                  $ groupAggr fst snd revenue
                  $ unshippedInMktSeg mktSeg date
 

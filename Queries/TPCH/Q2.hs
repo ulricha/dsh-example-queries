@@ -62,6 +62,7 @@ q2 :: Integer
    -> Text
    -> Q [(Decimal, Text, Text, Integer, Text, Text, Text, Text)]
 q2 size typ regionName =
+  take 100 $
   sortWith sortingCriteria $
   [ tup8 (s_acctbalQ s)
          (s_nameQ s)
@@ -102,6 +103,7 @@ q2a :: Integer
     -> Text
     -> Q [(Decimal, Text, Text, Integer, Text, Text, Text, Text)]
 q2a size typ regionName =
+  take 100 $
   sortWith sortingCriteria $
   [ tup8 (s_acctbalQ s)
          (s_nameQ s)

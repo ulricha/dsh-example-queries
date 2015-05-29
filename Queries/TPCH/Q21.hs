@@ -41,6 +41,7 @@ q21cDefault = q21c "SAUDI ARABIA"
 -- | TPC-H Q21 (quantifiers based on 'null')
 q21 :: Text -> Q [(Text, Integer)]
 q21 nationName =
+  take 100 $
   sortWith (\(view -> (name, nw)) -> pair (-1 * nw) name) $
   groupAggr id id length
   [ s_nameQ s
@@ -110,6 +111,7 @@ noOtherFailingSupplier l =
 -- | TPC-H Q21 (quantifier functions)
 q21b :: Text -> Q [(Text, Integer)]
 q21b nationName =
+  take 100 $
   sortWith (\(view -> (name, nw)) -> pair (-1 * nw) name) $
   groupAggr id id length
   [ s_nameQ s
@@ -132,6 +134,7 @@ q21b nationName =
 -- | TPC-H Q21 (quantifier functions, rely more on building blocks)
 q21c :: Text -> Q [(Text, Integer)]
 q21c nationName =
+    take 100 $
     sortWith (\(view -> (name, nw)) -> pair (-1 * nw) name) $
     groupAggr id id length
     [ s_nameQ s
