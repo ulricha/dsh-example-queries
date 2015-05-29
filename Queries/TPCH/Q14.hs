@@ -70,12 +70,12 @@ q14 startDate = 100.0 * promoRev / totalRev
 -- predicate can be pushed to an index.
 
 q14a :: Day -> Q Decimal
-q14a startDate = 100.0 * integerToDecimal promoRev / totalRev
+q14a startDate = 100.0 * promoRev / totalRev
   where
-    promoRev = length [ revenue ep dis
-                      | (view -> (ty, ep, dis)) <- itemPrices startDate
-                      , ty `like` "PROMO%"
-                      ]
+    promoRev = sum [ revenue ep dis
+                   | (view -> (ty, ep, dis)) <- itemPrices startDate
+                   , ty `like` "PROMO%"
+                   ]
 
     totalRev = sum $ map (\(view -> (_, ep, d)) -> revenue ep d)
                    $ itemPrices startDate
