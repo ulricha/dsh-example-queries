@@ -61,7 +61,7 @@ lgPred brand3 quantity3 p l =
 
 -- | TPC-H Query Q19 with standard validation parameters (literal transcription)
 q19aDefault :: Q Decimal
-q19aDefault = q19 1 10 20 "Brand#12" "Brand#23" "Brand#34"
+q19aDefault = q19a 1 10 20 "Brand#12" "Brand#23" "Brand#34"
 
 -- | TPC-H Query Q19 (literal transcription)
 q19a :: Decimal -> Decimal -> Decimal -> Text -> Text -> Text -> Q Decimal
