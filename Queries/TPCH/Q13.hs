@@ -43,6 +43,8 @@ q13Default = q13 "special" "requests"
 -- customers without orders.
 q13 :: Text -> Text -> Q [(Integer, Integer)]
 q13 w1 w2 =
-    reverse $ sortWith id $ groupAggr snd id length (ordersPerCustomer pat)
+    sortWith (\(view -> (c_count, custdist)) -> pair (custdist * (-1))
+                                                     (c_count * (-1)))
+    $ groupAggr snd id length (ordersPerCustomer pat)
   where
     pat = T.append (T.cons '%' w1) (T.cons '%' w2)
