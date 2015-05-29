@@ -60,7 +60,7 @@ q4 :: Day -> Q [(Text, Integer)]
 q4 startDate =
     sortWith fst [ tup2 op (length g) | (view -> (op, g)) <- groupWithKey id oids]
   where
-    interval = Interval startDate (C.addDays 90 startDate)
+    interval = Interval startDate (C.addGregorianMonthsRollOver 3 startDate)
     oids     = problematicOrders interval
 
 --------------------------------------------------------------------------------
@@ -74,13 +74,16 @@ q4a startDate =
     [ o_orderpriorityQ o
     | o <- orders
     , o_orderdateQ o >= toQ startDate
-    , o_orderdateQ o < toQ (C.addDays 90 startDate)
+    , o_orderdateQ o < toQ endDate
     , not $ null [ toQ ()
                  | l <- lineitems
                  , l_orderkeyQ l == o_orderkeyQ o
                  , l_commitdateQ l < l_receiptdateQ l
                  ]
     ]
+
+  where
+    endDate = C.addGregorianMonthsRollOver 3 startDate
 
 --------------------------------------------------------------------------------
 
@@ -93,8 +96,10 @@ q4b startDate =
     [ o_orderpriorityQ o
     | o <- orders
     , o_orderdateQ o >= toQ startDate
-    , o_orderdateQ o < toQ (C.addDays 90 startDate)
+    , o_orderdateQ o < toQ endDate
     , any (\l -> l_commitdateQ l < l_receiptdateQ l
                  && l_orderkeyQ l == o_orderkeyQ o)
           lineitems
     ]
+  where
+    endDate = C.addGregorianMonthsRollOver 3 startDate
