@@ -51,4 +51,6 @@ q10Default = q10 (C.fromGregorian 1993 10 1)
 -- | TPC-H Query Q10
 q10 :: Day -> Q [((Integer, Text, Decimal, Text, Text, Text, Text), Decimal)]
 q10 startDate =
-    take 20 $ sortWith snd $ groupAggr fst snd sum (q10_join startDate)
+    take 20
+    $ sortWith ((* (-1)) . snd)
+    $ groupAggr fst snd sum (q10_join startDate)
