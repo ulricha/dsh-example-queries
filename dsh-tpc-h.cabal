@@ -79,3 +79,7 @@ benchmark bench-tpch
                  time >= 1.4,
                  Decimal >= 0.4,
                  semigroups
+
+source-repository head
+    type:     git
+    location: https://github.com/ulricha/dsh-tpc-h
