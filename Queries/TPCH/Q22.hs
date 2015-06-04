@@ -19,26 +19,34 @@ import           Database.DSH
 import           Queries.TPCH.BuildingBlocks
 import           Schema.TPCH
 
-customersAvgBalance :: Q [Customer] -> Q Decimal
-customersAvgBalance cs =
-    avg [ c_acctbalQ c | c <- cs , c_acctbalQ c > 0]
+-- Average customer account balance
+avgBalance :: Q [Customer] -> Q Decimal
+avgBalance cs = avg [ c_acctbalQ c | c <- cs , c_acctbalQ c > 0]
 
-potentialCustomers :: [Text] -> Q [(Text, Decimal)]
-potentialCustomers areaPrefixes =
-    [ pair (subString 1 2 (c_phoneQ c)) (c_acctbalQ c)
-    | c <- customersFrom areaPrefixes
-    , c_acctbalQ c > customersAvgBalance (customersFrom areaPrefixes)
-    , c_custkeyQ c `notElem` (map o_custkeyQ orders)
+potentialCustomers :: Q [Customer] -> Q [Customer]
+potentialCustomers cs =
+    [ c
+    | c <- cs
+    , c_acctbalQ c > avgBalance cs
+    , null $ custOrders c
     ]
 
--- | TPC-H Q22
-q22 :: [Text] -> Q [(Text, (Integer, Decimal))]
-q22 areaPrefixes =
-    sortWith fst
-    [ pair cntrycode (pair (length pas) (sum $ map snd pas))
-    | (view -> (cntrycode, pas)) <- groupWithKey fst (potentialCustomers areaPrefixes)
+countryCodeOf :: Q Customer -> Q Text
+countryCodeOf c = subString 1 2 (c_phoneQ c)
+
+livesIn :: Q Customer -> [Text] -> Q Bool
+livesIn c countries = countryCodeOf c `elem` toQ countries
+
+-- TPC-H query Q22
+q22 :: [Text] -> Q [(Text, Integer, Decimal)]
+q22 countries =
+    sortWith (\(view -> (country, _, _)) -> country)
+    [ tup3 country (length custs) (sum (map c_acctbalQ custs))
+    | (view -> (country, custs)) <- groupWithKey countryCodeOf pots
     ]
+  where
+    pots = potentialCustomers [ c | c <- customers, c `livesIn` countries ]
 
 -- | TPC-H Q22 with standard validation parameters
-q22Default :: Q [(Text, (Integer, Decimal))]
+q22Default :: Q [(Text, Integer, Decimal)]
 q22Default = q22 ["13", "31", "23", "29", "30", "18", "17"]
