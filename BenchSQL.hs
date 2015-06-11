@@ -1,5 +1,5 @@
--- | Benchmark DSH formulations of TPC-H queries and their native SQL
--- counterparts.
+-- | Benchmark SQL queries produced by DSH against native SQL versions of all
+-- TPC-H benchmark queries.
 module Main where
 
 import           Control.Monad
@@ -153,5 +153,5 @@ benchmarks c =
 
 main :: IO ()
 main = do
-    c <- O.connectODBC "DSN=tpch1"
+    c <- O.connectODBC "DSN=tpch1test"
     M.defaultMain $ benchmarks c
