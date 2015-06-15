@@ -55,19 +55,19 @@ benchmarks c =
         ]
     , B.bgroup "Q2"
         [ benchmarkDSH "q2" c q2Default
-        , benchmarkDSH "q2a" c q2aDefault
+        -- , benchmarkDSH "q2a" c q2aDefault
         , benchmarkNative "q2n" c "q2.sql"
         ]
     , B.bgroup "Q3"
         [ benchmarkDSH "q3" c q3Default
-        , benchmarkDSH "q3a" c q3Default
-        , benchmarkDSH "q3b" c q3Default
+        -- , benchmarkDSH "q3a" c q3Default
+        -- , benchmarkDSH "q3b" c q3Default
         , benchmarkNative "q3n" c "q3.sql"
         ]
     , B.bgroup "Q4"
         [ benchmarkDSH "q4" c q4Default
-        , benchmarkDSH "q4a" c q4aDefault
-        , benchmarkDSH "q4b" c q4bDefault
+        -- , benchmarkDSH "q4a" c q4aDefault
+        -- , benchmarkDSH "q4b" c q4bDefault
         , benchmarkNative "q4n" c "q4.sql"
         ]
     , B.bgroup "Q5"
@@ -80,7 +80,7 @@ benchmarks c =
         ]
     , B.bgroup "Q7"
         [ benchmarkDSH "q7" c q7Default
-        , benchmarkDSH "q7a" c q7aDefault
+        -- , benchmarkDSH "q7a" c q7aDefault
         , benchmarkNative "q7n" c "q7.sql"
         ]
     , B.bgroup "Q8"
