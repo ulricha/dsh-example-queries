@@ -10,7 +10,7 @@
 {-# LANGUAGE ViewPatterns          #-}
 
 -- | TPC-H Q20
-module Queries.TPCH.Q20
+module Queries.TPCH.Standard.Q20
     ( q20
     , q20Default
     ) where

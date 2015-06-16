@@ -1,6 +1,6 @@
-name:                dsh-tpc-h
+name:                dsh-example-queries
 version:             0.1.0.0
-synopsis:            All 22 queries from the TPC-H benchmark implemented in DSH.
+synopsis:            A collection of database query examples using Database-Supported Haskell (DSH)
 homepage:            http://db.inf.uni-tuebingen.de/projects/DatabaseSupportedHaskell.html
 license:             BSD3
 license-file:        LICENSE
@@ -9,33 +9,43 @@ maintainer:          alex@etc-network.de
 category:            Database
 build-type:          Simple
 cabal-version:       >=1.10
+description:
+  This package provides a collection of nested and flat database queries formulated using
+  Database-Supported Haskell (DSH).
+  .
+  Examples include:
+
+  * All 22 standard benchmark queries from the TPC-H decision support benchmark
+  * Nested and other non-standard queries over the TPC-H schema
+  * Example queries from the /AQuery/ paper by Lerner and Shasha (Proc. VLDB 1999)
+  * Benchmark queries from the /Query Shredding/ paper by Lindley et al. (Proc. SIGMOD 2014)
 
 library
-  exposed-modules:     Queries.TPCH,
+  exposed-modules:     Queries.TPCH.Standard
                        Queries.TPCH.BuildingBlocks
                        Schema.TPCH
-  other-modules:       Queries.TPCH.Q1,
-                       Queries.TPCH.Q2,
-                       Queries.TPCH.Q3,
-                       Queries.TPCH.Q4,
-                       Queries.TPCH.Q5,
-                       Queries.TPCH.Q6,
-                       Queries.TPCH.Q7,
-                       Queries.TPCH.Q8,
-                       Queries.TPCH.Q9,
-                       Queries.TPCH.Q10,
-                       Queries.TPCH.Q11,
-                       Queries.TPCH.Q12,
-                       Queries.TPCH.Q13,
-                       Queries.TPCH.Q14,
-                       Queries.TPCH.Q15,
-                       Queries.TPCH.Q16,
-                       Queries.TPCH.Q17,
-                       Queries.TPCH.Q18,
-                       Queries.TPCH.Q19,
-                       Queries.TPCH.Q20,
-                       Queries.TPCH.Q21,
-                       Queries.TPCH.Q22
+  other-modules:       Queries.TPCH.Standard.Q1,
+                       Queries.TPCH.Standard.Q2,
+                       Queries.TPCH.Standard.Q3,
+                       Queries.TPCH.Standard.Q4,
+                       Queries.TPCH.Standard.Q5,
+                       Queries.TPCH.Standard.Q6,
+                       Queries.TPCH.Standard.Q7,
+                       Queries.TPCH.Standard.Q8,
+                       Queries.TPCH.Standard.Q9,
+                       Queries.TPCH.Standard.Q10,
+                       Queries.TPCH.Standard.Q11,
+                       Queries.TPCH.Standard.Q12,
+                       Queries.TPCH.Standard.Q13,
+                       Queries.TPCH.Standard.Q14,
+                       Queries.TPCH.Standard.Q15,
+                       Queries.TPCH.Standard.Q16,
+                       Queries.TPCH.Standard.Q17,
+                       Queries.TPCH.Standard.Q18,
+                       Queries.TPCH.Standard.Q19,
+                       Queries.TPCH.Standard.Q20,
+                       Queries.TPCH.Standard.Q21,
+                       Queries.TPCH.Standard.Q22
   other-extensions:    TemplateHaskell
   build-depends:       base,
                        DSH >=0.12,
@@ -56,7 +66,7 @@ executable Tests
   build-depends: base >= 4.8,
                  HDBC,
                  HDBC-odbc,
-                 dsh-tpc-h >= 0.1,
+                 dsh-example-queries >= 0.1,
                  DSH >= 0.12,
                  dsh-sql >= 0.2,
                  text,
@@ -74,7 +84,7 @@ benchmark bench-sql
                  HDBC-odbc,
                  DSH >=0.12,
                  dsh-sql >= 0.2,
-                 dsh-tpc-h >= 0.1,
+                 dsh-example-queries >= 0.1,
                  text,
                  time >= 1.4,
                  Decimal >= 0.4,

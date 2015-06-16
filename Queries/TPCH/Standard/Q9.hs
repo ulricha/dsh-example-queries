@@ -10,7 +10,7 @@
 {-# LANGUAGE ViewPatterns          #-}
 
 -- | TPC-H Q9
-module Queries.TPCH.Q9
+module Queries.TPCH.Standard.Q9
     ( q9
     , q9Default
     ) where

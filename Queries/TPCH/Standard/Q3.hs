@@ -11,7 +11,7 @@
 
 -- TPC-H Q3
 
-module Queries.TPCH.Q3
+module Queries.TPCH.Standard.Q3
     ( q3
     , q3a
     , q3Default

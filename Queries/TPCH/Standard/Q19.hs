@@ -9,7 +9,7 @@
 {-# LANGUAGE UndecidableInstances  #-}
 
 -- | TPC-H Q19
-module Queries.TPCH.Q19
+module Queries.TPCH.Standard.Q19
     ( q19
     , q19Default
     , q19a

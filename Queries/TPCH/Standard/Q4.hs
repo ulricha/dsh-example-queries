@@ -11,7 +11,7 @@
 
 -- TPC-H Q4
 
-module Queries.TPCH.Q4
+module Queries.TPCH.Standard.Q4
     ( q4
     , q4a
     , q4b

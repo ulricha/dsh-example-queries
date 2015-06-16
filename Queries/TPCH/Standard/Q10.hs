@@ -10,7 +10,7 @@
 
 -- TPC-H Q10
 
-module Queries.TPCH.Q10
+module Queries.TPCH.Standard.Q10
     ( q10
     , q10Default
     ) where

@@ -6,7 +6,7 @@ import Database.DSH.Compiler
 import Database.DSH.Backend.Sql
 import Database.DSH.Backend
 import Database.HDBC.ODBC
-import Queries.TPCH
+import Queries.TPCH.Standard
 import Queries.TPCH.BuildingBlocks
 import Schema.TPCH
 

@@ -11,7 +11,7 @@
 
 -- TPC-H Q5
 
-module Queries.TPCH.Q5
+module Queries.TPCH.Standard.Q5
     ( q5
     , q5Default
     ) where

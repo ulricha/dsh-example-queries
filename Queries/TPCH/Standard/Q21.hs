@@ -11,7 +11,7 @@
 
 -- TPC-H Q21
 
-module Queries.TPCH.Q21
+module Queries.TPCH.Standard.Q21
     ( q21
     , q21a
     , q21b

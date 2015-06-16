@@ -8,7 +8,7 @@
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
 
-module Queries.TPCH.Q6
+module Queries.TPCH.Standard.Q6
     ( q6
     , q6Default
     ) where

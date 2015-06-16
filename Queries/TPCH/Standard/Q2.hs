@@ -9,7 +9,7 @@
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
 
-module Queries.TPCH.Q2
+module Queries.TPCH.Standard.Q2
     ( q2
     , q2a
     , q2Default

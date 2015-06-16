@@ -10,7 +10,7 @@
 {-# LANGUAGE ViewPatterns          #-}
 
 -- | TPC-H Q17
-module Queries.TPCH.Q17
+module Queries.TPCH.Standard.Q17
     ( q17
     ) where
 

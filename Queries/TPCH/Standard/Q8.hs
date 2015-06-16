@@ -11,7 +11,7 @@
 
 -- TPC-H Q8
 
-module Queries.TPCH.Q8
+module Queries.TPCH.Standard.Q8
     ( q8
     , q8Default
     ) where

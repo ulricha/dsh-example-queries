@@ -11,7 +11,7 @@
 
 -- TPC-H Q12
 
-module Queries.TPCH.Q12
+module Queries.TPCH.Standard.Q12
     ( q12
     , q12a
     , q12Default
