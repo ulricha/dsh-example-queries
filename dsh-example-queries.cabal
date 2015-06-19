@@ -24,6 +24,7 @@ library
   exposed-modules:     Queries.TPCH.Standard
                        Queries.TPCH.BuildingBlocks
                        Schema.TPCH
+                       Schema.Shredding
   other-modules:       Queries.TPCH.Standard.Q1,
                        Queries.TPCH.Standard.Q2,
                        Queries.TPCH.Standard.Q3,
@@ -46,6 +47,8 @@ library
                        Queries.TPCH.Standard.Q20,
                        Queries.TPCH.Standard.Q21,
                        Queries.TPCH.Standard.Q22
+
+                       Queries.Shredding.Paper
   other-extensions:    TemplateHaskell
   build-depends:       base,
                        DSH >=0.12,
