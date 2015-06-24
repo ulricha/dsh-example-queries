@@ -24,8 +24,12 @@ library
   exposed-modules:     Queries.TPCH.Standard
                        Queries.TPCH.NonStandard
                        Queries.TPCH.BuildingBlocks
+                       Queries.AQuery
+
                        Schema.TPCH
                        Schema.Shredding
+                       Schema.AQuery
+
   other-modules:       Queries.TPCH.Standard.Q1,
                        Queries.TPCH.Standard.Q2,
                        Queries.TPCH.Standard.Q3,
@@ -51,6 +55,9 @@ library
 
                        Queries.Shredding.Paper
                        Queries.Shredding.BuildingBlocks
+
+                       Queries.AQuery.Trades
+                       Queries.AQuery.Packets
   other-extensions:    TemplateHaskell
   build-depends:       base,
                        DSH >=0.12,
@@ -84,6 +91,18 @@ executable gen-shredding
   main-is: gen/Shredding.hs
   ghc-options: -Wall -O2 -fprof-auto
   build-depends: base >= 4.8, text, containers, mwc-random, vector, cassava, bytestring, mtl
+
+executable gen-flows
+  default-language:    Haskell2010
+  main-is:             gen/FlowGen.hs
+  build-depends:       base, containers, mwc-random, vector, cassava, bytestring
+  ghc-options:         -Wall -O2
+
+executable gen-trades
+  default-language:    Haskell2010
+  main-is:             gen/TradeGen.hs
+  build-depends:       base, containers, mwc-random, vector, cassava, bytestring
+  ghc-options:         -Wall -O2
 
 benchmark bench-sql
   default-language: Haskell2010
