@@ -22,6 +22,7 @@ description:
 
 library
   exposed-modules:     Queries.TPCH.Standard
+                       Queries.TPCH.NonStandard
                        Queries.TPCH.BuildingBlocks
                        Schema.TPCH
                        Schema.Shredding

@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+-- | Benchmark queries as defined in the TPC-H benchmark specification.
 module Queries.TPCH.Standard
     ( module Queries.TPCH.Standard.Q1
     , module Queries.TPCH.Standard.Q2
