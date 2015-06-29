@@ -9,6 +9,8 @@
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
 
+-- | Queries over the network flow schema from the AQuery paper by Lerner and
+-- Shasha (VLDB 2003).
 module Queries.AQuery.Packets
     ( flowStatsZip
     , flowStatsSelfJoin
@@ -21,7 +23,35 @@ import           Prelude       ()
 import           Schema.AQuery
 
 --------------------------------------------------------------------------------
--- Flow statistics
+-- Flow statistics: Compute flow statistics (average number of packets) between
+-- pairs of source and destination hosts.
+--
+-- Original SQL query from the paper:
+--
+-- explain analyze
+-- WITH
+--   Prec (src, dest, length, ts, ptime) AS
+--   (SELECT p_src, p_dest, p_len, p_ts,
+--   	  MIN(p_ts) OVER (PARTITION BY p_src, p_dest
+-- 		        ORDER BY p_ts
+-- 		     	ROWS BETWEEN 1 PRECEDING
+-- 		     	AND 1 PRECEDING)
+--    FROM packets),
+
+--   FLOW (src, dest, length, ts, ag) AS
+--   (SELECT src, dest, length, ts,
+--   	  CASE WHEN ts-ptime > 120 THEN 1 ELSE 0 END
+--    FROM Prec),
+  
+--   FlowID (src, dest, length, ts, fID) AS
+--   (SELECT src, dest, length, ts,
+--           SUM(ag) OVER (ORDER BY src, dest, ts
+-- 	  	        ROWS UNBOUNDED PRECEDING)
+--    FROM Flow)
+
+--   SELECT src, dest, AVG(length), COUNT(ts)
+--   FROM FlowID
+--   GROUP BY src, dest, fID;
 
 -- | Positional aligning via zip
 deltasZip :: Q [Integer] -> Q [Integer]
@@ -58,6 +88,8 @@ deltasHead xs = [ ts - head [ ts'
                 | (view -> (ts, i)) <- number xs
                 ]
 
+-- | Running sum combinator: for each element, compute the sum of its
+-- predecessors (and the element itself).
 sums :: (QA a, Num a) => Q [a] -> Q [a]
 sums as = [ sum [ a' | (view -> (a', i')) <- nas, i' <= i ]
           | let nas = number as
@@ -88,22 +120,6 @@ flowStats deltaFun =
                          $ zip packetsOrdered (flowids deltaFun packetsOrdered)
 
     packetsOrdered = sortWith (\p -> tup3 (p_srcQ p) (p_destQ p) (p_tsQ p)) packets
-
-{-
-
-Cleaned up for presentation, the query could look like this:
-
-flowStats :: (Q [Integer] -> Q [Integer]) -> Q [(Integer, Integer, Integer, Double)]
-flowStats =
-    [ (src, dst, length g, avg $ map (p_lenQ . fst) g)
-    | ((src, dst, _), g) <- flows
-    ]
-  where
-    flows = groupWith (\(p, fid) -> (p_srcQ p, p_destQ p, fid) )
-                      $ zip packetsOrdered (flowids packetsOrdered)
-
-    packetsOrdered = sortWith (\p -> (p_srcQ p, p_destQ p, p_tsQ p)) packets
--}
 
 flowStatsZip :: Q [(Integer, Integer, Integer, Double)]
 flowStatsZip = flowStats deltasZip
