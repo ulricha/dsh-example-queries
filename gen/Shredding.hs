@@ -146,7 +146,7 @@ writeContacts dpts = do
 
 mkContacts :: Int -> V.Vector T.Text -> Handle -> DptGen ()
 mkContacts k dpts h = do
-    cs <- forM [(k::Int)..k+1000] (mkContact dpts)
+    cs <- forM [(k::Int)+1..k+1000] (mkContact dpts)
     lift $ B.hPut h (encode cs)
 
 mkContact :: V.Vector T.Text -> Key -> DptGen (Key, T.Text, T.Text, Client)
