@@ -9,4 +9,3 @@ cabal sandbox add-source $HOME/work/dev/dsh
 cabal sandbox add-source $HOME/work/dev/dsh-sql
 cabal install --dependencies-only
 cabal configure
-

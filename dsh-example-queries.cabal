@@ -69,7 +69,7 @@ library
                        semigroups
   -- hs-source-dirs:
   default-language:    Haskell2010
-  ghc-options:         -Wall -fno-warn-orphans -O2 -fprof-auto
+  ghc-options:         -Wall -fno-warn-orphans -O2 -fprof-auto -auto-all
 
 executable Tests
   default-language: Haskell2010
@@ -84,6 +84,7 @@ executable Tests
                  text,
                  time >= 1.4,
                  Decimal >= 0.4,
+                 deepseq,
                  semigroups
 
 executable gen-shredding
@@ -104,10 +105,9 @@ executable gen-trades
   build-depends:       base, containers, mwc-random, vector, cassava, bytestring
   ghc-options:         -Wall -O2
 
-benchmark bench-sql
+executable bench-sql
   default-language: Haskell2010
-  type: exitcode-stdio-1.0
-  main-is: BenchSQL.hs
+  main-is: bench/BenchSQL.hs
   build-depends: base >= 4.8,
                  criterion >= 1.1,
                  HDBC,
@@ -120,17 +120,16 @@ benchmark bench-sql
                  Decimal >= 0.4,
                  semigroups
 
-benchmark bench-dsh
+executable bench-dsh
   default-language: Haskell2010
-  type: exitcode-stdio-1.0
-  main-is: BenchDSH.hs
+  main-is: bench/BenchDSH.hs
   build-depends: base >= 4.8,
                  criterion >= 1.1,
                  HDBC,
                  HDBC-odbc,
                  DSH >=0.12.1,
                  dsh-sql >= 0.2,
-                 dsh-tpc-h >= 0.1,
+                 dsh-example-queries >= 0.1,
                  text,
                  time >= 1.4,
                  Decimal >= 0.4,
@@ -138,6 +137,25 @@ benchmark bench-dsh
                  convertible >= 1.1,
                  deepseq >= 1.4,
                  bytestring >= 0.10
+
+executable bench-shredding
+  default-language: Haskell2010
+  main-is: bench/BenchShredding.hs
+  build-depends: base >= 4.8,
+                 criterion >= 1.1,
+                 HDBC,
+                 HDBC-odbc,
+                 DSH >=0.12.1,
+                 dsh-sql >= 0.2,
+                 dsh-example-queries >= 0.1,
+                 text,
+                 time >= 1.4,
+                 Decimal >= 0.4,
+                 semigroups,
+                 convertible >= 1.1,
+                 deepseq >= 1.4,
+                 bytestring >= 0.10
+  ghc-options:   -Wall -fno-warn-orphans -O2 -fprof-auto -auto-all
 
 source-repository head
     type:     git

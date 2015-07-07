@@ -13,7 +13,7 @@ import qualified Database.DSH             as Q
 import qualified Database.DSH.Backend.Sql as S
 import qualified Database.DSH.Compiler    as C
 
-import           Queries.TPCH
+import           Queries.TPCH.Standard
 
 -- | Run a SQL query, fetch and discard all results.
 runRawSql :: O.Connection -> String -> IO ()
