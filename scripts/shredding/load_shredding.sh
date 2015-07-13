@@ -16,3 +16,8 @@ loadtable "departments"
 loadtable "employees"
 loadtable "tasks"
 loadtable "contacts"
+
+echo "create index on employees(salary)" | psql ${PG_DB}
+echo "create index on employees(dpt)" | psql ${PG_DB}
+echo "create index on tasks(emp)" | psql ${PG_DB}
+echo "create index on contacts(dpt)" | psql ${PG_DB}
