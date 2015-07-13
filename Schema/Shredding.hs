@@ -41,7 +41,7 @@ generateTableSelectors ''Employee
 
 employees :: Q [Employee]
 employees = table "employees"
-                  ("id" :| ["dpt", "emp", "salary"])
+                  ("id" :| ["dpt", "name", "salary"])
                   (defaultHints $ pure $ Key (pure "id"))
 
 data Task = Task
