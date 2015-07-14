@@ -26,6 +26,7 @@ topOrdersPerCust n k =
     [ tup2 (c_nameQ c) (topK k (length . orderItems) (custOrders c))
     | c <- customers
     , c `custFromNation` n
+    , c_custkeyQ c `elem` [ o_custkeyQ o | o <- orders ]
     ]
 
 -- | For each customer from nation 'n', fetch the date of the 'k' orders
@@ -35,6 +36,7 @@ topOrdersPerCust' k n =
     [ tup2 (c_nameQ c) (map o_orderdateQ $ topK k (length . orderItems) (custOrders c))
     | c <- customers
     , c `custFromNation` n
+    , c_custkeyQ c `elem` [ o_custkeyQ o | o <- orders ]
     ]
 
 -- | For each customer from nation 'n', fetch the date of the 'k' orders
@@ -44,6 +46,7 @@ topOrdersPerCust'' k n =
     [ tup2 (c_nameQ c) (map o_orderdateQ $ topK k orderRevenue (custOrders c))
     | c <- customers
     , c `custFromNation` n
+    , c_custkeyQ c `elem` [ o_custkeyQ o | o <- orders ]
     ]
 
 -- | The top k customers from one given country (by number of orders)
@@ -59,11 +62,13 @@ pairTopCustomers :: Integer -> Text -> Text -> Q [((Text, Decimal), (Text, Decim
 pairTopCustomers k n1 n2 = zip (topCustomers k n1) (topCustomers k n2)
 
 -- | Fetch the top customers in one region (by number of orders)
-regionsTopCustomers :: Text -> Integer -> Q [(Text, [Customer])]
+regionsTopCustomers :: Text -> Integer -> Q [(Text, [Text])]
 regionsTopCustomers rn k =
     [ pair (n_nameQ n)
-           (topK k (length . custOrders)
-                   [ c | c <- customers, c_nationkeyQ c == n_nationkeyQ n ])
+           (map c_nameQ $ topK k (length . custOrders)
+                                 [ c | c <- customers
+                                 , c_nationkeyQ c == n_nationkeyQ n
+                                 ])
     | r <- regions
     , r_nameQ r == toQ rn
     , n <- regionNations r

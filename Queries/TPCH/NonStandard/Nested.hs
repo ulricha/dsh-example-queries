@@ -3,7 +3,9 @@
 {-# LANGUAGE RebindableSyntax      #-}
 
 -- | Queries with nested results over the TPC-H schema.
-module Queries.TPCHOther.PendingProfit where
+module Queries.TPCH.NonStandard.Nested where
+
+import qualified Data.Time.Calendar  as C
 
 import Database.DSH
 import Schema.TPCH
@@ -30,11 +32,26 @@ expectedRevenueFor nationName =
 -- Note: This query is not selective enough to make much sense. It is meant as a
 -- minimal example for a query that is nested, order-aware and uses aggregate
 -- functions.
-shippingDelay :: Q [(Integer, [LineItem], Double)]
+shippingDelay :: Q [(Integer, [Decimal], Double)]
 shippingDelay =
     [ let ls = orderItems o
       in tup3 (o_orderkeyQ o)
-              (sortWith l_shipdateQ ls)
-              (avg [ integerToDouble $ diffDays (o_orderdateQ o) (l_shipdateQ l) | l <- ls ])
+              (map l_quantityQ $ sortWith l_shipdateQ ls)
+              (avg [ integerToDouble $ diffDays (l_shipdateQ l) (o_orderdateQ o) | l <- ls ])
     | o <- orders
     ]
+
+-- | Compute shipping delays (same as in the running example) for all orders
+-- from a time interval.
+shippingDelayInterval :: Q [(Integer, [Decimal], Double)]
+shippingDelayInterval =
+    [ let ls = orderItems o
+      in tup3 (o_orderkeyQ o)
+              (map l_quantityQ $ sortWith l_shipdateQ ls)
+              (avg [ integerToDouble $ diffDays (l_shipdateQ l) (o_orderdateQ o) | l <- ls ])
+    | o <- orders
+    , o_orderdateQ o `inInterval` interval
+    ]
+  where
+    startDate = C.fromGregorian 1993 7 1
+    interval  = Interval startDate (C.addGregorianMonthsRollOver 1 startDate)
