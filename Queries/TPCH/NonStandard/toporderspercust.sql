@@ -1,8 +1,8 @@
 -- SQL versions of query "topOrdersPerCust'"
 
 -- SQL query without LATERAL
-explain analyze
-select c.c_name, array_agg(ii.o_orderdate)
+--explain analyze
+select c.c_name, json_agg(ii.o_orderdate)
 from customer c,
      (select i.o_custkey, i.o_orderdate
       from (select ics.o_custkey, ics.o_orderdate, row_number() over (partition by ics.o_custkey order by ics.ic) as x
@@ -22,8 +22,9 @@ order by c.c_custkey;
 --------------------------------------------------------------------------------
 
 -- SQL query with LATERAL
+-- needs indexes on l_orderkey and o_custkey to terminate in reasonable time.
 explain analyze
-select c.c_name, array_agg(ii.o_orderdate)
+select c.c_name, json_agg(ii.o_orderdate)
 from customer c,
      lateral (select i.o_orderdate
               from (select ics.o_orderdate, row_number() over (partition by ics.c_custkey order by ics.ic) as x

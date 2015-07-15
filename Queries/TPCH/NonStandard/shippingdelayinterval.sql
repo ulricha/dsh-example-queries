@@ -9,10 +9,10 @@ AS $$
    SELECT ARRAY(SELECT unnest($1) ORDER BY 1)
 $$;
 
--- Native SQL implementation based on arrays
+-- Native SQL implementation based on arrays and LATERAL
 explain analyze
 select o.o_orderkey,
-       array_sort(array_agg(ls.l_quantity)) as qs,
+       array_to_json(array_sort(array_agg(ls.l_quantity))) as qs,
        avg(ls.l_shipdate - o.o_orderdate)
 from orders o,
      lateral (select l.l_shipdate, l.l_quantity

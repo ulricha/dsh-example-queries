@@ -2,7 +2,7 @@
 
 -- Basic SQL version (don't consider customers without orders)
 explain analyze
-select n.n_name, array_agg(ii.c_name)
+select n.n_name, json_agg(ii.c_name)
 from region r,
      nation n,
      lateral (select i.c_name
@@ -24,7 +24,7 @@ order by n.n_nationkey;
 
 -- SQL version: include customers without orders, using UNION ALL
 explain analyze
-select n.n_name, array_agg(ii.c_name)
+select n.n_name, json_agg(ii.c_name)
 from region r,
      nation n,
      lateral (select i.c_name
@@ -51,7 +51,7 @@ order by n.n_nationkey;
 
 -- SQL version: include customers without orders, using LEFT OUTER JOIN
 explain analyze
-select n.n_name, array_agg(ii.c_name)
+select n.n_name, json_agg(ii.c_name)
 from region r,
      nation n,
      lateral (select i.c_name
