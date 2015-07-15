@@ -11,6 +11,27 @@ import Database.DSH
 import Schema.TPCH
 import Queries.TPCH.BuildingBlocks
 
+custFromOrders :: Text -> Q [(Text, [(Text, Decimal)])]
+custFromOrders nationName =
+    [ tup2 (c_nameQ c) [ tup2 (o_orderpriorityQ o) (o_totalpriceQ o) | o <- custOrders c]
+    | c <- customers
+    , c `custFromNation` nationName
+    , any (\o -> o `orderedBy` c) orders 
+    ]
+
+--------------------------------------------------------------------------------
+
+custRevenues :: Text -> Q [(Text, [Decimal])]
+custRevenues nationName =
+    [ tup2 (c_nameQ c)
+           [ orderRevenue o | o <- orders, o `orderedBy` c ]
+    | c <- customers
+    , c `custFromNation` nationName
+    , any (\o -> o `orderedBy` c) orders 
+    ]
+
+--------------------------------------------------------------------------------
+
 -- | For each customer from a certain nation, compute the revenue to be expected
 -- from pending orders.
 expectedRevenueFor :: Text -> Q [(Text, [(Day, Decimal)])]
