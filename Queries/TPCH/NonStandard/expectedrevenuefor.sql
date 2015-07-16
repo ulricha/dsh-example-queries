@@ -2,7 +2,7 @@
 -- Exploit the fact that there are no orders without lineitems.
 
 -- explain analyze
-select c.c_name, json_agg(json_build_object('1', os.o_orderdate, '2', os.r))
+select c.c_name, json_agg(json_build_array(os.o_orderdate, os.r))
 from customer c,
      (select o.o_custkey, o.o_orderdate,
              sum(l.l_extendedprice * (1 - l.l_discount)) as r
@@ -23,8 +23,7 @@ order by c.c_custkey;
 --------------------------------------------------------------------------------
 -- Native SQL + array_agg + LATERAL
 
-explain analyze
-select c.c_name, json_agg(json_build_object('1', os.o_orderdate, '2', os.r))
+select c.c_name, json_agg(json_build_array(os.o_orderdate, os.r))
 from customer c,
      lateral (select o.o_orderdate,
                      sum(l.l_extendedprice * (1 - l.l_discount)) as r

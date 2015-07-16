@@ -1,7 +1,7 @@
 -- SQL version of query 'custFromOrders'
 
 explain analyze
-select c.c_name, json_agg(json_build_object('1', i.o_orderpriority, '2', i.o_totalprice))
+select c.c_name, json_agg(json_build_array(i.o_orderpriority, i.o_totalprice))
 from customer c,
      lateral (select o.o_orderpriority, o.o_totalprice
               from orders o

@@ -2,7 +2,7 @@
 
 -- SQL version using deep LATERAL joins
 explain analyze
-select c.c_name, json_agg(i.r)
+select c.c_name, array_agg(i.r)
 from customer c,
      lateral (select sum(ls.l_extendedprice * (1 - ls.l_discount)) as r
               from orders o,
@@ -22,7 +22,7 @@ order by c.c_custkey;
 
 -- SQL version using a flat LATERAL join
 explain analyze
-select c.c_name, json_agg(i.r)
+select c.c_name, array_agg(i.r)
 from customer c,
      lateral (select sum(l.l_extendedprice * (1 - l.l_discount)) as r
               from orders o,

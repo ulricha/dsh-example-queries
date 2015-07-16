@@ -12,7 +12,7 @@ $$;
 -- Native SQL implementation based on arrays
 explain analyze
 select o.o_orderkey,
-       array_to_json(array_sort(array_agg(ls.l_quantity))) as qs,
+       array_sort(array_agg(ls.l_quantity)) as qs,
        avg(ls.l_shipdate - o.o_orderdate)
 from orders o,
      lateral (select l.l_shipdate, l.l_quantity
