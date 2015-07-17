@@ -1,7 +1,7 @@
 -- SQL versions of query "topOrdersPerCust'"
 
 -- SQL query without LATERAL
---explain analyze
+explain analyze
 select c.c_name, json_agg(ii.o_orderdate)
 from customer c,
      (select i.o_custkey, i.o_orderdate

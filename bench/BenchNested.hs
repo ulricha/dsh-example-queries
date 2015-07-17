@@ -19,7 +19,7 @@ module Main where
 
 import           Control.Monad
 
-import           Control.DeepSeq            (NFData)
+import           Control.DeepSeq
 import qualified Criterion                  as B
 import qualified Criterion.Main             as M
 import qualified Data.Aeson                 as A
@@ -44,6 +44,9 @@ import qualified Database.DSH.Compiler      as C
 import           Queries.TPCH.NonStandard
 
 newtype Date = Date { unDate :: D.Day } deriving (Show)
+
+instance NFData Date where
+    rnf (Date d) = rnf $! d
 
 instance A.FromJSON Date where
     parseJSON = A.withText "datestring" dateParser
@@ -240,8 +243,8 @@ expectedRevenueForSqlLateral =
     \group by c.c_custkey, c.c_name\n\
     \order by c.c_custkey;"
 
-expectedRevenueForSqlP :: PG.Connection -> PG.Query -> IO [(T.Text, [(Date, Double)])]
-expectedRevenueForSqlP c q = do
+expectedRevenueForSqlP :: PG.Query -> PG.Connection -> IO [(T.Text, [(Date, Double)])]
+expectedRevenueForSqlP q c = do
     jRes <- PG.query_ c q
 
     let convertRow :: (T.Text, A.Value) -> (T.Text, [(Date, Double)])
@@ -292,7 +295,7 @@ shippingDelaySqlLateral =
     \group by o.o_orderkey\n\
     \order by o.o_orderkey;"
 
-shippingDelaySqlLateralRunP :: PG.Connection -> IO [(Integer, [Double], Double)]
+shippingDelaySqlLateralRunP :: PG.Connection -> IO [(Integer, [S.Scientific], S.Scientific)]
 shippingDelaySqlLateralRunP c = do
     vRes <- PG.query_ c shippingDelaySqlLateral
     return $ map (\(k, v, a) -> (k, V.toList v, a)) vRes
@@ -329,12 +332,12 @@ shippingDelayIntervalSqlLateral =
     \     lateral (select l.l_shipdate, l.l_quantity\n\
     \              from lineitem l\n\
     \              where l.l_orderkey = o.o_orderkey) ls\n\
-    \where ((o.o_orderdate < DATE '1993-08-01')\n\
+    \where ((o.o_orderdate < DATE '1993-10-01')\n\
     \  and (o.o_orderdate >= DATE '1993-07-01'))\n\
     \group by o.o_orderkey\n\
     \order by o.o_orderkey;"
 
-shippingDelayIntervalSqlLateralRunP :: PG.Connection -> IO [(Integer, [Double], Double)]
+shippingDelayIntervalSqlLateralRunP :: PG.Connection -> IO [(Integer, [S.Scientific], S.Scientific)]
 shippingDelayIntervalSqlLateralRunP c = do
     vRes <- PG.query_ c shippingDelayIntervalSqlLateral
     return $ map (\(k, v, a) -> (k, V.toList v, a)) vRes
@@ -344,7 +347,7 @@ shippingDelayIntervalAvalanche c = do
     orders <- PG.query_ c "select o.o_orderkey, avg(l.l_shipdate - o.o_orderdate)\n\
                           \from orders o,\n\
                           \     lineitem l\n\
-                          \where ((o.o_orderdate < DATE '1993-08-01')\n\
+                          \where ((o.o_orderdate < DATE '1993-10-01')\n\
                           \  and (o.o_orderdate >= DATE '1993-07-01'))\n\
                           \  and o.o_orderkey = l.l_orderkey\n\
                           \group by o.o_orderkey\n\
@@ -401,8 +404,8 @@ topOrdersPerCustSqlLateral =
     \group by c.c_custkey, c.c_name\n\
     \order by c.c_custkey;"
 
-topOrdersPerCustP :: PG.Connection -> PG.Query -> IO [(T.Text, [D.Day])]
-topOrdersPerCustP c q = do
+topOrdersPerCustP :: PG.Query -> PG.Connection -> IO [(T.Text, [D.Day])]
+topOrdersPerCustP q c = do
     vRes <- PG.query_ c q
     return $ map (\(t, v) -> (t, V.toList v)) vRes
 
@@ -428,7 +431,7 @@ topOrdersPerCustSqlAvalanche c = do
         return (cName, map PG.fromOnly orders)
 
 topOrdersPerCustDSH :: O.Connection -> IO [(T.Text, [D.Day])]
-topOrdersPerCustDSH c = C.runQ (DS.sqlBackend c) $ topOrdersPerCust' 10 "EUROPE"
+topOrdersPerCustDSH c = C.runQ (DS.sqlBackend c) $ topOrdersPerCust' 10 "GERMANY"
 
 --------------------------------------------------------------------------------
 
@@ -480,7 +483,7 @@ regionsTopCustomersSqlLateralUnion =
 -- SQL version: include customers without orders, using LEFT OUTER JOIN
 regionsTopCustomersSqlLateralLeftOuter :: PG.Query
 regionsTopCustomersSqlLateralLeftOuter =
-    "select n.n_name, json_agg(ii.c_name)\n\
+    "select n.n_name, array_agg(ii.c_name)\n\
     \from region r,\n\
     \     nation n,\n\
     \     lateral (select i.c_name\n\
@@ -499,8 +502,8 @@ regionsTopCustomersSqlLateralLeftOuter =
     \group by n.n_nationkey\n\
     \order by n.n_nationkey;"
 
-regionsTopCustomersP :: PG.Connection -> PG.Query -> IO [(T.Text, [T.Text])]
-regionsTopCustomersP c q = do
+regionsTopCustomersP :: PG.Query -> PG.Connection -> IO [(T.Text, [T.Text])]
+regionsTopCustomersP q c = do
     vRes <- PG.query_ c q
 
     return $ map (\(t, v) -> (t, V.toList v)) vRes
@@ -554,6 +557,35 @@ benchmarks (c, c') =
         , benchQ "custRevenuesSqlAvalanche" c' custRevenuesSqlAvalanche
         , benchQ "custRevenuesDSH" c custRevenuesDSH
         ]
+    , B.bgroup "expectedRevenueFor"
+        [ benchQ "expectedRevenueForSql" c' $ expectedRevenueForSqlP  expectedRevenueForSql
+        , benchQ "expectedRevenueForSqlLateral" c' $ expectedRevenueForSqlP expectedRevenueForSqlLateral
+        , benchQ "expectedRevenueForSqlAvalanche" c' expectedRevenueForSqlAvalanche
+        , benchQ "expectedRevenueForDSH" c expectedRevenueForDSH
+        ]
+    -- , B.bgroup "shippingDelay"
+    --     [ benchQ "shippingDelaySqlLateral" c' shippingDelaySqlLateralRunP
+    --     , benchQ "shippingDelayAvalanche" c' shippingDelayAvalanche
+    --     , benchQ "shippingDelayDSH" c shippingDelayDSH
+    --     ]
+    , B.bgroup "shippingDelayInterval"
+        [ benchQ "shippingDelayIntervalSqlLateral" c' shippingDelayIntervalSqlLateralRunP
+        , benchQ "shippingDelayIntervalAvalanche" c' shippingDelayIntervalAvalanche
+        , benchQ "shippingDelayIntervalDSH" c shippingDelayIntervalDSH
+        ]
+    , B.bgroup "topOrdersPerCust"
+        [ benchQ "topOrdersPerCustSql" c' $ topOrdersPerCustP topOrdersPerCustSql
+        , benchQ "topOrdersPerCustSqlLateral" c' $ topOrdersPerCustP topOrdersPerCustSqlLateral
+        , benchQ "topOrdersPerCustSqlAvalanche" c' topOrdersPerCustSqlAvalanche
+        , benchQ "topOrdersPerCustDSH" c topOrdersPerCustDSH
+        ]
+    , B.bgroup "regionsTopCustomers"
+        [ benchQ "regionsTopCustomersSqlLateral" c' $ regionsTopCustomersP regionsTopCustomersSqlLateral
+        , benchQ "regionsTopCustomersSqlLateralUnion" c' $ regionsTopCustomersP regionsTopCustomersSqlLateralUnion
+        , benchQ "regionsTopCustomersSqlLateralLeftOuter" c' $ regionsTopCustomersP regionsTopCustomersSqlLateralLeftOuter
+        , benchQ "regionsTopCustomersSqlAvalanche" c' regionsTopCustomersSqlAvalanche
+        , benchQ "regionsTopCustomersDSH" c regionsTopCustomersDSH
+        ]
     ]
 
 
@@ -565,14 +597,13 @@ main = do
     c' <- pgConn
     M.defaultMain $ benchmarks (c, c')
 
-mainP :: IO ()
-mainP = do
-    c  <- pgConn
-    c' <- hdbcConn
-    -- r <- custRevenuesSqlLateralP c (custRevenuesSqlLateral)
-    -- r <- expectedRevenueForSqlP c (expectedRevenueForSqlLateral)
-    -- r <- expectedRevenueForSqlAvalanche c
-    -- r <- expectedRevenueForDSH c'
-    r <- topOrdersPerCustSqlAvalanche c
-    putStrLn $ show r
-    PG.close c
+-- main :: IO ()
+-- main = do
+--     c  <- pgConn
+--     c' <- hdbcConn
+--     -- r <- custRevenuesSqlLateralP c (custRevenuesSqlLateral)
+--     -- r <- expectedRevenueForSqlP c (expectedRevenueForSqlLateral)
+--     -- r <- expectedRevenueForSqlAvalanche c
+--     -- r <- expectedRevenueForDSH c'
+--     r <- topOrdersPerCustDSH c'
+--     putStrLn $ show r

@@ -1,7 +1,7 @@
 -- Native SQL + array_agg
 -- Exploit the fact that there are no orders without lineitems.
 
--- explain analyze
+explain analyze
 select c.c_name, json_agg(json_build_array(os.o_orderdate, os.r))
 from customer c,
      (select o.o_custkey, o.o_orderdate,
@@ -23,6 +23,7 @@ order by c.c_custkey;
 --------------------------------------------------------------------------------
 -- Native SQL + array_agg + LATERAL
 
+explain analyze
 select c.c_name, json_agg(json_build_array(os.o_orderdate, os.r))
 from customer c,
      lateral (select o.o_orderdate,

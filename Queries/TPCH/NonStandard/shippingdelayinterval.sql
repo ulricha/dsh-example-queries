@@ -18,7 +18,7 @@ from orders o,
      lateral (select l.l_shipdate, l.l_quantity
               from lineitem l
               where l.l_orderkey = o.o_orderkey) ls
-where ((o.o_orderdate < DATE '1993-08-01')
+where ((o.o_orderdate < DATE '1993-10-01')
   and (o.o_orderdate >= DATE '1993-07-01'))
 group by o.o_orderkey
 order by o.o_orderkey;
@@ -33,7 +33,7 @@ SELECT a0.o_orderkey AS k1, a0.o_orderkey AS o1,
 FROM orders AS a0,
      lineitem AS a1
 WHERE (a0.o_orderkey = a1.l_orderkey)
-AND   ((a0.o_orderdate < DATE '1993-08-01') AND (a0.o_orderdate >= DATE '1993-07-01'))
+AND   ((a0.o_orderdate < DATE '1993-10-01') AND (a0.o_orderdate >= DATE '1993-07-01'))
 GROUP BY a0.o_orderkey
 ORDER BY o1 ASC;
 
@@ -47,5 +47,5 @@ SELECT a2.o_orderkey AS r1, a3.l_shipdate AS o1,
 FROM orders AS a2,
      lineitem AS a3
 WHERE (a2.o_orderkey = a3.l_orderkey)
-AND   ((a2.o_orderdate < DATE '1993-08-01') AND (a2.o_orderdate >= DATE '1993-07-01'))
+AND   ((a2.o_orderdate < DATE '1993-10-01') AND (a2.o_orderdate >= DATE '1993-07-01'))
 ORDER BY r1 ASC, o1 ASC, o2 ASC, o3 ASC, o4 ASC;

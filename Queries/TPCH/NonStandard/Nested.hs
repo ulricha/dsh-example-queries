@@ -75,4 +75,8 @@ shippingDelayInterval =
     ]
   where
     startDate = C.fromGregorian 1993 7 1
-    interval  = Interval startDate (C.addGregorianMonthsRollOver 1 startDate)
+    interval  = Interval startDate (C.addGregorianMonthsRollOver 3 startDate)
+
+--------------------------------------------------------------------------------
+
+
