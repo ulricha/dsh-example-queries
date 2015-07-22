@@ -1,0 +1,1 @@
+select (2) as "1_1",(t1840."2") as "1_2",(t1836."name") as "2" from (select (t1835."dpt") as "1_1_dpt",(row_number() over (order by t1835."dpt")) as "2" from departments as t1835) as t1840,employees as t1836 where (t1840."1_1_dpt") = (t1836."dpt");

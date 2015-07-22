@@ -1,0 +1,1 @@
+select (0) as "1_1",(t1828."2") as "1_2",(t1823."dpt") as "2_dpt" from (select (1) as "2") as t1828,departments as t1823 where not (exists (select 0 as dummy from employees as t1824 where ((t1823."dpt") = (t1824."dpt")) and (not (exists (select 0 as dummy from tasks as t1825 where ((t1824."name") = (t1825."emp")) and ((t1825."tsk") = ('abstract')))))));
