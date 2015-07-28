@@ -19,9 +19,7 @@ create index on lineitem(l_receiptdate);
 -- foreign key indexes
 create index on customer(c_nationkey);
 create index on orders(o_custkey);
-create index on lineitem(l_orderkey);
 create index on lineitem(l_suppkey);
-create index on lineitem(l_partkey);
 create index on lineitem(l_partkey, l_suppkey);
 create index on supplier(s_nationkey);
 create index on partsupp(ps_partkey);
