@@ -88,10 +88,10 @@ unshippedItemsPerCustomer nationName =
                   | l <- orderItems o
                   , p <- parts
                   , p_partkeyQ p == l_partkeyQ l
-                  , l_linestatusQ l == "O"
                   ] 
            | o <- custOrders c
            , o_orderstatusQ o == "P"
+           , o_orderdateQ o > toQ (C.fromGregorian 1996 1 1)
            ]
     | c <- customers
     , custFromNation c nationName
