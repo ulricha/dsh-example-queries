@@ -80,8 +80,11 @@ shippingDelayInterval =
 
 --------------------------------------------------------------------------------
 
+-- | For all customers from one nation, collect all orders and their lineitems
+-- that are pending.
 unshippedItemsPerCustomer :: Text -> Q [(Text, [(Integer, [(Integer, Text, Decimal)])])]
 unshippedItemsPerCustomer nationName =
+    filter (not . null . snd)
     [ tup2 (c_nameQ c)
            [ tup2 (o_orderkeyQ o)
                   [ tup3 (l_linenumberQ l) (p_nameQ p) (l_quantityQ l)
@@ -91,7 +94,6 @@ unshippedItemsPerCustomer nationName =
                   ] 
            | o <- custOrders c
            , o_orderstatusQ o == "P"
-           , o_orderdateQ o > toQ (C.fromGregorian 1996 1 1)
            ]
     | c <- customers
     , custFromNation c nationName
