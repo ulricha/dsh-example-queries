@@ -1,8 +1,6 @@
 #!/bin/bash
 
-shopt -s extglob
-
-db=$(cat DATABASE)
+db=${1}
 
 echo $db
 
@@ -15,7 +13,7 @@ function do_benchmark {
     done
 }
 
-for q in !(DATABASE); do
+for q in *; do
     echo "Query " ${q}
     cd ${q}
     for s in *.sql; do
