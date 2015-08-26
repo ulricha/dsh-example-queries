@@ -13,10 +13,12 @@ module Queries.TPCH.BuildingBlocks
     , ordersWithStatus
     , customersFrom
     , orderedBy
+    , fromRegion
       -- * One-to-many relationships along foreign keys
     , custOrders
     , orderItems
     , partSuppliers
+    , supplierParts
     , regionNations
     , supplierItems
       -- * Price and revenue
@@ -74,6 +76,15 @@ customersFrom areaPrefixes =
 orderedBy :: Q Order -> Q Customer -> Q Bool
 orderedBy o c = o_custkeyQ o == c_custkeyQ c
 
+-- | Check wether the given nation key lies in the given region.
+fromRegion :: Q Integer -> Text -> Q Bool
+fromRegion nationKey regionName =
+    or [ n_nationkeyQ n == nationKey
+       | r <- regions
+       , r_nameQ r == toQ regionName
+       , n <- regionNations r
+       ]
+
 --------------------------------------------------------------------------------
 -- One-to-many relationships along foreign keys
 
@@ -92,6 +103,14 @@ partSuppliers p = [ tup2 s ps
                   , ps <- partsupps
                   , ps_partkeyQ ps == p_partkeyQ p
                   , ps_suppkeyQ ps == s_suppkeyQ s
+                  ]
+
+supplierParts :: Q Supplier -> Q [(Part, PartSupp)]
+supplierParts s = [ tup2 p ps
+                  | ps <- partsupps
+                  , p <- parts
+                  , s_suppkeyQ s == ps_suppkeyQ ps
+                  , ps_partkeyQ ps == p_partkeyQ p
                   ]
 
 -- | All nations in a region.

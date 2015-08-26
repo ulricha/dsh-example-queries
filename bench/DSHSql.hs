@@ -3,9 +3,11 @@
 module Main where
 
 import           Control.Exception
+import           Control.Monad
 import           Text.Printf
 
 import qualified System.Directory         as D
+import           System.Environment
 import           System.FilePath          ((</>))
 import           System.IO.Error
 
@@ -68,6 +70,9 @@ dumpNested = do
     dumpSql "nested" Nested.shippingDelayInterval "dsh_shippingdelayinterval"
     dumpSql "nested" (Nested.topOrdersPerCust' 10 "GERMANY") "dsh_toporderspercust"
     dumpSql "nested" (Nested.regionsTopCustomers "EUROPE" 10) "dsh_regionstopcustomers"
+    dumpSql "nested" (Nested.unshippedItemsPerCustomer "GERMANY") "dsh_unshippeditemspercustomer"
+    dumpSql "nested" (Nested.cheaperSuppliersInRegion "EUROPE") "dsh_cheapersuppliersinregion"
+    dumpSql "nested" (Nested.cheaperSuppliersInRegionAvg "EUROPE") "dsh_cheapersuppliersinregionavg"
 
 dumpSql :: Q.QA a => FilePath -> Q.Q a -> FilePath -> IO ()
 dumpSql category q qName = do
@@ -82,6 +87,7 @@ dumpSql category q qName = do
 
 main :: IO ()
 main = do
-    dumpTPCH
-    dumpShredding
-    dumpNested
+    args <- getArgs
+    when ("tpch" `elem` args) dumpTPCH
+    when ("shredding" `elem` args) dumpShredding
+    when ("nested" `elem` args) dumpNested
