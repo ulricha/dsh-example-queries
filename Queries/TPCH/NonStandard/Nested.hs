@@ -84,7 +84,6 @@ shippingDelayInterval =
 -- that are pending.
 unshippedItemsPerCustomer :: Text -> Q [(Text, [(Integer, [(Integer, Text, Decimal)])])]
 unshippedItemsPerCustomer nationName =
-    filter (not . null . snd)
     [ tup2 (c_nameQ c)
            [ tup2 (o_orderkeyQ o)
                   [ tup3 (l_linenumberQ l) (p_nameQ p) (l_quantityQ l)
@@ -97,6 +96,7 @@ unshippedItemsPerCustomer nationName =
            ]
     | c <- customers
     , custFromNation c nationName
+    , c_custkeyQ c `elem` [ o_custkeyQ o | o <- orders, o_orderstatusQ o == "P" ]
     ]
 
 --------------------------------------------------------------------------------
