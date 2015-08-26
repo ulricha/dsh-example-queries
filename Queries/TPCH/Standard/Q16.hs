@@ -17,9 +17,14 @@ module Queries.TPCH.Standard.Q16
 import Database.DSH
 import Schema.TPCH
 
+byDescCount :: Q ((Text, Text, Integer), Integer) -> Q (Integer, Text, Text, Integer)
+byDescCount (view -> (g, c)) = case view g of
+    (b, t, s) -> tup4 (-1 * c) b t s
+
 -- | TPC-H Query Q16
 q16 :: Q [((Text, Text, Integer), Integer)]
-q16 = groupAggr fst snd (length . nub)
+q16 = sortWith byDescCount
+      $ groupAggr fst snd (length . nub)
       [ tup2 (tup3 (p_brandQ p) (p_typeQ p) (p_sizeQ p)) (ps_suppkeyQ ps)
       | ps <- partsupps
       , p  <- parts
