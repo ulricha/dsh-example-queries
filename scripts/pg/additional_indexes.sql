@@ -25,3 +25,6 @@ create index on supplier(s_nationkey);
 create index on partsupp(ps_partkey);
 create index on partsupp(ps_suppkey);
 create index on nation(n_regionkey);
+
+--cluster lineitem using lineitem_l_shipdate_idx;
+--cluster orders using orders_o_orderdate_idx;
