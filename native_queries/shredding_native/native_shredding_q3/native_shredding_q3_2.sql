@@ -1,1 +1,0 @@
-select (2) as "1_1",(t1834."2") as "1_2",(t1830."tsk") as "2" from (select (t1829."dpt") as "1_1_dpt",(t1829."id") as "1_1_id",(t1829."name") as "1_1_name",(t1829."salary") as "1_1_salary",(row_number() over (order by t1829."id")) as "2" from employees as t1829) as t1834,tasks as t1830 where (t1834."1_1_name") = (t1830."emp");

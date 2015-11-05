@@ -1,1 +1,0 @@
-select (4) as "1_1",(t1855."2") as "1_2",(t1851."client") as "2_client",(t1851."name") as "2_name" from (select (t1848."dpt") as "1_1_dpt",(row_number() over (order by t1848."dpt")) as "2" from departments as t1848) as t1855,contacts as t1851 where (t1855."1_1_dpt") = (t1851."dpt");
