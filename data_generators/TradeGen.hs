@@ -1,3 +1,4 @@
+-- | Generate data for the trading example from Shasha and Lerner's AQuery VLDB paper.
 module Main where
 
 import           Control.Monad

@@ -4,4 +4,9 @@
 *.shape
 *~
 *.pdf
-
+.cabal-sandbox
+cabal.config
+cabal.sandbox.config
+dist/
+heapprof.sh
+mksandbox.sh

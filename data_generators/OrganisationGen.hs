@@ -1,6 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE OverloadedLists   #-}
 
+-- | Generate data for the "organisation" schema used in Cheney et al.'s 2013 SIGMOD paper 
+-- on query shredding.
 module Main where
 
 import           Text.Printf

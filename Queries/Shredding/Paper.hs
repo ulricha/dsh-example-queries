@@ -3,6 +3,7 @@
 {-# LANGUAGE RebindableSyntax    #-}
 {-# LANGUAGE ViewPatterns        #-}
 
+-- | Benchmark queries from the SIGMOD 2014 paper on query shredding by Cheney et al.
 module Queries.Shredding.Paper
     ( q1
     , q2
