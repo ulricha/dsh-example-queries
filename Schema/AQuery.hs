@@ -41,7 +41,7 @@ trades = table "trades"
                ("amount" :|
                 [ "price"
                 , "tid"
-                , "timestamp"
+                , "ts"
                 , "tradeDate"])
                (TableHints (sng $ Key ("tid" :| ["timestamp"])) NonEmpty)
 
