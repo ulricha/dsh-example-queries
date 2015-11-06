@@ -54,6 +54,9 @@ library
                        Queries.TPCH.Standard.Q21,
                        Queries.TPCH.Standard.Q22
 
+                       Queries.TPCH.NonStandard.Nested
+                       Queries.TPCH.NonStandard.TopK
+
                        Queries.Shredding.BuildingBlocks
 
                        Queries.AQuery.Trades
