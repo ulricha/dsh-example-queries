@@ -13,14 +13,13 @@ import           System.IO
 import           System.Random.MWC
 import qualified Data.Time.Calendar as C
 
-msPerDay :: Int
-msPerDay = 10 * 3600 * 24
+msPerDay :: Integer
+msPerDay = 1000 * 3600 * 24
 
 startDate :: Day
 startDate = Day $ C.fromGregorian 2015 11 6
 
-type Timestamp = Int
-type Date      = Int
+type Timestamp = Integer
 type ID        = Int
 
 newtype Day = Day C.Day
@@ -54,7 +53,7 @@ Parameters:
 - Number of stocks
 - Average number of trades per day and stock
 - Every item is traded every day
-- resolution per day: millisecond --> [1, 864000]
+- resolution per day: microsecond --> [1, 864000]
 -}
 
 data Options = Options
@@ -122,7 +121,7 @@ writeTrades opts trades = B.hPut (o_file opts) $ encode $ F.toList trades
 genTrades :: Options -> IO ()
 genTrades opts = do
 
-    let days   = take (o_days opts) [startDate..]
+    let days   = zip [0..] (take (o_days opts) [startDate..])
         stocks = [0 .. o_stocks opts]
 
     forM_ days $ \day -> do
@@ -132,7 +131,8 @@ genTrades opts = do
                 putStrLn $ "stock " ++ show stock
                 tradesFactor <- uniformR (0.7 :: Double, 1.3) (o_gen opts)
                 let nrTrades = round $ tradesFactor * (fromIntegral $ o_avgTrades opts)
-                trades <- genDayStockTrades opts day stock Seq.empty 0 nrTrades
+                let startTs = fst day * msPerDay
+                trades <- genDayStockTrades opts (snd day) stock Seq.empty startTs nrTrades
                 genStockTrades ss (trades Seq.>< acc)
 
             genStockTrades [] acc = return acc
@@ -147,8 +147,8 @@ genDayStockTrades _    _   _     trades _      0 = return trades
 genDayStockTrades opts day stock trades nextTs n = do
     price    <- uniformR (1 :: Double, 10000) (o_gen opts)
     let trade = Trade price stock nextTs day
-    tsOffset <- uniformR (1, 10) (o_gen opts)
-    genDayStockTrades opts day stock (trade <| trades) (nextTs + tsOffset) (n - 1)
+    tsOffset <- uniformR (1, 10) (o_gen opts) :: IO Int
+    genDayStockTrades opts day stock (trade <| trades) (nextTs + (fromIntegral tsOffset)) (n - 1)
 
 main :: IO ()
 main = do
