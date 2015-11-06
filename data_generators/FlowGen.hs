@@ -83,11 +83,11 @@ type Host      = Int
 type Timestamp = Int
 
 data Packet  = P
-    { p_pid :: !Int
-    , p_src :: !Host
-    , p_dst :: !Host
-    , p_len :: !Int
-    , p_ts  :: !Timestamp
+    { p_pid :: {-# UNPACK #-} !Int
+    , p_src :: {-# UNPACK #-} !Host
+    , p_dst :: {-# UNPACK #-} !Host
+    , p_len :: {-# UNPACK #-} !Int
+    , p_ts  :: {-# UNPACK #-} !Timestamp
     }
 
 instance ToRecord Packet where
@@ -143,7 +143,6 @@ genFlows opts src dst startTs ps n = do
     startVar <- uniformR (1, 1000) (o_gen opts)
     let nextStart = lastTs + flowInterrupt + startVar
     genFlows opts src dst nextStart (flow >< ps) (n - 1)
-
 
 -- | Generate one flow between two hosts: Vary the average flow length
 -- and collect the packets for the flow. The function returns the
