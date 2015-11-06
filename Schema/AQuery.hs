@@ -43,7 +43,7 @@ trades = table "trades"
                 , "tid"
                 , "ts"
                 , "tradeDate"])
-               (TableHints (sng $ Key ("tid" :| ["timestamp"])) NonEmpty)
+               (TableHints (sng $ Key ("tid" :| ["ts"])) NonEmpty)
 
 portfolios :: Q [Portfolio]
 portfolios = table "portfolio"
