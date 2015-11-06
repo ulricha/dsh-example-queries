@@ -129,7 +129,6 @@ genTrades opts = do
         putStrLn $ "day " ++ show day
 
         let genStockTrades (stock : ss) acc = do
-                putStrLn $ "stock " ++ show stock
                 tradesFactor <- uniformR (0.7 :: Double, 1.3) (o_gen opts)
                 let nrTrades = round $ tradesFactor * (fromIntegral $ o_avgTrades opts)
                 let startTs = fst day * msPerDay
@@ -139,7 +138,6 @@ genTrades opts = do
             genStockTrades [] acc = return acc
 
         trades <- genStockTrades stocks Seq.empty
-        putStrLn $ "got trades " ++ show (Seq.length trades)
 
         writeTrades opts trades
 
