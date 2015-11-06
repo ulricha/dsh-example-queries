@@ -6,6 +6,8 @@ module Queries.AQuery
     , debugAll
     ) where
 
+import qualified Data.Time.Calendar       as C
+
 import           Database.DSH.Backend.Sql
 import           Database.DSH.Compiler
 
@@ -15,7 +17,7 @@ import           Queries.AQuery.Trades
 debugAll :: SqlBackend -> IO ()
 debugAll conn = do
     putStrLn "bestProfit"
-    debugQ "bestprofit" conn $ bestProfit 23 42
+    debugQ "bestprofit" conn $ bestProfit 614 (C.fromGregorian 2015 12 3)
 
     putStrLn "last10"
     debugQ "last10" conn $ last10 42

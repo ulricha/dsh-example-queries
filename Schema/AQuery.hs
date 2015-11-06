@@ -19,7 +19,7 @@ data Trade = Trade
     , t_price     :: Double
     , t_tid       :: Integer
     , t_timestamp :: Integer
-    , t_tradeDate :: Integer
+    , t_tradeDate :: Day
     }
 
 deriveDSH ''Trade
@@ -38,12 +38,12 @@ generateTableSelectors ''Portfolio
 
 trades :: Q [Trade]
 trades = table "trades"
-               ("t_amount" :|
-                [ "t_price"
-                , "t_tid"
-                , "t_timestamp"
-                , "t_tradeDate"])
-               (TableHints (sng $ Key ("t_tid" :| ["t_timestamp"])) NonEmpty)
+               ("amount" :|
+                [ "price"
+                , "tid"
+                , "timestamp"
+                , "tradeDate"])
+               (TableHints (sng $ Key ("tid" :| ["timestamp"])) NonEmpty)
 
 portfolios :: Q [Portfolio]
 portfolios = table "portfolio"
@@ -64,10 +64,10 @@ generateTableSelectors ''Packet
 
 packets :: Q [Packet]
 packets = table "packets"
-                ("p_dest" :|
-                 [ "p_len"
-                 , "p_pid"
-                 , "p_src"
-                 , "p_ts"
+                ("dst" :|
+                 [ "len"
+                 , "pid"
+                 , "src"
+                 , "ts"
                  ])
-                (TableHints (sng $ Key (sng "p_pid")) NonEmpty)
+                (TableHints (sng $ Key (sng "pid")) NonEmpty)
