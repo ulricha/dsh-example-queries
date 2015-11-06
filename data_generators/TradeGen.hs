@@ -12,14 +12,15 @@ import           System.Environment
 import           System.IO
 import           System.Random.MWC
 import qualified Data.Time.Calendar as C
+import           Data.Int
 
-msPerDay :: Integer
+msPerDay :: Int64
 msPerDay = 1000 * 3600 * 24
 
 startDate :: Day
 startDate = Day $ C.fromGregorian 2015 11 6
 
-type Timestamp = Integer
+type Timestamp = Int64
 type ID        = Int
 
 newtype Day = Day C.Day
@@ -35,10 +36,10 @@ instance Show Day where
     show (Day d) = show d
 
 data Trade = Trade
-    { t_price :: Double
-    , t_tid   :: ID
-    , t_ts    :: Timestamp
-    , t_date  :: Day
+    { t_price :: {-# UNPACK #-} !Double
+    , t_tid   :: {-# UNPACK #-} !ID
+    , t_ts    :: {-# UNPACK #-} !Timestamp
+    , t_date  ::  !Day
     }
 
 instance ToRecord Trade where
