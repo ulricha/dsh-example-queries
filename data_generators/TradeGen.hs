@@ -7,19 +7,33 @@ import           Data.Csv
 import qualified Data.Foldable         as F
 import           Data.Sequence         (Seq, (<|))
 import qualified Data.Sequence         as Seq
-import qualified Data.Vector           as V
 import           System.Console.GetOpt
 import           System.Environment
 import           System.IO
 import           System.Random.MWC
+import qualified Data.Time.Calendar as C
 
 msPerDay :: Int
 msPerDay = 10 * 3600 * 24
 
+startDate :: Day
+startDate = Day $ C.fromGregorian 2015 11 6
+
 type Timestamp = Int
 type Date      = Int
 type ID        = Int
-type Day       = Int
+
+newtype Day = Day C.Day
+
+instance Enum Day where
+    toEnum n = Day $ toEnum n
+    fromEnum (Day d) = fromEnum d
+
+instance ToField Day where
+    toField (Day d) = toField $ C.showGregorian d
+
+instance Show Day where
+    show (Day d) = show d
 
 data Trade = Trade
     { t_price :: Double
@@ -31,9 +45,6 @@ data Trade = Trade
 instance ToRecord Trade where
     toRecord (Trade p sid ts date) =
         record [ toField p, toField sid, toField ts, toField date ]
-
-genDays :: Int -> V.Vector Day
-genDays n = V.enumFromN 1 n
 
 {-
 
@@ -60,9 +71,9 @@ mkDefaultOptions = do
     gen    <- withSystemRandom $ asGenIO return
     f      <- openFile "trades.csv" WriteMode
 
-    return $ Options { o_days       = 20
-                     , o_stocks     = 100
-                     , o_avgTrades  = 6000
+    return $ Options { o_days       = 30
+                     , o_stocks     = 1000
+                     , o_avgTrades  = 10000
                      , o_gen        = gen
                      , o_file       = f
                      }
@@ -111,7 +122,7 @@ writeTrades opts trades = B.hPut (o_file opts) $ encode $ F.toList trades
 genTrades :: Options -> IO ()
 genTrades opts = do
 
-    let days   = [0 .. o_days opts]
+    let days   = take (o_days opts) [startDate..]
         stocks = [0 .. o_stocks opts]
 
     forM_ days $ \day -> do
@@ -121,11 +132,9 @@ genTrades opts = do
                 putStrLn $ "stock " ++ show stock
                 tradesFactor <- uniformR (0.7 :: Double, 1.3) (o_gen opts)
                 let nrTrades = round $ tradesFactor * (fromIntegral $ o_avgTrades opts)
-                    tsOffset = day * msPerDay
-
-                trades <- genDayStockTrades opts day stock Seq.empty tsOffset nrTrades
-
+                trades <- genDayStockTrades opts day stock Seq.empty 0 nrTrades
                 genStockTrades ss (trades Seq.>< acc)
+
             genStockTrades [] acc = return acc
 
         trades <- genStockTrades stocks Seq.empty

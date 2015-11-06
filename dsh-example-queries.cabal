@@ -90,7 +90,7 @@ executable gen-flows
 executable gen-trades
   default-language:    Haskell2010
   main-is:             data_generators/TradeGen.hs
-  build-depends:       base, containers, mwc-random, vector, cassava, bytestring
+  build-depends:       base, containers, mwc-random, vector, cassava, bytestring, time
   ghc-options:         -Wall -O2
 
 
