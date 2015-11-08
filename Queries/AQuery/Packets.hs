@@ -72,12 +72,12 @@ deltasSelfJoin xs = cons 0 [ ts - ts'
 -- by timestamps at least in a partitioned way, this will be OK.
 deltasWin :: Q [Integer] -> Q [Integer]
 deltasWin xs = [ ts - minimum [ ts'
-                             | (view -> (ts', i')) <- number xs
-                             , i' >= i - 1
-                             , i' <= i
-                             ]
-              | (view -> (ts, i)) <- number xs
-              ]
+                              | (view -> (ts', i')) <- number xs
+                              , i' >= i - 1
+                              , i' <= i
+                              ]
+               | (view -> (ts, i)) <- number xs
+               ]
 
 deltasHead :: Q [Integer] -> Q [Integer]
 deltasHead xs = [ ts - head [ ts'
