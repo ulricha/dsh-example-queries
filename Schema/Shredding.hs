@@ -57,7 +57,7 @@ generateTableSelectors ''Task
 tasks :: Q [Task]
 tasks = table "tasks"
               ("emp" :| ["id", "tsk"])
-              (defaultHints $ pure $ Key $ "emp" :| ["tsk"])
+              (defaultHints $ pure $ Key $ pure "id")
 
 data Contact = Contact
     { c_client :: Bool
