@@ -72,8 +72,7 @@ benchmarks c =
         [ benchmarkDSH "custfromorders" c (custFromOrders "GERMANY")
         , benchmarkDSH "custrevenues" c (custRevenues "GERMANY")
         , benchmarkDSH "expectedrevenuefor" c (expectedRevenueFor "GERMANY")
-        , benchmarkDSH "shippingdelay" c shippingDelay
-        , benchmarkDSH "shippingdelayinteral" c shippingDelayInterval
+        , benchmarkDSH "shippingdelayinterval" c shippingDelayInterval
         , benchmarkDSH "toporderspercust" c (topOrdersPerCust' 10 "GERMANY")
         , benchmarkDSH "regionstopcustomers" c (regionsTopCustomers "EUROPE" 10)
         , benchmarkDSH "unshippeditemspercustomer" c (unshippedItemsPerCustomer "GERMANY")
