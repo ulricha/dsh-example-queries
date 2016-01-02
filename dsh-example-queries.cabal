@@ -65,7 +65,6 @@ library
   other-extensions:    TemplateHaskell
   build-depends:       base,
                        DSH >=0.12.1,
-                       HDBC-odbc,
                        text,
                        time >= 1.4,
                        Decimal >= 0.4,
