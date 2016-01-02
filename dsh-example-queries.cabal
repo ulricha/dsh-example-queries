@@ -93,6 +93,28 @@ executable gen-trades
   build-depends:       base, containers, mwc-random, vector, cassava, bytestring, time
   ghc-options:         -Wall -O2
 
+executable bench-tpch
+  default-language:    Haskell2010
+  main-is:             bench/BenchTPCH.hs
+  build-depends:       base,
+                       containers,
+                       mwc-random,
+                       vector,
+                       cassava,
+                       bytestring,
+                       time,
+                       text,
+                       Decimal,
+                       semigroups,
+                       criterion,
+                       HDBC,
+                       HDBC-odbc,
+                       deepseq,
+                       DSH,
+                       dsh-sql,
+                       dsh-example-queries
+  ghc-options:         -Wall -O2
+
 
 source-repository head
     type:     git
