@@ -18,8 +18,9 @@ module Queries.TPCH.Standard.Q12
     , q12aDefault
     ) where
 
-import qualified Data.Time.Calendar as C
+import qualified Data.Time.Calendar          as C
 import           Database.DSH
+import           Queries.TPCH.BuildingBlocks
 import           Schema.TPCH
 
 relevantShippings :: Text -> Text -> Day -> Q [(Text, Text)]
@@ -31,8 +32,7 @@ relevantShippings sm1 sm2 date =
   , l_shipmodeQ l `elem` toQ [sm1, sm2]
   , l_commitdateQ l < l_receiptdateQ l
   , l_shipdateQ l < l_commitdateQ l
-  , l_receiptdateQ l >= toQ date
-  , l_receiptdateQ l < toQ (C.addDays 365 date)
+  , l_receiptdateQ l `inInterval` yearInterval date 1
   ]
 
 -------------------------------------------------------------------------------

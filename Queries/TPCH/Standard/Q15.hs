@@ -25,7 +25,7 @@ import           Schema.TPCH
 revenueInInterval :: Day -> Q [(Integer, Decimal)]
 revenueInInterval startDate =
     groupAggr l_suppkeyQ discPrice sum
-    $ filter (\l -> inInterval (l_shipdateQ l) (intervalFrom startDate 90))
+    $ filter (\l -> inInterval (l_shipdateQ l) (monthInterval startDate 3))
              lineitems
 
 -- | TPC-H Query Q15 with standard validation parameters
@@ -38,9 +38,9 @@ q15 startDate =
     sortWith fst
     [ pair (s_suppkeyQ s)
            (tup4 (s_nameQ s)
-           (s_addressQ s)
-           (s_phoneQ s)
-           total_rev)
+                 (s_addressQ s)
+                 (s_phoneQ s)
+                 total_rev)
     | s <- suppliers
     , (view -> (supplier_no, total_rev)) <- revenueInInterval startDate
     , s_suppkeyQ s == supplier_no

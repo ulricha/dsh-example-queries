@@ -16,8 +16,9 @@ module Queries.TPCH.Standard.Q5
     , q5Default
     ) where
 
-import qualified Data.Time.Calendar as C
+import qualified Data.Time.Calendar          as C
 import           Database.DSH
+import           Queries.TPCH.BuildingBlocks
 import           Schema.TPCH
 
 -- | TPC-H Query Q5 with standard validation parameters
@@ -44,6 +45,5 @@ q5 startDate regionName =
   , s_nationkeyQ s == n_nationkeyQ n
   , n_regionkeyQ n == r_regionkeyQ r
   , r_nameQ r == toQ regionName
-  , o_orderdateQ o >= toQ startDate
-  , o_orderdateQ o < toQ (C.addDays 365 startDate)
+  , o_orderdateQ o `inInterval` yearInterval startDate 1
   ]

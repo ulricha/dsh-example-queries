@@ -13,9 +13,10 @@ module Queries.TPCH.Standard.Q6
     , q6Default
     ) where
 
-import qualified Data.Decimal       as D
-import qualified Data.Time.Calendar as C
+import qualified Data.Decimal                as D
+import qualified Data.Time.Calendar          as C
 import           Database.DSH
+import           Queries.TPCH.BuildingBlocks
 import           Schema.TPCH
 
 -- | TPC-H Query Q6 with standard validation parameters
@@ -31,8 +32,7 @@ q6 :: Day -> Decimal -> Decimal -> Q Decimal
 q6 startDate discount quantity =
   sum [ l_extendedpriceQ l * l_discountQ l
       | l <- lineitems
-      , l_shipdateQ l >= toQ startDate
-      , l_shipdateQ l < toQ (C.addDays 365 startDate)
+      , l_shipdateQ l `inInterval` yearInterval startDate 1
       , between (l_discountQ l) lowerDiscount upperDiscount
       , l_quantityQ l < toQ quantity
       ]

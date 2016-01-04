@@ -7,6 +7,8 @@ module Queries.TPCH.BuildingBlocks
       Interval(..)
     , inInterval
     , intervalFrom
+    , monthInterval
+    , yearInterval
       -- * Various predicates and filters
     , custFromNation
     , supplierFromNation
@@ -43,6 +45,12 @@ inInterval d interval = d >= toQ (iv_start interval) && d < toQ (iv_end interval
 
 intervalFrom :: Day -> Integer -> Interval
 intervalFrom d len = Interval d (C.addDays len d)
+
+monthInterval :: Day -> Integer -> Interval
+monthInterval d months = Interval d (C.addGregorianMonthsRollOver months d)
+
+yearInterval :: Day -> Integer -> Interval
+yearInterval d years = Interval d (C.addGregorianYearsRollOver years d)
 
 --------------------------------------------------------------------------------
 -- Various predicates and filters

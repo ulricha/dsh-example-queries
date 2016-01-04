@@ -64,4 +64,4 @@ q20 color startDate nationName =
     , n_nameQ n == toQ nationName
     ]
   where
-    interval = Interval startDate (C.addDays 365 startDate)
+    interval = yearInterval startDate 1
