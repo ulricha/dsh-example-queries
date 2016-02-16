@@ -122,10 +122,10 @@ debugAll c = do
     debugQ "q15" c q15Default
 
     putStrLn "Q16"
-    debugQ "q16" c q16
+    debugQ "q16" c q16Default
 
     putStrLn "Q17"
-    debugQ "q17" c q17
+    debugQ "q17" c q17Default
 
     putStrLn "Q18"
     debugQ "q18" c q18Default
