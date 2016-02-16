@@ -4,9 +4,9 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE RebindableSyntax      #-}
-{-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
+{-# LANGUAGE ViewPatterns          #-}
 
 -- TPC-H Q10
 
@@ -45,12 +45,14 @@ q10_join startDate =
     interval = Interval startDate (C.addGregorianMonthsRollOver 3 startDate)
 
 -- | TPC-H Query Q10 with standard validation parameters
-q10Default :: Q [((Integer, Text, Decimal, Text, Text, Text, Text), Decimal)]
+q10Default :: Q [(Integer, Text, Decimal, Decimal, Text, Text, Text, Text)]
 q10Default = q10 (C.fromGregorian 1993 10 1)
 
 -- | TPC-H Query Q10
-q10 :: Day -> Q [((Integer, Text, Decimal, Text, Text, Text, Text), Decimal)]
+q10 :: Day -> Q [(Integer, Text, Decimal, Decimal, Text, Text, Text, Text)]
 q10 startDate =
     take 20
-    $ sortWith ((* (-1)) . snd)
-    $ groupAggr fst snd sum (q10_join startDate)
+    [ tup8 ck cn r ca nn cad cp cc
+    | (view -> (k, r)) <- sortWith ((* (-1)) . snd) $ groupAggr fst snd sum (q10_join startDate)
+    , let (view -> (ck, cn, ca, cp, nn, cad, cc)) = k
+    ]
