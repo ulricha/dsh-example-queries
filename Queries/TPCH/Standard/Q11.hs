@@ -58,6 +58,7 @@ q11Default = q11 "GERMANY" 0.0001
 -- | TPC-H Query Q11
 q11 :: Text -> Decimal -> Q [(Integer, Decimal)]
 q11 nationName fraction =
+  sortWith ((* (-1)) . snd)
   [ pair k (partValue g)
   | (view -> (k, g)) <- groupWithKey fst3 (nationPartsValues nationName)
   , partValue g > (totalValue fraction)
