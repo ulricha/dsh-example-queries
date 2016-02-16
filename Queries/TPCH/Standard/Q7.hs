@@ -4,7 +4,6 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE RebindableSyntax      #-}
-{-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE UndecidableInstances  #-}
 {-# LANGUAGE ViewPatterns          #-}
@@ -52,10 +51,9 @@ revenueBetweenNations :: Text -> Text -> Q [((Text, Text, Integer), Decimal)]
 revenueBetweenNations nationName1 nationName2 =
     [ tup2 (tup3 n1 n2 (dateYear $ l_shipdateQ l)) (discPrice l)
     | (view -> (_, l, n1, n2)) <- binationalOrderItems nationName1 nationName2
-    , inInterval (l_shipdateQ l) interval
+    , l_shipdateQ l >= toQ (C.fromGregorian 1995 1 1)
+    , l_shipdateQ l <= toQ (C.fromGregorian 1996 12 31)
     ]
-  where
-    interval = Interval (C.fromGregorian 1995 1 1) (C.fromGregorian 1996 12 31)
 
 -- | Compute suppliers of orders where the customer is located in a
 -- given country and the part supplier is located in another given
