@@ -43,7 +43,7 @@ q1 delta = sortWith fst $
       ]
 
   where
-    maxDate = subDays (toQ delta) (toQ $ C.fromGregorian 1998 12 1)
+    maxDate = toQ $ C.addDays (-90) (C.fromGregorian 1998 12 1)
 
 -- | Q1 with standard validation parameters
 q1Default :: Q [((Text, Text), PricingTotals)]
