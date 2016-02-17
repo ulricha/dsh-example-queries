@@ -28,15 +28,21 @@ colorParts color = [ p_partkeyQ p
                    , p_nameQ p `like` (toQ $ T.append color "%")
                    ]
 
+-- | Quantities sold for a given part by a given supplier in a year.
+stockQuantities :: Interval -> Q PartSupp -> Q [Decimal]
+stockQuantities interval ps =
+    [ l_quantityQ l
+    | l <- lineitems
+    , l_partkeyQ l == ps_partkeyQ ps
+    , l_suppkeyQ l == ps_suppkeyQ ps
+    , l_shipdateQ l `inInterval` interval
+    ]
+
 -- | Having more than 50% of the volume sold in a given time interval
 -- in stock for a given part is considered excessive.
-excessBoundary :: Interval -> Q Integer -> Q Decimal
-excessBoundary interval partkey =
-    0.5 * sum [ l_quantityQ l
-              | l <- lineitems
-              , l_partkeyQ l == partkey
-              , l_shipdateQ l `inInterval` interval
-              ]
+excessBoundary :: Interval -> Q PartSupp -> Q Decimal
+excessBoundary interval ps =
+    0.5 * sum (stockQuantities interval ps)
 
 -- | Compute suppliers who have an excess stock for parts of a given
 -- color.
@@ -45,7 +51,8 @@ excessSuppliers color interval =
     [ ps_suppkeyQ ps
     | ps <- partsupps
     , ps_partkeyQ ps `elem` colorParts color
-    , integerToDecimal (ps_availqtyQ ps) > excessBoundary interval (ps_partkeyQ ps)
+    , not $ null $ stockQuantities interval ps
+    , integerToDecimal (ps_availqtyQ ps) > excessBoundary interval ps
     ]
 
 -- | TPC-H Query Q20 with standard validation parameters
