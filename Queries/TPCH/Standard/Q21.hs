@@ -71,6 +71,7 @@ q21c nationName =
 -- | TPC-H Q21 (explicit universal and existential quantifiers)
 q21a :: Text -> Q [(Text, Integer)]
 q21a nationName =
+  take 100 $
   sortWith (\(view -> (name, nw)) -> pair (-1 * nw) name) $
   groupAggr id id length
   [ s_nameQ s
