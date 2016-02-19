@@ -3,4 +3,4 @@ FILE=$2
 
 LOADCMD="COPY trades FROM '${FILE}' CSV DELIMITER ','"
 echo ${LOADCMD}
-echo ${LOADCMD} | psql ${PG_DB}
+echo ${LOADCMD} | psql -h /tmp -p 7483 ${PG_DB}
