@@ -120,8 +120,8 @@ cheaperSuppliersInRegion regionName =
     , s_acctbalQ s < 0
     ]
 
--- | For each supplier with a below-average account balance from a certain region,
--- compute for each supplied part the suppliers that are cheaper.
+-- | For each supplier from a certain region with a below-average account
+-- balance, compute for each supplied part the suppliers that are cheaper.
 cheaperSuppliersInRegionAvg :: Text -> Q [(Text, [(Text, Decimal, [(Text, Decimal)])])]
 cheaperSuppliersInRegionAvg regionName =
     [ tup2 (s_nameQ s)
@@ -140,6 +140,28 @@ cheaperSuppliersInRegionAvg regionName =
                          | s' <- suppliers
                          , s_nationkeyQ s' `fromRegion` regionName
                          ]
+    ]
+
+-- | For each supplier from a certain region, compute for each supplied part the
+-- suppliers that are cheaper and have a below-average account balance.
+cheaperSuppliersInRegionAvg2 :: Text -> Q [(Text, [(Text, Decimal, [(Text, Decimal)])])]
+cheaperSuppliersInRegionAvg2 regionName =
+    [ tup2 (s_nameQ s)
+           [ tup3 (p_nameQ p) (ps_supplycostQ ps)
+                  [ tup2 (s_nameQ s') (ps_supplycostQ ps')
+                  | (view -> (s', ps')) <- partSuppliers p
+                  , s_nationkeyQ s' `fromRegion` regionName
+                  , s_suppkeyQ s' /= s_suppkeyQ s
+                  , ps_supplycostQ ps' < ps_supplycostQ ps
+                  , s_acctbalQ s' < avg [ s_acctbalQ s''
+                                       | s'' <- suppliers
+                                       , s_nationkeyQ s'' `fromRegion` regionName
+                                       ]
+                  ]
+           | (view -> (p, ps)) <- supplierParts s
+           ]
+    | s <- suppliers
+    , s_nationkeyQ s `fromRegion` regionName
     ]
 
 -- For each nation in a region, compute for each part the cheapest supplier
