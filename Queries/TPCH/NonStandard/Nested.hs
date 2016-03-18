@@ -63,6 +63,15 @@ shippingDelay =
     | o <- orders
     ]
 
+shippingDelayAvg :: Q [(Integer, [Decimal])]
+shippingDelayAvg =
+    [ tup2 (o_orderkeyQ o)
+          (map l_quantityQ $ sortWith ((`diffDays` o_orderdateQ o). l_shipdateQ)ls)
+    | o <- orders
+    , let ls = orderItems o
+    , 5 < avg [ integerToDouble $ diffDays (l_shipdateQ l) (o_orderdateQ o) | l <- ls ]
+    ]
+
 -- | Compute shipping delays (same as in the running example) for all orders
 -- from a time interval.
 shippingDelayInterval :: Q [(Integer, [Decimal], Double)]
