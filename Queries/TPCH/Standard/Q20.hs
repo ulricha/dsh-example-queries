@@ -51,6 +51,15 @@ excessSuppliers color interval =
     [ ps_suppkeyQ ps
     | ps <- partsupps
     , ps_partkeyQ ps `elem` colorParts color
+    -- The SQL version of Q20 implicitly selects only those suppliers that do
+    -- actually ship the part in the sepcified interval. For suppliers which
+    -- don't supply in this interval, the correlated subquery will return NULL
+    -- (SUM returns NULL on an empty input) and the predicate will fail. For the
+    -- DSH 'sum' aggregate, we take care to preserve the (reasonable) behaviour
+    -- of the regular Haskell 'sum' combinator: For an empty input, we get 0.
+    -- However, for Q20 this means that the predicate will evaluate to true for
+    -- suppliers which do not supply in the interval. To simulate the SQL
+    -- behaviour, we explicitly exclude all suppliers that do not supply.
     , not $ null $ stockQuantities interval ps
     , integerToDecimal (ps_availqtyQ ps) > excessBoundary interval ps
     ]
