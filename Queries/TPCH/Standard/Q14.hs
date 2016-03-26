@@ -49,7 +49,7 @@ itemPrices startDate =
 -- Literal transcription of the TPC-H benchmark query
 
 q14 :: Day -> Q Decimal
-q14 startDate = 100.0 * promoRev / totalRev
+q14 startDate = 100.0 * (promoRev / totalRev)
   where
 
     promoRev = sum [ if ty `like` "PROMO%"
@@ -66,7 +66,7 @@ q14 startDate = 100.0 * promoRev / totalRev
 -- predicate can be pushed to an index.
 
 q14a :: Day -> Q Decimal
-q14a startDate = 100.0 * promoRev / totalRev
+q14a startDate = 100.0 * (promoRev / totalRev)
   where
     promoRev = sum [ discPrice l
                    | (view -> (ty, l)) <- itemPrices startDate
