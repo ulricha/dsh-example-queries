@@ -84,8 +84,6 @@ smPred' brand1 quantity1 p l =
   && (l_quantityQ l >= toQ quantity1)
   && (l_quantityQ l <= toQ quantity1 + 10)
   && (between (p_sizeQ p) 1 5)
-  && (l_shipmodeQ l `elem` toQ ["AIR", "AIR REG"])
-  && (l_shipinstructQ l == "DELIVER IN PERSON")
 
 medPred' :: Text -> Decimal -> Q Part -> Q LineItem -> Q Bool
 medPred' brand2 quantity2 p l =
@@ -94,8 +92,6 @@ medPred' brand2 quantity2 p l =
   && l_quantityQ l >= toQ quantity2
   && l_quantityQ l<= toQ quantity2 + 10
   && between (p_sizeQ p) 1 10
-  && l_shipmodeQ l `elem` toQ ["AIR", "AIR REG"]
-  && l_shipinstructQ l == "DELIVER IN PERSON"
 
 lgPred' :: Text -> Decimal -> Q Part -> Q LineItem -> Q Bool
 lgPred' brand3 quantity3 p l =
@@ -104,8 +100,6 @@ lgPred' brand3 quantity3 p l =
   && l_quantityQ l >= toQ quantity3
   && l_quantityQ l<= toQ quantity3 + 10
   && between (p_sizeQ p) 1 15
-  && l_shipmodeQ l `elem` toQ ["AIR", "AIR REG"]
-  && l_shipinstructQ l == "DELIVER IN PERSON"
 
 -- | TPC-H Query Q19 (alternative version) with standard validation
 -- parameters
@@ -122,6 +116,8 @@ q19 quantity1 quantity2 quantity3 brand1 brand2 brand3 =
       | l <- lineitems
       , p <- parts
       , p_partkeyQ p == l_partkeyQ l
+      , l_shipmodeQ l `elem` toQ ["AIR", "AIR REG"]
+      , l_shipinstructQ l == "DELIVER IN PERSON"
       , smPred' brand1 quantity1 p l
         || medPred' brand2 quantity2 p l
         || lgPred' brand3 quantity3 p l
