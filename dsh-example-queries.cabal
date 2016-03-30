@@ -71,7 +71,7 @@ library
                        semigroups
   -- hs-source-dirs:
   default-language:    Haskell2010
-  ghc-options:         -Wall -fno-warn-orphans -O2 -fprof-auto -auto-all
+  ghc-options:         -Wall -fno-warn-orphans
 
 executable gen-organisation
   default-language: Haskell2010
