@@ -56,11 +56,14 @@ library
 
                        Queries.TPCH.NonStandard.Nested
                        Queries.TPCH.NonStandard.TopK
+                       Queries.TPCH.NonStandard.Flat
 
                        Queries.Shredding.BuildingBlocks
 
                        Queries.AQuery.Trades
                        Queries.AQuery.Packets
+
+                       Queries.Simple.Index
 
   other-extensions:    TemplateHaskell
   build-depends:       base,

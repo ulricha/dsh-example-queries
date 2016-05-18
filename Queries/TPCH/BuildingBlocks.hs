@@ -12,10 +12,12 @@ module Queries.TPCH.BuildingBlocks
       -- * Various predicates and filters
     , custFromNation
     , supplierFromNation
+    , supplierFromNations
     , ordersWithStatus
     , customersFrom
     , orderedBy
     , fromRegion
+    , inRegion
       -- * One-to-many relationships along foreign keys
     , custOrders
     , orderItems
@@ -70,9 +72,13 @@ custFromNation c nn =
 -- | Does the supplier originate from the given nation?
 supplierFromNation :: Text -> Q Supplier -> Q Bool
 supplierFromNation nn s =
-    or [ n_nameQ n == toQ nn && n_nationkeyQ n == s_nationkeyQ s
+    or [ n_nameQ n == toQ nn
        | n <- nations
+       , n_nationkeyQ n == s_nationkeyQ s
        ]
+
+supplierFromNations :: Q [Nation] -> Q Supplier -> Q Bool
+supplierFromNations ns s = any (\n -> n_nationkeyQ n == s_nationkeyQ s) ns
 
 -- | Return all customers from a list of (phone) country codes
 customersFrom :: [Text] -> Q [Customer]
@@ -92,6 +98,11 @@ fromRegion nationKey regionName =
        , r_nameQ r == toQ regionName
        , n <- regionNations r
        ]
+
+inRegion :: Q Nation -> Text -> Q Bool
+inRegion n rn = or [ n_regionkeyQ n == r_regionkeyQ r
+                   | r <- regions, r_nameQ r == toQ rn
+                   ]
 
 --------------------------------------------------------------------------------
 -- One-to-many relationships along foreign keys

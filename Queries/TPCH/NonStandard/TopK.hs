@@ -21,6 +21,16 @@ topCustAcct n k =
 
 -- | Task: For each customer from some nation, compute the k orders with the
 -- most lineitems.
+topOrdersPerCustPrice :: Text -> Integer -> Q [(Text, [Order])]
+topOrdersPerCustPrice n k =
+    [ tup2 (c_nameQ c) (topK k o_totalpriceQ (custOrders c))
+    | c <- customers
+    , c `custFromNation` n
+    , c_custkeyQ c `elem` [ o_custkeyQ o | o <- orders ]
+    ]
+
+-- | Task: For each customer from some nation, compute the k orders with the
+-- most lineitems.
 topOrdersPerCust :: Text -> Integer -> Q [(Text, [Order])]
 topOrdersPerCust n k =
     [ tup2 (c_nameQ c) (topK k (length . orderItems) (custOrders c))
@@ -72,4 +82,17 @@ regionsTopCustomers rn k =
     | r <- regions
     , r_nameQ r == toQ rn
     , n <- regionNations r
+    ]
+
+-- | Compute all parts for which the 5 cheapest suppliers are from a given
+-- nation.
+cheapestSuppliersFrom :: Text -> Q [Part]
+cheapestSuppliersFrom nationName =
+    [ p
+    | p <- parts
+    , all (supplierFromNation nationName . fst)
+          $ take 5
+          $ reverse
+          $ sortWith (ps_supplycostQ . snd)
+          $ partSuppliers p
     ]
