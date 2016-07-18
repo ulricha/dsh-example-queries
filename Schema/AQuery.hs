@@ -11,9 +11,6 @@ import qualified Prelude            as P
 
 import           Database.DSH
 
-sng :: a -> NonEmpty a
-sng = P.return
-
 data Trade = Trade
     { t_amount    :: Double
     , t_price     :: Double
@@ -43,12 +40,12 @@ trades = table "trades"
                 , "tid"
                 , "ts"
                 , "tradeDate"])
-               (TableHints (sng $ Key ("tid" :| ["ts"])) NonEmpty)
+               (TableHints (pure $ Key ("tid" :| ["ts"])) NonEmpty)
 
 portfolios :: Q [Portfolio]
 portfolios = table "portfolio"
                    ("po_pid" :| ["po_tid", "po_tradedSince"])
-                   (TableHints (sng $ Key (sng "po_pid")) NonEmpty)
+                   (TableHints (pure $ Key (pure "po_pid")) NonEmpty)
 
 data Packet = Packet
     { p_dest :: Integer
@@ -70,4 +67,4 @@ packets = table "packets"
                  , "src"
                  , "ts"
                  ])
-                (TableHints (sng $ Key (sng "pid")) NonEmpty)
+                (TableHints (pure $ Key (pure "pid")) NonEmpty)

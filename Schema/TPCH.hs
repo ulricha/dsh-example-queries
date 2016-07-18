@@ -13,9 +13,6 @@ import qualified Prelude as P
 import Database.DSH
 import Data.List.NonEmpty
 
-sng :: a -> NonEmpty a
-sng = P.return
-
 -- primary key: l_orderkey, l_linenumber
 data LineItem = LineItem
     { l_comment       :: Text
@@ -153,7 +150,7 @@ parts = table "part" ( "p_brand" :|
                      , "p_size"
                      , "p_type"
                      ])
-                     (TableHints (sng $ Key (sng "p_partkey") ) NonEmpty)
+                     (TableHints (pure $ Key (pure "p_partkey") ) NonEmpty)
 
 suppliers :: Q [Supplier]
 suppliers = table "supplier"
@@ -165,7 +162,7 @@ suppliers = table "supplier"
                   , "s_phone"
                   , "s_suppkey"
                   ])
-                  (TableHints ( sng $  Key (sng "s_suppkey") ) NonEmpty)
+                  (TableHints ( pure $  Key (pure "s_suppkey") ) NonEmpty)
 
 partsupps :: Q [PartSupp]
 partsupps = table "partsupp"
@@ -175,7 +172,7 @@ partsupps = table "partsupp"
                   , "ps_suppkey"
                   , "ps_supplycost"
                   ])
-                  (TableHints (sng $ Key ("ps_partkey" :| ["ps_suppkey"])) NonEmpty)
+                  (TableHints (pure $ Key ("ps_partkey" :| ["ps_suppkey"])) NonEmpty)
 
 nations :: Q [Nation]
 nations = table "nation"
@@ -184,7 +181,7 @@ nations = table "nation"
                 , "n_nationkey"
                 , "n_regionkey"
                 ])
-                (TableHints (sng $ Key (sng "n_nationkey")) NonEmpty)
+                (TableHints (pure $ Key (pure "n_nationkey")) NonEmpty)
 
 regions :: Q [Region]
 regions = table "region"
@@ -192,7 +189,7 @@ regions = table "region"
                 [ "r_name"
                 , "r_regionkey"
                 ])
-                (TableHints (sng $ Key (sng "r_regionkey")) NonEmpty)
+                (TableHints (pure $ Key (pure "r_regionkey")) NonEmpty)
 
 orders :: Q [Order]
 orders = table "orders"
@@ -206,7 +203,7 @@ orders = table "orders"
                , "o_shippriority"
                , "o_totalprice"
                ])
-               (TableHints (sng $ Key (sng "o_orderkey")) NonEmpty)
+               (TableHints (pure $ Key (pure "o_orderkey")) NonEmpty)
 
 lineitems :: Q [LineItem]
 lineitems = table "lineitem"
@@ -227,7 +224,7 @@ lineitems = table "lineitem"
                   , "l_suppkey"
                   , "l_tax"
                   ])
-                  (TableHints (sng $ Key ("l_orderkey" :| ["l_linenumber"])) NonEmpty)
+                  (TableHints (pure $ Key ("l_orderkey" :| ["l_linenumber"])) NonEmpty)
 
 customers :: Q [Customer]
 customers = table "customer"
@@ -240,7 +237,7 @@ customers = table "customer"
                   , "c_nationkey"
                   , "c_phone"
                   ])
-                  (TableHints (sng $ Key (sng "c_custkey")) NonEmpty)
+                  (TableHints (pure $ Key (pure "c_custkey")) NonEmpty)
 
 
 
