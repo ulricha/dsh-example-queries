@@ -19,6 +19,7 @@ description:
   * Nested and other non-standard queries over the TPC-H schema
   * Example queries from the /AQuery/ paper by Lerner and Shasha (Proc. VLDB 1999)
   * Benchmark queries from the /Query Shredding/ paper by Lindley et al. (Proc. SIGMOD 2014)
+  * A set of examples used for the demo session at SIGMOD 15.
 
 library
   exposed-modules:     Queries.TPCH.Standard
@@ -26,6 +27,7 @@ library
                        Queries.TPCH.BuildingBlocks
                        Queries.AQuery
                        Queries.Shredding.Paper
+                       Queries.SIGMOD
 
                        Schema.TPCH
                        Schema.Shredding
@@ -62,6 +64,11 @@ library
 
                        Queries.AQuery.Trades
                        Queries.AQuery.Packets
+
+                       Queries.SIGMOD.Nested
+                       Queries.SIGMOD.Simple
+                       Queries.SIGMOD.Order
+                       Queries.SIGMOD.Layered
 
                        Queries.Simple.Index
 

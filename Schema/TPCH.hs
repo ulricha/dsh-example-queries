@@ -8,8 +8,6 @@
 
 module Schema.TPCH where
 
-import qualified Prelude as P
-
 import Database.DSH
 import Data.List.NonEmpty
 

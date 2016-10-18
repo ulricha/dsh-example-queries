@@ -26,9 +26,6 @@ module Queries.TPCH.Standard
     , module Queries.TPCH.Standard.Q22
     ) where
 
-import Database.DSH.Compiler
-import Database.DSH.Backend
-
 import Queries.TPCH.Standard.Q1
 import Queries.TPCH.Standard.Q2
 import Queries.TPCH.Standard.Q3

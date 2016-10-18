@@ -59,7 +59,7 @@ margins :: (Ord a, Num (Q a), QA a, TA a) => Q [a] -> Q [a]
 margins xs = [ x - y | (view -> (x,y)) <- zip xs (mins xs) ]
 
 -- | Our profit is the maximum margin obtainable
-profit :: (Ord a, Num a, Num (Q a), QA a, TA a) => Q [a] -> Q a
+profit :: (Ord a, Num (Q a), QA a, TA a) => Q [a] -> Q a
 profit xs = maximum (margins xs)
 
 -- | Pest profit obtainable for stock on given date

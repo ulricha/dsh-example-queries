@@ -7,7 +7,6 @@
 module Schema.AQuery where
 
 import           Data.List.NonEmpty (NonEmpty ((:|)))
-import qualified Prelude            as P
 
 import           Database.DSH
 
