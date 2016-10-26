@@ -18,7 +18,7 @@ import           Schema.TPCH
 --------------------------------------------------------------------------------
 -- Comprehensions
 
--- TPC-H customers (in some list order)
+-- TPC-H customers (in primary key order)
 map1 :: Q [Customer]
 map1 = customers
 

@@ -6,8 +6,9 @@
 -- | Queries with nested results over the TPC-H schema.
 module Queries.TPCH.NonStandard.Flat where
 
-import qualified Data.Time.Calendar          as C
-import           Data.List.NonEmpty(NonEmpty((:|)))
+import           Data.Time.Calendar
+
+import           Data.List.NonEmpty          (NonEmpty ((:|)))
 
 import           Database.DSH
 import           Queries.TPCH.BuildingBlocks
@@ -229,3 +230,85 @@ indirectCrossLevelCorrEasy =
 --------------------------------------------------------------------------------
 
 
+foo :: Q [((Integer, [Integer]), (Integer, [Integer]))]
+foo = [ tup2 u v | u <- us, v <- vs, fst u == fst v ]
+  where
+    us = toQ [(1,[1..5]), (2, [3..6]),(3,[8..12])]
+    vs = toQ [(2,[1..5]), (3, [3..6]), (5,[6..9])]
+
+q = take 10 $ filter ((> 42) . length . snd) $ groupWithKey p_typeQ parts
+
+topKs :: Q [[Integer]]
+topKs = [ take k xs | k <- ks ]
+  where
+    xs = toQ [1..10]
+    ks = toQ [3..7]
+
+topKss :: Q [[[Integer]]]
+topKss = [ [ take k xs | k <- ks ] | ks <- map snd kss ]
+  where
+    xs = toQ [1..10]
+    kss = toQ [('a', [1..3]), ('b', [2..5])]
+
+takedrop :: Q [[Integer]]
+takedrop = [ take k2 $ drop k1 xs | (view -> (k1, k2)) <- ks]
+  where
+    xs = toQ [1..10]
+    ks = toQ ([(3,5),(2,4),(8,1)] :: [(Integer, Integer)])
+
+
+--------------------------------------------------------------------------------
+
+broken :: Q [(Integer, Integer)]
+broken = [ pair x y | x <- toQ [0,0], y <- toQ [0,1] ]
+
+broken' :: Q [(Integer, Integer)]
+broken' = [ pair x y | x <- fst args, y <- snd args ]
+  where
+    args = toQ ([0,0],[0,1])
+
+broken3 :: Q [(Integer, Integer, Integer)]
+broken3 =
+    [ tup3 x
+           (sum [ 2 * y | y <- njys, x == y ])
+           (length [ y | y <- njys, x == y ])
+    | x <- njxs
+    , 20 < sum [ 3 + y | y <- njys, x == y ]
+    ]
+  where
+    (view -> (njxs, njys)) = toQ ([1], [-2])
+
+--------------------------------------------------------------------------------
+-- Moritz
+
+nestedCartProd :: Q [(Integer, [Decimal])]
+nestedCartProd =
+    zipWith f xs xs
+  where
+    xs :: Q [(Integer, [Decimal])]
+    xs = [ tup2 (o_orderkeyQ o) [ l_discountQ l
+                                | l <- lineitems
+                                , l_shipdateQ l > toQ date
+                                , l_orderkeyQ l == o_orderkeyQ o
+                                ]
+         | o <- orders
+         ]
+    date = fromGregorian 1997 1 1
+
+    f :: Q (Integer, [Decimal]) -> Q (Integer, [Decimal]) -> Q (Integer, [Decimal])
+    f (view -> (o, as)) (view -> (_, bs)) = tup2 o
+        [ a - b
+        | a <- as
+        , b <- bs
+        ]
+
+nestedAppendEx1 :: Q [Decimal]
+nestedAppendEx1 = filter (> 90) $ map sum
+                                $ zipWith3 (\a b c -> a ++ b ++ c) xs xs' xs''
+  where
+    xs   = [ singleton (l_quantityQ li)
+           | li <- lineitems
+           , l_quantityQ li > 30
+           ]
+    xs'  = tail xs
+    xs'' = tail xs'
