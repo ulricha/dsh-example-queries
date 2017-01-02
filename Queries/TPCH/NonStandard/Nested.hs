@@ -63,13 +63,20 @@ shippingDelay =
     | o <- orders
     ]
 
-shippingDelayAvg :: Q [(Integer, [(Integer, Day)])]
-shippingDelayAvg =
+shippingDelaySimple :: Q [(Integer, [LineItem])]
+shippingDelaySimple =
     [ tup2 (o_orderkeyQ o)
-           [ tup2 (l_linenumberQ l) (l_shipdateQ l ) | l <- sortWith ((`diffDays` o_orderdateQ o) . l_shipdateQ) ls ]
+           (sortWith ((`diffDays` o_orderdateQ o) . l_shipdateQ) ls)
     | o <- orders
     , let ls = orderItems o
-    , 5 < avg [ integerToDouble $ diffDays (l_shipdateQ l) (o_orderdateQ o) | l <- ls ]
+    ]
+
+shippingDelayAvg :: Q [Order]
+shippingDelayAvg =
+    [ o
+    | o <- orders
+    , let ls = orderItems o
+    , 5 < avg [ l_quantityQ l | l <- ls ]
     ]
 
 -- | Compute shipping delays (same as in the running example) for all orders
