@@ -3,7 +3,7 @@ module Main where
 
 import           Control.Monad
 import qualified Data.ByteString.Lazy  as B
-import           Data.Csv
+import qualified Data.Csv              as C
 import qualified Data.Foldable         as F
 import           Data.Sequence         (Seq, (<|))
 import qualified Data.Sequence         as Seq
@@ -29,8 +29,8 @@ instance Enum Day where
     toEnum n = Day $ toEnum n
     fromEnum (Day d) = fromEnum d
 
-instance ToField Day where
-    toField (Day d) = toField $ C.showGregorian d
+instance C.ToField Day where
+    toField (Day d) = C.toField $ C.showGregorian d
 
 instance Show Day where
     show (Day d) = show d
@@ -42,9 +42,9 @@ data Trade = Trade
     , t_date  ::  !Day
     }
 
-instance ToRecord Trade where
+instance C.ToRecord Trade where
     toRecord (Trade p sid ts date) =
-        record [ toField p, toField sid, toField ts, toField date ]
+        C.record [ C.toField p, C.toField sid, C.toField ts, C.toField date ]
 
 {-
 
@@ -117,7 +117,7 @@ for each day d:
 -}
 
 writeTrades :: Options -> Seq Trade -> IO ()
-writeTrades opts trades = B.hPut (o_file opts) $ encode $ F.toList trades
+writeTrades opts trades = B.hPut (o_file opts) $ C.encode $ F.toList trades
 
 genTrades :: Options -> IO ()
 genTrades opts = do
