@@ -3,7 +3,7 @@ module Main where
 
 import           Control.Monad
 import qualified Data.ByteString.Lazy  as B
-import           Data.Csv
+import qualified Data.Csv              as C
 import qualified Data.Foldable         as F
 import           Data.IORef
 import           Data.Sequence         (Seq, (<|), (><))
@@ -90,9 +90,10 @@ data Packet  = P
     , p_ts  :: {-# UNPACK #-} !Timestamp
     }
 
-instance ToRecord Packet where
+instance C.ToRecord Packet where
     toRecord (P pid src dst len ts) =
-        record [toField pid, toField src, toField dst, toField len, toField ts ]
+        C.record [ C.toField pid, C.toField src, C.toField dst
+                 , C.toField len, C.toField ts ]
 
 genHosts :: Int -> V.Vector Host
 genHosts n = V.enumFromN 1 n
@@ -120,7 +121,7 @@ genHostPairs opts hosts = do
     lookupHosts (src, dst) = (hosts ! src, hosts ! dst)
 
 writePackets :: Handle -> Seq Packet -> IO ()
-writePackets f ps = B.hPut f $ encode $ F.toList ps
+writePackets f ps = B.hPut f $ C.encode $ F.toList ps
 
 -- | Generate and write out all flows for a given pair of src and
 -- destination hosts

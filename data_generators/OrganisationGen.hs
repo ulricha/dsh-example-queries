@@ -8,7 +8,7 @@ module Main where
 import           Text.Printf
 import           Control.Monad.Reader
 import qualified Data.ByteString.Lazy  as B
-import           Data.Csv
+import qualified Data.Csv              as C
 import qualified Data.Foldable         as F
 import           Data.Vector           ((!))
 import qualified Data.Vector           as V
@@ -20,7 +20,7 @@ import qualified Data.Text as T
 
 newtype Client = Client Bool
 
-instance ToField Client where
+instance C.ToField Client where
     toField (Client True)  = "true"
     toField (Client False) = "false"
 
@@ -82,7 +82,7 @@ writeDepts :: DptGen (V.Vector T.Text)
 writeDepts = do
     dpts <- mkDepts
     f <- printf "departments%d.csv" <$> asks o_dpts
-    lift $ withFile f WriteMode $ \h -> B.hPut h (encode $ V.toList dpts)
+    lift $ withFile f WriteMode $ \h -> B.hPut h (C.encode $ V.toList dpts)
     return $ fmap snd dpts
 
 mkDepts :: DptGen (V.Vector (Key, T.Text))
@@ -112,7 +112,7 @@ writeEmps :: V.Vector T.Text -> DptGen (V.Vector T.Text)
 writeEmps dpts = do
     emps <- mkEmps dpts
     f <- printf "employees%d.csv" <$> asks o_dpts
-    lift $ withFile f WriteMode $ \h -> B.hPut h (encode $ V.toList emps)
+    lift $ withFile f WriteMode $ \h -> B.hPut h (C.encode $ V.toList emps)
     return $ fmap (\(_, _, n, _) -> n) emps
 
 writeTasks :: V.Vector T.Text -> DptGen ()
@@ -120,7 +120,7 @@ writeTasks emps = do
     tasks <- mapM mkTasks $ V.toList emps
     keyedTasks <-sequence $ zipWith ($) (concat tasks) [1..]
     f <- printf "tasks%d.csv" <$> asks o_dpts
-    lift $ withFile f WriteMode $ \h -> B.hPut h (encode keyedTasks)
+    lift $ withFile f WriteMode $ \h -> B.hPut h (C.encode keyedTasks)
 
 -- | Generate between one to four tasks for one employee
 mkTasks :: T.Text -> DptGen [Key -> DptGen (Key, T.Text, T.Text)]
@@ -149,7 +149,7 @@ writeContacts dpts = do
 mkContacts :: Int -> V.Vector T.Text -> Handle -> DptGen ()
 mkContacts k dpts h = do
     cs <- forM [(k::Int)+1..k+1000] (mkContact dpts)
-    lift $ B.hPut h (encode cs)
+    lift $ B.hPut h (C.encode cs)
 
 mkContact :: V.Vector T.Text -> Key -> DptGen (Key, T.Text, T.Text, Client)
 mkContact dpts k = do
